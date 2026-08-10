@@ -7,8 +7,9 @@ import InmoOps from "./InmoOps.jsx";
 import AutoOps from "./AutoOps.jsx";
 import ClubOps from "./ClubOps.jsx";
 import RestaurantOps from "./RestaurantOps.jsx";
+import DistribuidoraOps from "./DistribuidoraOps.jsx";
 
-const BUILTIN_PAGES = { inmo: InmoOps, auto: AutoOps, club: ClubOps, restaurant: RestaurantOps };
+const BUILTIN_PAGES = { inmo: InmoOps, auto: AutoOps, club: ClubOps, restaurant: RestaurantOps, distribuidora: DistribuidoraOps };
 
 export default function UserApp() {
   const { productId } = useParams();

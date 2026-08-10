@@ -1,7 +1,8 @@
-// Catálogo de las 8 "latas" de Enlata2. INMO OPS, CLUB OPS, AUTO OPS y
-// RESTAURANT OPS tienen dashboard a medida (src/pages/InmoOps.jsx, ClubOps.jsx,
-// AutoOps.jsx, RestaurantOps.jsx); las otras 4 corren sobre el motor genérico
-// (src/lib/GenericOps.jsx) a partir de su lista de `modules`.
+// Catálogo de las 8 "latas" de Enlata2. INMO OPS, DISTRIBUIDORA OPS, AUTO OPS,
+// CLUB OPS y RESTAURANT OPS tienen dashboard a medida (src/pages/InmoOps.jsx,
+// DistribuidoraOps.jsx, AutoOps.jsx, ClubOps.jsx, RestaurantOps.jsx); las
+// otras 3 corren sobre el motor genérico (src/lib/GenericOps.jsx) a partir de
+// su lista de `modules`.
 
 export const PRODUCTS = [
   {
@@ -51,45 +52,7 @@ export const PRODUCTS = [
   { id: "club", name: "CLUB OPS", num: "03", rubro: "Clubes y asociaciones", builtin: true },
   { id: "auto", name: "AUTO OPS", num: "04", rubro: "Concesionarias", builtin: true },
   { id: "restaurant", name: "RESTAURANT OPS", num: "05", rubro: "Gastronomía", builtin: true },
-  {
-    id: "barber", name: "BARBER OPS", num: "06", rubro: "Barberías", currency: "ars",
-    modules: [
-      {
-        id: "turnos", label: "Turnos", icon: "▧", countLabel: "agendados", addLabel: "Agendar turno",
-        emptyText: "No hay turnos agendados.", addedMsg: "Turno agendado",
-        titleField: "client", tagFields: ["service"], subtitleFields: ["barber", "date", "time"],
-        fields: [
-          { key: "client", label: "Cliente", type: "text", required: true, placeholder: "Juan Pérez" },
-          { key: "service", label: "Servicio", type: "select", options: ["Corte", "Barba", "Corte + Barba", "Color"] },
-          { key: "barber", label: "Barbero", type: "text", placeholder: "Nico" },
-          { key: "date", label: "Fecha", type: "date" },
-          { key: "time", label: "Hora", type: "time" },
-        ],
-      },
-      {
-        id: "clientes", label: "Clientes", icon: "●", countLabel: "contactos", addLabel: "Nuevo cliente",
-        emptyText: "Todavía no cargaste clientes.", addedMsg: "Cliente agregado",
-        titleField: "name", subtitleFields: ["phone", "notes"],
-        fields: [
-          { key: "name", label: "Nombre", type: "text", required: true, placeholder: "Juan Pérez" },
-          { key: "phone", label: "Teléfono", type: "text", required: true, placeholder: "+54 9 261 555 0100" },
-          { key: "notes", label: "Notas", type: "text", placeholder: "Prefiere máquina 2" },
-        ],
-      },
-      { id: "cash", label: "Caja", icon: "$", type: "cash" },
-      {
-        id: "productos", label: "Productos", icon: "▦", countLabel: "productos", addLabel: "Nuevo producto",
-        emptyText: "Todavía no cargaste productos.", addedMsg: "Producto agregado",
-        titleField: "name", amountField: "price", tagFields: ["category"], subtitleFields: ["stock"],
-        fields: [
-          { key: "name", label: "Producto", type: "text", required: true, placeholder: "Cera mate" },
-          { key: "category", label: "Categoría", type: "text", placeholder: "Styling" },
-          { key: "price", label: "Precio", type: "number", required: true, placeholder: "5000" },
-          { key: "stock", label: "Stock", type: "number", placeholder: "10" },
-        ],
-      },
-    ],
-  },
+  { id: "distribuidora", name: "DISTRIBUIDORA OPS", num: "06", rubro: "Distribuidoras y mayoristas", builtin: true },
   {
     id: "gym", name: "GYM OPS", num: "07", rubro: "Gimnasios", currency: "ars",
     modules: [
