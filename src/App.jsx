@@ -4,7 +4,8 @@ import MarketingSite from "./pages/MarketingSite.jsx";
 import Checkout from "./pages/Checkout.jsx";
 import Cobros from "./pages/Cobros.jsx";
 import UserApp from "./pages/UserApp.jsx";
-import ConsoleShell from "./layout/ConsoleShell.jsx";
+import AdminShell from "./layout/AdminShell.jsx";
+import AppShell from "./layout/AppShell.jsx";
 import { CARBON } from "./lib/theme.js";
 import { PRODUCTS } from "./config/products.js";
 
@@ -21,9 +22,9 @@ export default function App() {
             </div>
           }
         />
-        <Route path="/admin" element={<ConsoleShell><Cobros /></ConsoleShell>} />
+        <Route path="/admin" element={<AdminShell><Cobros /></AdminShell>} />
         <Route path="/app" element={<Navigate to={`/app/${PRODUCTS[0].id}`} replace />} />
-        <Route path="/app/:productId" element={<ConsoleShell><UserApp /></ConsoleShell>} />
+        <Route path="/app/:productId" element={<AppShell><UserApp /></AppShell>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

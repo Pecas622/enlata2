@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { FONT_IMPORT, CARBON, CARD, CARD2, BORDER, OFFWHITE, GREEN, GRAY } from "../lib/theme.js";
 import { fmtARS as fmtMoneyARS } from "../lib/utils.js";
 import { Btn as SharedBtn, Field as SharedField, Input as SharedInput } from "../lib/ui.jsx";
@@ -67,7 +68,7 @@ export default function App() {
     <div style={{ background: CARBON, minHeight: 640, borderRadius: 12, border: `1px solid ${BORDER}`, padding: "36px 40px" }}>
       <style>{FONT_IMPORT}</style>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 32 }}>
+      <Link to="/" style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 32, textDecoration: "none", width: "fit-content" }}>
         <svg width="26" height="26" viewBox="0 0 100 100" fill="none">
           <rect x="18" y="10" width="64" height="80" rx="20" stroke={GREEN} strokeWidth="6" />
           <rect x="34" y="34" width="32" height="6" rx="3" fill={GREEN} />
@@ -75,7 +76,7 @@ export default function App() {
           <rect x="34" y="60" width="32" height="6" rx="3" fill={GREEN} />
         </svg>
         <div style={{ fontFamily: "Space Grotesk", fontWeight: 800, fontSize: 17, color: OFFWHITE }}>ENLATA<span style={{ color: GREEN }}>2</span></div>
-      </div>
+      </Link>
 
       <Stepper current={step} />
 
