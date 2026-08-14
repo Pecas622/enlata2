@@ -177,8 +177,8 @@ export default function App() {
   return (
     <div style={{ background: CARBON, minHeight: 680, borderRadius: 12, overflow: "hidden", border: `1px solid ${BORDER}` }}>
       <style>{FONT_IMPORT}</style>
-      <div style={{ display: "flex", minHeight: 680 }}>
-        <div style={{ width: 220, background: "#0E0E11", borderRight: `1px solid ${BORDER}`, padding: "20px 14px", display: "flex", flexDirection: "column", gap: 3, overflowY: "auto" }}>
+      <div className="ops-shell" style={{ display: "flex", minHeight: 680 }}>
+        <div className="ops-sidebar" style={{ width: 220, background: "#0E0E11", borderRight: `1px solid ${BORDER}`, padding: "20px 14px", display: "flex", flexDirection: "column", gap: 3, overflowY: "auto" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 8px 16px 8px" }}>
             <div style={{ width: 26, height: 26, borderRadius: 6, background: GREEN, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 13, color: CARBON }}>02</div>
             <div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 15, color: OFFWHITE }}>INMO<span style={{ color: GREEN }}>OPS</span></div>
@@ -191,12 +191,14 @@ export default function App() {
             </Select>
           </div>
 
-          {NAV.map((n) => (
-            <div key={n.id} onClick={() => setPage(n.id)} style={{
-              padding: "9px 10px", borderRadius: 8, cursor: "pointer", fontFamily: "Inter", fontSize: 13, fontWeight: 500,
-              background: page === n.id ? "rgba(184,255,61,0.1)" : "transparent", color: page === n.id ? GREEN : GRAY,
-            }}>{n.label}</div>
-          ))}
+          <div className="ops-nav-list" style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+            {NAV.map((n) => (
+              <div key={n.id} onClick={() => setPage(n.id)} className="ops-nav-item" style={{
+                padding: "9px 10px", borderRadius: 8, cursor: "pointer", fontFamily: "Inter", fontSize: 13, fontWeight: 500,
+                background: page === n.id ? "rgba(184,255,61,0.1)" : "transparent", color: page === n.id ? GREEN : GRAY,
+              }}>{n.label}</div>
+            ))}
+          </div>
 
           <div style={{ marginTop: "auto", padding: "10px 8px", display: "flex", flexDirection: "column", gap: 6 }}>
             <Btn variant="secondary" onClick={loadDemo} style={{ fontSize: 11.5, padding: "7px 10px", width: "100%" }}>Cargar datos demo</Btn>
@@ -205,7 +207,7 @@ export default function App() {
           </div>
         </div>
 
-        <div style={{ flex: 1, padding: "24px 28px", position: "relative", overflowY: "auto" }}>
+        <div className="ops-content" style={{ flex: 1, padding: "24px 28px", position: "relative", overflowY: "auto", minWidth: 0 }}>
           {toast && <div style={{ position: "absolute", top: 16, right: 28, background: GREEN, color: CARBON, padding: "8px 16px", borderRadius: 8, fontFamily: "Inter", fontWeight: 600, fontSize: 13, zIndex: 10 }}>{toast}</div>}
           {page === "dashboard" && <Dashboard data={data} setPage={setPage} />}
           {page === "properties" && <Properties data={data} persist={persist} showToast={showToast} />}
@@ -285,17 +287,17 @@ function Dashboard({ data, setPage }) {
       <PageHeader title="Dashboard" subtitle="Resumen general de tu inmobiliaria"
         action={<FilterChips options={["Este mes", "Últimos 3 meses", "Histórico"]} value={period} onChange={setPeriod} />} />
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 }}>
         {stats.map((s) => (
           <div key={s.label} onClick={s.onClick} style={{ cursor: "pointer" }}><MiniStat label={s.label} value={s.value} tone={s.tone} /></div>
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
         <Card><div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE, marginBottom: 4 }}>Propiedades por tipo</div>{propertiesByType.length ? <Bars data={propertiesByType} /> : <EmptyState text="Sin propiedades." />}</Card>
         <Card><div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE, marginBottom: 4 }}>Venta vs. Alquiler</div>{propertiesByOperation.length ? <Bars data={propertiesByOperation} /> : <EmptyState text="Sin propiedades." />}</Card>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginBottom: 14 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginBottom: 14 }}>
         <Card><div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE, marginBottom: 4 }}>Consultas recibidas</div><Bars data={leadsByMonth} /></Card>
         <Card><div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE, marginBottom: 4 }}>Operaciones cerradas / mes</div><Bars data={opsByMonth} /></Card>
         <Card><div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE, marginBottom: 4 }}>Comisiones (x100 USD) / mes</div><Bars data={commissionByMonth} /></Card>
@@ -309,7 +311,7 @@ function Dashboard({ data, setPage }) {
       </Card>
 
       {(overdueTasks.length > 0 || upcomingVisits.length > 0) && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+        <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
           {overdueTasks.length > 0 && (
             <Card style={{ borderColor: "#3A1F1F" }}>
               <div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE, marginBottom: 10 }}>Tareas vencidas</div>
@@ -458,7 +460,7 @@ function PropertyModal({ property: p, onClose, onUpdate, onCopyLink }) {
           </div>
           <Btn variant="ghost" onClick={onClose}>✕</Btn>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10, marginBottom: 16 }}>
+        <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10, marginBottom: 16 }}>
           <MiniStat label="Precio" value={fmtMoney(p.price, p.currency)} />
           <MiniStat label="Dormitorios" value={p.bedrooms || "-"} />
           <MiniStat label="Sup. total" value={`${p.totalArea || "-"} m²`} />
@@ -965,7 +967,7 @@ function Commissions({ data, persist, showToast }) {
   return (
     <div>
       <PageHeader title="Comisiones" subtitle="Comisiones generadas, cobradas y pendientes" action={<Btn onClick={() => setShowForm(!showForm)}>{showForm ? "Cancelar" : "+ Registrar cobro"}</Btn>} />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 20 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 20 }}>
         <MiniStat label="Comisión estimada/generada" value={fmtMoney(generated)} />
         <MiniStat label="Comisión cobrada" value={fmtMoney(collected)} tone="good" />
         <MiniStat label="Comisión pendiente" value={fmtMoney(pending)} tone={pending > 0 ? "warn" : undefined} />
@@ -1027,7 +1029,7 @@ function Reports({ data }) {
   return (
     <div>
       <PageHeader title="Reportes" subtitle="Estadísticas generales" />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 20 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 20 }}>
         <MiniStat label="Ventas cerradas" value={sales.length} />
         <MiniStat label="Alquileres cerrados" value={rentals.length} />
         <MiniStat label="Comisiones totales" value={fmtMoney(totalCommission)} tone="good" />

@@ -68,24 +68,26 @@ export default function App() {
   return (
     <div style={{ background: CARBON, minHeight: 640, borderRadius: 12, overflow: "hidden", border: `1px solid ${BORDER}` }}>
       <style>{FONT_IMPORT}</style>
-      <div style={{ display: "flex", minHeight: 640 }}>
-        <div style={{ width: 210, background: "#0E0E11", borderRight: `1px solid ${BORDER}`, padding: "20px 14px", display: "flex", flexDirection: "column", gap: 4 }}>
+      <div className="ops-shell" style={{ display: "flex", minHeight: 640 }}>
+        <div className="ops-sidebar" style={{ width: 210, background: "#0E0E11", borderRight: `1px solid ${BORDER}`, padding: "20px 14px", display: "flex", flexDirection: "column", gap: 4 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 8px 20px 8px" }}>
             <div style={{ width: 26, height: 26, borderRadius: 6, background: GREEN, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 12, color: CARBON }}>$</div>
             <div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE }}>PANEL DE<br /><span style={{ color: GREEN }}>COBROS</span></div>
           </div>
-          {NAV.map((n) => (
-            <div key={n.id} onClick={() => setPage(n.id)} style={{
-              padding: "10px 10px", borderRadius: 8, cursor: "pointer", fontFamily: "Inter", fontSize: 13, fontWeight: 500,
-              background: page === n.id ? "rgba(184,255,61,0.1)" : "transparent", color: page === n.id ? GREEN : GRAY,
-            }}>{n.label}</div>
-          ))}
+          <div className="ops-nav-list" style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            {NAV.map((n) => (
+              <div key={n.id} onClick={() => setPage(n.id)} className="ops-nav-item" style={{
+                padding: "10px 10px", borderRadius: 8, cursor: "pointer", fontFamily: "Inter", fontSize: 13, fontWeight: 500,
+                background: page === n.id ? "rgba(184,255,61,0.1)" : "transparent", color: page === n.id ? GREEN : GRAY,
+              }}>{n.label}</div>
+            ))}
+          </div>
           <div style={{ marginTop: "auto", padding: "12px 10px", fontFamily: "Inter", fontSize: 11, color: "#5A5A5E" }}>
             ENLATA2 · Sin conexión real a pasarelas — estados manuales.
           </div>
         </div>
 
-        <div style={{ flex: 1, padding: "24px 28px", position: "relative" }}>
+        <div className="ops-content" style={{ flex: 1, padding: "24px 28px", position: "relative", minWidth: 0 }}>
           {toast && <div style={{ position: "absolute", top: 16, right: 28, background: GREEN, color: CARBON, padding: "8px 16px", borderRadius: 8, fontFamily: "Inter", fontWeight: 600, fontSize: 13, zIndex: 10 }}>{toast}</div>}
           {page === "dashboard" && <Dashboard data={data} setPage={setPage} />}
           {page === "clients" && <ClientsPage data={data} persist={persist} showToast={showToast} />}
@@ -122,7 +124,7 @@ function Dashboard({ data, setPage }) {
   return (
     <div>
       <PageHeader title="Dashboard" subtitle="Estado general de suscripciones y cobros" />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginBottom: 20 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginBottom: 20 }}>
         {stats.map((s) => (
           <Card key={s.label} style={{ cursor: "pointer" }}>
             <div onClick={s.onClick}>
@@ -133,7 +135,7 @@ function Dashboard({ data, setPage }) {
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginBottom: 20 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginBottom: 20 }}>
         <Card>
           <div style={{ fontFamily: "Inter", fontSize: 12, color: GRAY, marginBottom: 8 }}>Cobrado este mes (bruto)</div>
           <div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 20, color: OFFWHITE }}>{fmtMoney(grossThisMonth)}</div>
@@ -290,7 +292,7 @@ function PaymentsPage({ data }) {
   return (
     <div>
       <PageHeader title="Movimientos" subtitle={`${sorted.length} cobros registrados`} />
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginBottom: 20 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginBottom: 20 }}>
         <Card><div style={{ fontFamily: "Inter", fontSize: 12, color: GRAY, marginBottom: 8 }}>Total cobrado (histórico)</div><div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 20, color: OFFWHITE }}>{fmtMoney(totalGross)}</div></Card>
         <Card><div style={{ fontFamily: "Inter", fontSize: 12, color: GRAY, marginBottom: 8 }}>Comisiones pagadas (histórico)</div><div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 20, color: RED }}>-{fmtMoney(totalCommission)}</div></Card>
         <Card><div style={{ fontFamily: "Inter", fontSize: 12, color: GRAY, marginBottom: 8 }}>% perdido en comisiones</div><div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 20, color: AMBER }}>{totalGross ? ((totalCommission / totalGross) * 100).toFixed(1) : "0.0"}%</div></Card>

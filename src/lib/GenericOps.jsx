@@ -154,7 +154,7 @@ function CashModule({ data, persist, showToast, currency }) {
     <div>
       <PageHeader title="Caja" subtitle="Ingresos y egresos" action={<Btn onClick={() => setShowForm(!showForm)}>{showForm ? "Cancelar" : "+ Nuevo movimiento"}</Btn>} />
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14, marginBottom: 20 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14, marginBottom: 20 }}>
         <StatCard label="Saldo" value={fmtAmount(balance, currency)} tone={balance >= 0 ? GREEN : RED} />
         <StatCard label="Ingresos" value={fmtAmount(income, currency)} />
         <StatCard label="Egresos" value={fmtAmount(expense, currency)} />
@@ -221,7 +221,7 @@ function Dashboard({ product, data, setPage }) {
         subtitle={`Resumen general de ${product.businessName || product.name}`}
         action={product.businessUrl && <Btn variant="secondary" href={product.businessUrl}>Visitar sitio ↗</Btn>}
       />
-      <div style={{ display: "grid", gridTemplateColumns: `repeat(${stats.length}, 1fr)`, gap: 14, marginBottom: 20 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: `repeat(${stats.length}, 1fr)`, gap: 14, marginBottom: 20 }}>
         {stats.map((s) => <StatCard key={s.label} {...s} />)}
       </div>
       <Card>
@@ -277,23 +277,25 @@ export default function GenericOps({ product }) {
   return (
     <div style={{ background: CARBON, minHeight: 600, borderRadius: 12, overflow: "hidden", border: `1px solid ${BORDER}` }}>
       <style>{FONT_IMPORT}</style>
-      <div style={{ display: "flex", minHeight: 600 }}>
-        <div style={{ width: 210, background: "#0E0E11", borderRight: `1px solid ${BORDER}`, padding: "20px 14px", display: "flex", flexDirection: "column", gap: 4 }}>
+      <div className="ops-shell" style={{ display: "flex", minHeight: 600 }}>
+        <div className="ops-sidebar" style={{ width: 210, background: "#0E0E11", borderRight: `1px solid ${BORDER}`, padding: "20px 14px", display: "flex", flexDirection: "column", gap: 4 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 8px 20px 8px" }}>
             <div style={{ width: 26, height: 26, borderRadius: 6, background: GREEN, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 12, color: CARBON }}>{product.num}</div>
             <div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE }}>{product.name.replace(" OPS", "")}<span style={{ color: GREEN }}> OPS</span></div>
           </div>
-          {NAV.map((n) => (
-            <div key={n.id} onClick={() => setPage(n.id)} style={{
-              display: "flex", alignItems: "center", gap: 10, padding: "10px 10px", borderRadius: 8, cursor: "pointer",
-              fontFamily: "Inter", fontSize: 13, fontWeight: 500,
-              background: page === n.id ? "rgba(184,255,61,0.1)" : "transparent",
-              color: page === n.id ? GREEN : GRAY,
-            }}>
-              <span style={{ width: 16, textAlign: "center", fontSize: 13 }}>{n.icon}</span>
-              {n.label}
-            </div>
-          ))}
+          <div className="ops-nav-list" style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            {NAV.map((n) => (
+              <div key={n.id} onClick={() => setPage(n.id)} className="ops-nav-item" style={{
+                display: "flex", alignItems: "center", gap: 10, padding: "10px 10px", borderRadius: 8, cursor: "pointer",
+                fontFamily: "Inter", fontSize: 13, fontWeight: 500,
+                background: page === n.id ? "rgba(184,255,61,0.1)" : "transparent",
+                color: page === n.id ? GREEN : GRAY,
+              }}>
+                <span style={{ width: 16, textAlign: "center", fontSize: 13 }}>{n.icon}</span>
+                {n.label}
+              </div>
+            ))}
+          </div>
           <div style={{ marginTop: "auto", padding: "12px 10px", display: "flex", flexDirection: "column", gap: 6 }}>
             {product.businessUrl && (
               <a href={product.businessUrl} target="_blank" rel="noopener noreferrer" style={{ fontFamily: "Inter", fontSize: 11.5, color: GREEN, textDecoration: "none" }}>
@@ -306,7 +308,7 @@ export default function GenericOps({ product }) {
           </div>
         </div>
 
-        <div style={{ flex: 1, padding: "24px 28px", position: "relative" }}>
+        <div className="ops-content" style={{ flex: 1, padding: "24px 28px", position: "relative", minWidth: 0 }}>
           {toast && <div style={{ position: "absolute", top: 16, right: 28, background: GREEN, color: CARBON, padding: "8px 16px", borderRadius: 8, fontFamily: "Inter", fontWeight: 600, fontSize: 13, zIndex: 10 }}>{toast}</div>}
           {page === "dashboard" && <Dashboard product={product} data={data} setPage={setPage} />}
           {product.modules.map((m) => page === m.id && (

@@ -17,7 +17,7 @@ export default function App() {
         <Route
           path="/checkout"
           element={
-            <div style={{ minHeight: "100vh", background: CARBON, padding: 24 }}>
+            <div className="shell-content" style={{ minHeight: "100vh", background: CARBON, padding: 24 }}>
               <Checkout />
             </div>
           }

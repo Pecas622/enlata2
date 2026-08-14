@@ -302,8 +302,8 @@ export default function App() {
   return (
     <div style={{ background: CARBON, minHeight: 680, borderRadius: 12, overflow: "hidden", border: `1px solid ${BORDER}` }}>
       <style>{FONT_IMPORT}</style>
-      <div style={{ display: "flex", minHeight: 680 }}>
-        <div style={{ width: 220, background: "#0E0E11", borderRight: `1px solid ${BORDER}`, padding: "20px 14px", display: "flex", flexDirection: "column", gap: 3, overflowY: "auto" }}>
+      <div className="ops-shell" style={{ display: "flex", minHeight: 680 }}>
+        <div className="ops-sidebar" style={{ width: 220, background: "#0E0E11", borderRight: `1px solid ${BORDER}`, padding: "20px 14px", display: "flex", flexDirection: "column", gap: 3, overflowY: "auto" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 8px 16px 8px" }}>
             <div style={{ width: 26, height: 26, borderRadius: 6, background: GREEN, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 13, color: CARBON }}>06</div>
             <div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE }}>DISTRI<span style={{ color: GREEN }}>OPS</span></div>
@@ -316,12 +316,14 @@ export default function App() {
             </Select>
           </div>
 
-          {NAV.map((n) => (
-            <div key={n.id} onClick={() => setPage(n.id)} style={{
-              padding: "9px 10px", borderRadius: 8, cursor: "pointer", fontFamily: "Inter", fontSize: 13, fontWeight: 500,
-              background: page === n.id ? "rgba(184,255,61,0.1)" : "transparent", color: page === n.id ? GREEN : GRAY,
-            }}>{n.label}</div>
-          ))}
+          <div className="ops-nav-list" style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+            {NAV.map((n) => (
+              <div key={n.id} onClick={() => setPage(n.id)} className="ops-nav-item" style={{
+                padding: "9px 10px", borderRadius: 8, cursor: "pointer", fontFamily: "Inter", fontSize: 13, fontWeight: 500,
+                background: page === n.id ? "rgba(184,255,61,0.1)" : "transparent", color: page === n.id ? GREEN : GRAY,
+              }}>{n.label}</div>
+            ))}
+          </div>
 
           <div style={{ marginTop: "auto", padding: "10px 8px", display: "flex", flexDirection: "column", gap: 6 }}>
             <Btn variant="secondary" onClick={loadDemo} style={{ fontSize: 11.5, padding: "7px 10px", width: "100%" }}>Cargar datos demo</Btn>
@@ -330,7 +332,7 @@ export default function App() {
           </div>
         </div>
 
-        <div style={{ flex: 1, padding: "24px 28px", position: "relative", overflowY: "auto" }}>
+        <div className="ops-content" style={{ flex: 1, padding: "24px 28px", position: "relative", overflowY: "auto", minWidth: 0 }}>
           {toast && <div style={{ position: "absolute", top: 16, right: 28, background: GREEN, color: CARBON, padding: "8px 16px", borderRadius: 8, fontFamily: "Inter", fontWeight: 600, fontSize: 13, zIndex: 10 }}>{toast}</div>}
           {page === "dashboard" && <Dashboard data={data} setPage={setPage} />}
           {page === "clients" && <Clients data={data} persist={persist} showToast={showToast} />}
@@ -429,25 +431,25 @@ function Dashboard({ data, setPage }) {
   return (
     <div>
       <PageHeader title="Dashboard" subtitle="Tu distribuidora en tiempo real" />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 }}>
         {stats.map((s) => (
           <div key={s.label} onClick={s.onClick} style={{ cursor: "pointer" }}><MiniStat label={s.label} value={s.value} tone={s.tone} /></div>
         ))}
       </div>
 
       <div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 13, color: OFFWHITE, marginBottom: 10 }}>Comparativas</div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14, marginBottom: 20 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14, marginBottom: 20 }}>
         <CompareStat label="Hoy vs. ayer" current={salesToday} previous={salesYesterday} />
         <CompareStat label="Esta semana vs. anterior" current={salesThisWeek} previous={salesLastWeek} />
         <CompareStat label="Este mes vs. anterior" current={salesThisMonth} previous={salesLastMonth} />
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginBottom: 14 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginBottom: 14 }}>
         <Card><div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE, marginBottom: 4 }}>Ventas por día (x1000, últimos 7 días)</div><Bars data={salesByDay} /></Card>
         <Card><div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE, marginBottom: 4 }}>Ventas por vendedor (x1000)</div>{salesBySeller.length ? <Bars data={salesBySeller} /> : <EmptyState text="Sin ventas." />}</Card>
         <Card><div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE, marginBottom: 4 }}>Ventas por zona (x1000)</div>{salesByZone.length ? <Bars data={salesByZone} /> : <EmptyState text="Sin ventas." />}</Card>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
         <Card><div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE, marginBottom: 4 }}>Productos más vendidos</div>{topProducts.length ? <Bars data={topProducts} /> : <EmptyState text="Sin pedidos." />}</Card>
         <Card><div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE, marginBottom: 4 }}>Evolución de cobranzas (x1000) / mes</div><Bars data={collectionsByMonth} /></Card>
       </div>
@@ -587,7 +589,7 @@ function ClientDetail({ client, data, onClose, onAddTimeline }) {
           </div>
           <Btn variant="ghost" onClick={onClose}>✕</Btn>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10, marginBottom: 16 }}>
+        <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10, marginBottom: 16 }}>
           <MiniStat label="Total comprado" value={fmtMoney(totalComprado)} />
           <MiniStat label="Deuda actual" value={fmtMoney(balance)} tone={balance > 0 ? "bad" : "good"} />
           <MiniStat label="Crédito disponible" value={fmtMoney(creditAvailable)} tone={creditAvailable < 0 ? "bad" : undefined} />
@@ -843,7 +845,7 @@ function Orders({ data, persist, showToast }) {
                   ⚠ Este pedido supera el límite de crédito del cliente ({fmtMoney(client.creditLimit)}). Requiere autorización de un Gerente o Administrador.
                 </div>
               )}
-              <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 18 }}>
+              <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 18 }}>
                 <div>
                   <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
                     {["Todas", ...data.categories.map((c) => c.name)].map((cat) => (
@@ -1287,7 +1289,7 @@ function Collections({ data, persist, showToast }) {
   return (
     <div>
       <PageHeader title="Cobranzas" subtitle={`${data.collections.length} cobros registrados`} action={<Btn onClick={() => setShowForm(!showForm)}>{showForm ? "Cancelar" : "+ Registrar cobro"}</Btn>} />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 20 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 20 }}>
         <MiniStat label="Cobrado hoy" value={fmtMoney(cobradoHoy)} tone="good" />
         <MiniStat label="Cobrado este mes" value={fmtMoney(cobradoMes)} tone="good" />
         <MiniStat label="Pendiente" value={fmtMoney(pendiente)} tone="warn" />
@@ -1477,7 +1479,7 @@ function Sellers({ data }) {
               </div>
               <div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 16, color: GREEN }}>{fmtMoney(r.ventasMes)}</div>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10, marginBottom: 12 }}>
+            <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10, marginBottom: 12 }}>
               <MiniStat label="Pedidos del mes" value={r.pedidos} />
               <MiniStat label="Ticket promedio" value={fmtMoney(r.avgTicket)} />
               <MiniStat label="Cobranza gestionada" value={fmtMoney(r.cobranza)} />
@@ -1519,7 +1521,7 @@ function Cash({ data, persist, showToast }) {
   return (
     <div>
       <PageHeader title="Caja y Gastos" subtitle="Ingresos, egresos y gastos operativos" action={<Btn onClick={() => setShowForm(!showForm)}>{showForm ? "Cancelar" : "+ Nuevo movimiento"}</Btn>} />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14, marginBottom: 20 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14, marginBottom: 20 }}>
         <MiniStat label="Caja actual" value={fmtMoney(balance)} tone={balance >= 0 ? "good" : "bad"} />
         <MiniStat label="Ingresos" value={fmtMoney(income)} />
         <MiniStat label="Egresos" value={fmtMoney(expense)} />
@@ -1763,13 +1765,13 @@ function Reports({ data }) {
   return (
     <div>
       <PageHeader title="Reportes" subtitle="Estadísticas generales del negocio" />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 20 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 20 }}>
         <MiniStat label="Ventas totales" value={fmtMoney(totalVentas)} tone="good" />
         <MiniStat label="Costo de ventas" value={fmtMoney(totalCosto)} />
         <MiniStat label="Gastos totales" value={fmtMoney(totalGastos)} />
         <MiniStat label="Rentabilidad" value={fmtMoney(rentabilidad)} tone={rentabilidad >= 0 ? "good" : "bad"} />
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
         <Card>
           <div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE, marginBottom: 10 }}>Productos más vendidos</div>
           {masVendidos.length === 0 ? <EmptyState text="Sin datos." /> : masVendidos.map(([n, q]) => (
@@ -1783,7 +1785,7 @@ function Reports({ data }) {
           ))}
         </Card>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
         <Card>
           <div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE, marginBottom: 10 }}>Productos con mejor margen</div>
           {marginByProduct.map((p) => (

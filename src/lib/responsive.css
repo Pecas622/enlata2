@@ -1,0 +1,53 @@
+/* Shared mobile behavior for the demo app shells (Ops pages, admin panel). */
+
+@media (max-width: 720px) {
+  .ops-shell {
+    flex-direction: column !important;
+  }
+
+  .ops-sidebar {
+    width: 100% !important;
+    border-right: none !important;
+    border-bottom: 1px solid #232327;
+  }
+
+  .ops-nav-list {
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    gap: 6px !important;
+    padding-bottom: 2px;
+  }
+
+  .ops-nav-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ops-nav-item {
+    flex: none !important;
+    white-space: nowrap;
+  }
+
+  .ops-content {
+    padding: 16px !important;
+  }
+
+  .rgrid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .shell-content {
+    padding: 14px !important;
+  }
+}
+
+@media (max-width: 460px) {
+  .rgrid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Prevent stray horizontal scroll from anything not yet covered by a rule above. */
+html, body {
+  overflow-x: hidden;
+}

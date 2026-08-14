@@ -65,7 +65,7 @@ export default function App() {
   };
 
   return (
-    <div style={{ background: CARBON, minHeight: 640, borderRadius: 12, border: `1px solid ${BORDER}`, padding: "36px 40px" }}>
+    <div className="shell-content" style={{ background: CARBON, minHeight: 640, borderRadius: 12, border: `1px solid ${BORDER}`, padding: "36px 40px" }}>
       <style>{FONT_IMPORT}</style>
 
       <Link to="/" style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 32, textDecoration: "none", width: "fit-content" }}>
@@ -103,7 +103,7 @@ function StepProduct({ product, setProduct, onNext }) {
   return (
     <div>
       <SectionTitle sub="Elegí la lata pensada para tu tipo de negocio.">¿Qué solución necesitás?</SectionTitle>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginBottom: 28 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginBottom: 28 }}>
         {PRODUCTS.map((p) => {
           const selected = product?.id === p.id;
           return (
@@ -131,7 +131,7 @@ function StepPlan({ product, onNext, onBack }) {
 
       <div style={{ maxWidth: 480, background: CARD2, border: `2px solid ${GREEN}`, borderRadius: 16, padding: "28px 26px", marginBottom: 20, position: "relative" }}>
         <div style={{ position: "absolute", top: -13, left: 26, background: GREEN, color: CARBON, fontSize: 11, fontWeight: 800, padding: "4px 12px", borderRadius: 999 }}>Precio de lanzamiento</div>
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 18 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 14, marginBottom: 18 }}>
           <div>
             <div style={{ fontSize: 12, color: GRAY, textTransform: "uppercase", marginBottom: 4 }}>Implementación</div>
             <div style={{ fontFamily: "Space Grotesk", fontWeight: 800, fontSize: 22, color: OFFWHITE }}>

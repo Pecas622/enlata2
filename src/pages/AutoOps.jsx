@@ -190,8 +190,8 @@ export default function App() {
   return (
     <div style={{ background: CARBON, minHeight: 680, borderRadius: 12, overflow: "hidden", border: `1px solid ${BORDER}` }}>
       <style>{FONT_IMPORT}</style>
-      <div style={{ display: "flex", minHeight: 680 }}>
-        <div style={{ width: 220, background: "#0E0E11", borderRight: `1px solid ${BORDER}`, padding: "20px 14px", display: "flex", flexDirection: "column", gap: 3, overflowY: "auto" }}>
+      <div className="ops-shell" style={{ display: "flex", minHeight: 680 }}>
+        <div className="ops-sidebar" style={{ width: 220, background: "#0E0E11", borderRight: `1px solid ${BORDER}`, padding: "20px 14px", display: "flex", flexDirection: "column", gap: 3, overflowY: "auto" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 8px 16px 8px" }}>
             <div style={{ width: 26, height: 26, borderRadius: 6, background: GREEN, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 13, color: CARBON }}>04</div>
             <div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 15, color: OFFWHITE }}>AUTO<span style={{ color: GREEN }}>OPS</span></div>
@@ -204,12 +204,14 @@ export default function App() {
             </Select>
           </div>
 
-          {NAV.map((n) => (
-            <div key={n.id} onClick={() => setPage(n.id)} style={{
-              padding: "9px 10px", borderRadius: 8, cursor: "pointer", fontFamily: "Inter", fontSize: 13, fontWeight: 500,
-              background: page === n.id ? "rgba(184,255,61,0.1)" : "transparent", color: page === n.id ? GREEN : GRAY,
-            }}>{n.label}</div>
-          ))}
+          <div className="ops-nav-list" style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+            {NAV.map((n) => (
+              <div key={n.id} onClick={() => setPage(n.id)} className="ops-nav-item" style={{
+                padding: "9px 10px", borderRadius: 8, cursor: "pointer", fontFamily: "Inter", fontSize: 13, fontWeight: 500,
+                background: page === n.id ? "rgba(184,255,61,0.1)" : "transparent", color: page === n.id ? GREEN : GRAY,
+              }}>{n.label}</div>
+            ))}
+          </div>
 
           <div style={{ marginTop: "auto", padding: "10px 8px", display: "flex", flexDirection: "column", gap: 6 }}>
             <Btn variant="secondary" onClick={loadDemo} style={{ fontSize: 11.5, padding: "7px 10px", width: "100%" }}>Cargar datos demo</Btn>
@@ -218,7 +220,7 @@ export default function App() {
           </div>
         </div>
 
-        <div style={{ flex: 1, padding: "24px 28px", position: "relative", overflowY: "auto" }}>
+        <div className="ops-content" style={{ flex: 1, padding: "24px 28px", position: "relative", overflowY: "auto", minWidth: 0 }}>
           {toast && <div style={{ position: "absolute", top: 16, right: 28, background: GREEN, color: CARBON, padding: "8px 16px", borderRadius: 8, fontFamily: "Inter", fontWeight: 600, fontSize: 13, zIndex: 10 }}>{toast}</div>}
           {page === "dashboard" && <Dashboard data={data} setPage={setPage} />}
           {page === "inventory" && <Inventory data={data} persist={persist} showToast={showToast} />}
@@ -321,7 +323,7 @@ function Dashboard({ data, setPage }) {
   return (
     <div>
       <PageHeader title="Dashboard" subtitle="Información en tiempo real de tu concesionaria" />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 }}>
         {stats.map((s) => (
           <div key={s.label} onClick={s.onClick} style={{ cursor: "pointer" }}>
             <MiniStat label={s.label} value={s.value} tone={s.tone} />
@@ -329,12 +331,12 @@ function Dashboard({ data, setPage }) {
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginBottom: 14 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginBottom: 14 }}>
         <Card><div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE, marginBottom: 4 }}>Ventas por mes</div><Bars data={salesByMonth} /></Card>
         <Card><div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE, marginBottom: 4 }}>Compras por mes</div><Bars data={purchasesByMonth} /></Card>
         <Card><div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE, marginBottom: 4 }}>Ganancia mensual (x100 USD)</div><Bars data={gainByMonth} /></Card>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginBottom: 14 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginBottom: 14 }}>
         <Card><div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE, marginBottom: 4 }}>Ventas por vendedor</div>{salesBySeller.length ? <Bars data={salesBySeller} /> : <EmptyState text="Sin ventas todavía." />}</Card>
         <Card><div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE, marginBottom: 4 }}>Vendidos por marca</div>{soldByBrand.length ? <Bars data={soldByBrand} /> : <EmptyState text="Sin ventas todavía." />}</Card>
         <Card><div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE, marginBottom: 4 }}>Origen de leads</div>{leadsByChannel.length ? <Bars data={leadsByChannel} /> : <EmptyState text="Sin leads todavía." />}</Card>
@@ -530,7 +532,7 @@ function VehicleModal({ vehicle: v, onClose, onUpdate, onAddExpense }) {
           <Btn variant="ghost" onClick={onClose}>✕</Btn>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 16 }}>
+        <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 16 }}>
           <MiniStat label="Precio publicado" value={fmtMoney(v.listPrice)} />
           <MiniStat label="Costo real" value={fmtMoney(totalCost)} />
           <MiniStat label="Ganancia real" value={fmtMoney(realGain)} tone={realGain >= 0 ? "good" : "bad"} />
@@ -766,7 +768,7 @@ function TradeIns({ data, persist, showToast }) {
             <Field label="Deuda existente (USD)"><Input type="number" value={form.debt} onChange={(e) => setForm({ ...form, debt: e.target.value })} /></Field>
           </div>
           <div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 13, color: OFFWHITE, marginBottom: 10 }}>Evaluación</div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 6 }}>
+          <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginBottom: 6 }}>
             {EVAL_ITEMS.map((item) => (
               <Field key={item} label={item}>
                 <Select value={form.evaluation[item]} onChange={(e) => setForm({ ...form, evaluation: { ...form.evaluation, [item]: e.target.value } })}>
@@ -1150,7 +1152,7 @@ function Cash({ data, persist, showToast }) {
   return (
     <div>
       <PageHeader title="Caja" subtitle="Ingresos y egresos" action={<Btn onClick={() => setShowForm(!showForm)}>{showForm ? "Cancelar" : "+ Nuevo movimiento"}</Btn>} />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginBottom: 20 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginBottom: 20 }}>
         <MiniStat label="Saldo" value={fmtMoney(balance)} tone={balance >= 0 ? "good" : "bad"} />
         <MiniStat label="Ingresos" value={fmtMoney(income)} />
         <MiniStat label="Egresos" value={fmtMoney(expense)} />
@@ -1220,7 +1222,7 @@ function Reports({ data }) {
   return (
     <div>
       <PageHeader title="Reportes" subtitle="Estadísticas generales" />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginBottom: 20 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginBottom: 20 }}>
         <MiniStat label="Ventas totales" value={totalSales.length} />
         <MiniStat label="Facturación total" value={fmtMoney(totalRevenue)} />
         <MiniStat label="Ganancia total" value={fmtMoney(totalGain)} tone="good" />

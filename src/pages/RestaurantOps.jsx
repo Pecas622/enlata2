@@ -198,8 +198,8 @@ export default function App() {
   return (
     <div style={{ background: CARBON, minHeight: 680, borderRadius: 12, overflow: "hidden", border: `1px solid ${BORDER}` }}>
       <style>{FONT_IMPORT}</style>
-      <div style={{ display: "flex", minHeight: 680 }}>
-        <div style={{ width: 220, background: "#0E0E11", borderRight: `1px solid ${BORDER}`, padding: "20px 14px", display: "flex", flexDirection: "column", gap: 3, overflowY: "auto" }}>
+      <div className="ops-shell" style={{ display: "flex", minHeight: 680 }}>
+        <div className="ops-sidebar" style={{ width: 220, background: "#0E0E11", borderRight: `1px solid ${BORDER}`, padding: "20px 14px", display: "flex", flexDirection: "column", gap: 3, overflowY: "auto" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 8px 16px 8px" }}>
             <div style={{ width: 26, height: 26, borderRadius: 6, background: GREEN, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 13, color: CARBON }}>05</div>
             <div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE }}>RESTAURANT<span style={{ color: GREEN }}> OPS</span></div>
@@ -212,12 +212,14 @@ export default function App() {
             </Select>
           </div>
 
-          {NAV.map((n) => (
-            <div key={n.id} onClick={() => setPage(n.id)} style={{
-              padding: "9px 10px", borderRadius: 8, cursor: "pointer", fontFamily: "Inter", fontSize: 13, fontWeight: 500,
-              background: page === n.id ? "rgba(184,255,61,0.1)" : "transparent", color: page === n.id ? GREEN : GRAY,
-            }}>{n.label}</div>
-          ))}
+          <div className="ops-nav-list" style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+            {NAV.map((n) => (
+              <div key={n.id} onClick={() => setPage(n.id)} className="ops-nav-item" style={{
+                padding: "9px 10px", borderRadius: 8, cursor: "pointer", fontFamily: "Inter", fontSize: 13, fontWeight: 500,
+                background: page === n.id ? "rgba(184,255,61,0.1)" : "transparent", color: page === n.id ? GREEN : GRAY,
+              }}>{n.label}</div>
+            ))}
+          </div>
 
           <div style={{ marginTop: "auto", padding: "10px 8px", display: "flex", flexDirection: "column", gap: 6 }}>
             <Btn variant="secondary" onClick={loadDemo} style={{ fontSize: 11.5, padding: "7px 10px", width: "100%" }}>Cargar datos demo</Btn>
@@ -226,7 +228,7 @@ export default function App() {
           </div>
         </div>
 
-        <div style={{ flex: 1, padding: "24px 28px", position: "relative", overflowY: "auto" }}>
+        <div className="ops-content" style={{ flex: 1, padding: "24px 28px", position: "relative", overflowY: "auto", minWidth: 0 }}>
           {toast && <div style={{ position: "absolute", top: 16, right: 28, background: GREEN, color: CARBON, padding: "8px 16px", borderRadius: 8, fontFamily: "Inter", fontWeight: 600, fontSize: 13, zIndex: 10 }}>{toast}</div>}
           {page === "dashboard" && <Dashboard data={data} setPage={setPage} />}
           {page === "salon" && <Salon data={data} persist={persist} showToast={showToast} />}
@@ -291,12 +293,12 @@ function Dashboard({ data, setPage }) {
   return (
     <div>
       <PageHeader title="Dashboard" subtitle="Restaurante en tiempo real" />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 }}>
         {stats.map((s) => (
           <div key={s.label} onClick={s.onClick} style={{ cursor: s.onClick ? "pointer" : "default" }}><MiniStat label={s.label} value={s.value} tone={s.tone} /></div>
         ))}
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
         <Card><div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE, marginBottom: 4 }}>Ventas por día (x1000 $, últimos 7 días)</div><Bars data={salesByDay} /></Card>
         <Card><div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE, marginBottom: 4 }}>Ventas por método de pago</div>{salesByMethod.length ? <Bars data={salesByMethod} /> : <EmptyState text="Sin ventas todavía." />}</Card>
       </div>
@@ -431,7 +433,7 @@ function OrderModal({ table, data, persist, showToast, onClose, onUpdateTable })
         <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
           <Input placeholder="Mozo asignado" value={waiter} onChange={(e) => setWaiter(e.target.value)} style={{ maxWidth: 220 }} />
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 18 }}>
+        <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: 18 }}>
           <div>
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
               {data.categories.map((c) => (
@@ -495,7 +497,7 @@ function Kitchen({ data, persist }) {
   return (
     <div>
       <PageHeader title="Cocina (KDS)" subtitle="Pedidos en tiempo real" />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
         {KITCHEN_STAGES.map((stage) => (
           <div key={stage} style={{ background: CARD2, border: `1px solid ${BORDER}`, borderRadius: 12, padding: 12 }}>
             <div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 12, color: GRAY, marginBottom: 10, textTransform: "uppercase", display: "flex", justifyContent: "space-between" }}>
@@ -863,7 +865,7 @@ function Staff({ data }) {
   return (
     <div>
       <PageHeader title="Mozos y Propinas" subtitle="Estadísticas por mozo" />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14, marginBottom: 20 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14, marginBottom: 20 }}>
         <MiniStat label="Mozos activos" value={waiters.length} />
         <MiniStat label="Propinas del día (estimado 10%)" value={fmtMoney(totalTips)} tone="good" />
         <MiniStat label="Mesas atendidas hoy" value={data.tables.filter((t) => t.waiter).length} />
@@ -931,7 +933,7 @@ function Cash({ data, persist, showToast }) {
         </Card>
       )}
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 20 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 20 }}>
         <MiniStat label="Caja histórica" value={fmtMoney(balance)} tone={balance >= 0 ? "good" : "bad"} />
         <MiniStat label="Ingresos de hoy" value={fmtMoney(income)} />
         <MiniStat label="Egresos de hoy" value={fmtMoney(expense)} />
@@ -1350,13 +1352,13 @@ function Reports({ data }) {
   return (
     <div>
       <PageHeader title="Reportes" subtitle="Estadísticas generales" />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 20 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 20 }}>
         <MiniStat label="Ventas totales" value={fmtMoney(totalSales)} tone="good" />
         <MiniStat label="Gastos totales" value={fmtMoney(totalExpenses)} />
         <MiniStat label="Ganancia estimada" value={fmtMoney(totalSales - totalExpenses)} tone="good" />
         <MiniStat label="Reservas" value={data.reservations.length} />
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
         <Card>
           <div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE, marginBottom: 10 }}>Productos más vendidos</div>
           {topProducts.length === 0 ? <EmptyState text="Sin datos." /> : topProducts.map(([n, q]) => (

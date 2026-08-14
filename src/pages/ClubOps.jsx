@@ -200,8 +200,8 @@ export default function App() {
   return (
     <div style={{ background: CARBON, minHeight: 680, borderRadius: 12, overflow: "hidden", border: `1px solid ${BORDER}` }}>
       <style>{FONT_IMPORT}</style>
-      <div style={{ display: "flex", minHeight: 680 }}>
-        <div style={{ width: 220, background: "#0E0E11", borderRight: `1px solid ${BORDER}`, padding: "20px 14px", display: "flex", flexDirection: "column", gap: 3, overflowY: "auto" }}>
+      <div className="ops-shell" style={{ display: "flex", minHeight: 680 }}>
+        <div className="ops-sidebar" style={{ width: 220, background: "#0E0E11", borderRight: `1px solid ${BORDER}`, padding: "20px 14px", display: "flex", flexDirection: "column", gap: 3, overflowY: "auto" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 8px 16px 8px" }}>
             <div style={{ width: 26, height: 26, borderRadius: 6, background: GREEN, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 13, color: CARBON }}>03</div>
             <div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 15, color: OFFWHITE }}>CLUB<span style={{ color: GREEN }}>OPS</span></div>
@@ -214,12 +214,14 @@ export default function App() {
             </Select>
           </div>
 
-          {NAV.map((n) => (
-            <div key={n.id} onClick={() => setPage(n.id)} style={{
-              padding: "9px 10px", borderRadius: 8, cursor: "pointer", fontFamily: "Inter", fontSize: 13, fontWeight: 500,
-              background: page === n.id ? "rgba(184,255,61,0.1)" : "transparent", color: page === n.id ? GREEN : GRAY,
-            }}>{n.label}</div>
-          ))}
+          <div className="ops-nav-list" style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+            {NAV.map((n) => (
+              <div key={n.id} onClick={() => setPage(n.id)} className="ops-nav-item" style={{
+                padding: "9px 10px", borderRadius: 8, cursor: "pointer", fontFamily: "Inter", fontSize: 13, fontWeight: 500,
+                background: page === n.id ? "rgba(184,255,61,0.1)" : "transparent", color: page === n.id ? GREEN : GRAY,
+              }}>{n.label}</div>
+            ))}
+          </div>
 
           <div style={{ marginTop: "auto", padding: "10px 8px", display: "flex", flexDirection: "column", gap: 6 }}>
             <Btn variant="secondary" onClick={loadDemo} style={{ fontSize: 11.5, padding: "7px 10px", width: "100%" }}>Cargar datos demo</Btn>
@@ -228,7 +230,7 @@ export default function App() {
           </div>
         </div>
 
-        <div style={{ flex: 1, padding: "24px 28px", position: "relative", overflowY: "auto" }}>
+        <div className="ops-content" style={{ flex: 1, padding: "24px 28px", position: "relative", overflowY: "auto", minWidth: 0 }}>
           {toast && <div style={{ position: "absolute", top: 16, right: 28, background: GREEN, color: CARBON, padding: "8px 16px", borderRadius: 8, fontFamily: "Inter", fontWeight: 600, fontSize: 13, zIndex: 10 }}>{toast}</div>}
           {page === "dashboard" && <Dashboard data={data} setPage={setPage} />}
           {page === "members" && <Members data={data} persist={persist} showToast={showToast} />}
@@ -294,23 +296,23 @@ function Dashboard({ data, setPage }) {
   return (
     <div>
       <PageHeader title="Dashboard" subtitle="Estado general del club en tiempo real" />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 20 }}>
         {stats.map((s) => (
           <div key={s.label} onClick={s.onClick} style={{ cursor: "pointer" }}><MiniStat label={s.label} value={s.value} tone={s.tone} /></div>
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
         <Card><div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE, marginBottom: 4 }}>Ingresos mensuales (x1000 $)</div><Bars data={incomeByMonth} /></Card>
         <Card><div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE, marginBottom: 4 }}>Evolución de socios</div><Bars data={membersEvolution} /></Card>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
         <Card><div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE, marginBottom: 4 }}>Jugadores por disciplina</div>{playersBySport.length ? <Bars data={playersBySport} /> : <EmptyState text="Sin jugadores." />}</Card>
         <Card><div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE, marginBottom: 4 }}>Cobros por método de pago</div>{paymentsByMethod.length ? <Bars data={paymentsByMethod} /> : <EmptyState text="Sin pagos." />}</Card>
       </div>
 
       {(birthdaysToday.length > 0 || upcomingReservations.length > 0) && (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+        <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
           {birthdaysToday.length > 0 && (
             <Card>
               <div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: OFFWHITE, marginBottom: 10 }}>🎂 Cumpleaños de hoy</div>
@@ -420,7 +422,7 @@ function Members({ data, persist, showToast }) {
               </div>
               <Btn variant="ghost" onClick={() => setDetail(null)}>✕</Btn>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
+            <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 16 }}>
               <MiniStat label="Cuotas pendientes" value={data.quotas.filter((q) => q.memberId === detail.id && q.status !== "Pagada").length} />
               <MiniStat label="Deuda" value={fmtMoney(data.quotas.filter((q) => q.memberId === detail.id && q.status !== "Pagada").reduce((s, q) => s + Number(q.amount), 0))} />
             </div>
@@ -489,7 +491,7 @@ function Quotas({ data, persist, showToast }) {
   return (
     <div>
       <PageHeader title="Cuotas y Pagos" subtitle={`${data.payments.length} pagos registrados`} />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14, marginBottom: 20 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14, marginBottom: 20 }}>
         <MiniStat label="Total cobrado" value={fmtMoney(income)} tone="good" />
         <MiniStat label="Cuotas pendientes/vencidas" value={data.quotas.filter((q) => q.status !== "Pagada").length} tone="warn" />
         <MiniStat label="Comisiones MP estimadas" value={fmtMoney(mpFees)} tone="warn" />
@@ -1245,7 +1247,7 @@ function Cash({ data, persist, showToast }) {
   return (
     <div>
       <PageHeader title="Caja y Finanzas" subtitle="Ingresos, egresos y gastos" action={<Btn onClick={() => setShowForm(!showForm)}>{showForm ? "Cancelar" : "+ Nuevo movimiento"}</Btn>} />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14, marginBottom: 20 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14, marginBottom: 20 }}>
         <MiniStat label="Caja actual" value={fmtMoney(balance)} tone={balance >= 0 ? "good" : "bad"} />
         <MiniStat label="Ingresos" value={fmtMoney(income)} />
         <MiniStat label="Egresos" value={fmtMoney(expense)} />
@@ -1372,7 +1374,7 @@ function Reports({ data }) {
   return (
     <div>
       <PageHeader title="Reportes" subtitle="Estadísticas generales del club" />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 20 }}>
+      <div className="rgrid" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 20 }}>
         <MiniStat label="Socios activos" value={activeMembers} />
         <MiniStat label="Nuevos socios (30 días)" value={newMembers} />
         <MiniStat label="Bajas" value={lowMembers} />
