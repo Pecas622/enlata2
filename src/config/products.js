@@ -1,8 +1,10 @@
-// Catálogo de las 8 "latas" de Enlata2. INMO OPS, DISTRIBUIDORA OPS, AUTO OPS,
-// CLUB OPS y RESTAURANT OPS tienen dashboard a medida (src/pages/InmoOps.jsx,
-// DistribuidoraOps.jsx, AutoOps.jsx, ClubOps.jsx, RestaurantOps.jsx); las
-// otras 3 corren sobre el motor genérico (src/lib/GenericOps.jsx) a partir de
-// su lista de `modules`.
+// Catálogo de Enlata2. INMO OPS, CLUB OPS y AUTO OPS tienen dashboard a medida
+// (src/pages/InmoOps.jsx, ClubOps.jsx, AutoOps.jsx); APPLE OPS corre sobre el
+// motor genérico (src/lib/GenericOps.jsx) a partir de su lista de `modules`.
+//
+// RESTAURANT OPS, DISTRIBUIDORA OPS, GYM OPS y ACADEMY OPS quedan comentados
+// más abajo (no se muestran en el catálogo activo, pero el código sigue
+// andando) hasta que se decida volver a activarlos.
 
 export const PRODUCTS = [
   {
@@ -51,6 +53,7 @@ export const PRODUCTS = [
   { id: "inmo", name: "INMO OPS", num: "02", rubro: "Inmobiliarias", builtin: true },
   { id: "club", name: "CLUB OPS", num: "03", rubro: "Clubes y asociaciones", builtin: true },
   { id: "auto", name: "AUTO OPS", num: "04", rubro: "Concesionarias", builtin: true },
+  /* Comentado a pedido: no se muestra en el catálogo activo por ahora.
   { id: "restaurant", name: "RESTAURANT OPS", num: "05", rubro: "Gastronomía", builtin: true },
   { id: "distribuidora", name: "DISTRIBUIDORA OPS", num: "06", rubro: "Distribuidoras y mayoristas", builtin: true },
   {
@@ -150,4 +153,5 @@ export const PRODUCTS = [
       },
     ],
   },
+  */
 ];
