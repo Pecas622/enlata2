@@ -148,7 +148,7 @@ function StepPlan({ product, onNext, onBack }) {
           ))}
         </ul>
         <div style={{ fontSize: 12, color: GRAY, borderTop: `1px solid ${BORDER}`, paddingTop: 14 }}>
-          <span style={{ color: GREEN }}>＋</span> Podés activar módulos adicionales (financiación, WhatsApp, facturación ARCA y más) cuando los necesites, probándolos gratis antes de pagar.
+          <span style={{ color: GREEN }}>＋</span> Podés activar módulos adicionales (reportes avanzados, financiación, facturación ARCA) cuando los necesites, probándolos gratis antes de pagar.
         </div>
       </div>
 
