@@ -5,9 +5,8 @@ import { fmtARS as fmtMoneyARS } from "../lib/utils.js";
 import { Btn as SharedBtn, Field as SharedField, Input as SharedInput } from "../lib/ui.jsx";
 import { PRODUCTS } from "../config/products.js";
 
-const IMPLEMENTATION_PRICE = 200; // USD, precio de lanzamiento
-const IMPLEMENTATION_REGULAR = 299;
-const MONTHLY_PRICE = 100000; // ARS
+const IMPLEMENTATION_PRICE = 150; // USD, implementación + primer mes
+const MONTHLY_PRICE = 50000; // ARS, sistema base
 
 const STEPS = ["Solución", "Tu plan", "Tu negocio", "Medio de pago", "Confirmación"];
 
@@ -127,19 +126,19 @@ function StepProduct({ product, setProduct, onNext }) {
 function StepPlan({ product, onNext, onBack }) {
   return (
     <div>
-      <SectionTitle sub={`Precio de lanzamiento para ${product?.name}.`}>Tu plan</SectionTitle>
+      <SectionTitle sub={`Sistema base para ${product?.name}.`}>Tu plan</SectionTitle>
 
       <div style={{ maxWidth: 480, background: CARD2, border: `2px solid ${GREEN}`, borderRadius: 16, padding: "28px 26px", marginBottom: 20, position: "relative" }}>
-        <div style={{ position: "absolute", top: -13, left: 26, background: GREEN, color: CARBON, fontSize: 11, fontWeight: 800, padding: "4px 12px", borderRadius: 999 }}>Precio de lanzamiento</div>
+        <div style={{ position: "absolute", top: -13, left: 26, background: GREEN, color: CARBON, fontSize: 11, fontWeight: 800, padding: "4px 12px", borderRadius: 999 }}>Sistema base</div>
         <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 14, marginBottom: 18 }}>
           <div>
-            <div style={{ fontSize: 12, color: GRAY, textTransform: "uppercase", marginBottom: 4 }}>Implementación</div>
+            <div style={{ fontSize: 12, color: GRAY, textTransform: "uppercase", marginBottom: 4 }}>Implementación + 1er mes</div>
             <div style={{ fontFamily: "Space Grotesk", fontWeight: 800, fontSize: 22, color: OFFWHITE }}>
-              USD {IMPLEMENTATION_PRICE} <span style={{ fontSize: 13, fontWeight: 500, color: GRAY, textDecoration: "line-through" }}>USD {IMPLEMENTATION_REGULAR}</span>
+              USD {IMPLEMENTATION_PRICE}
             </div>
           </div>
           <div style={{ textAlign: "right" }}>
-            <div style={{ fontSize: 12, color: GRAY, textTransform: "uppercase", marginBottom: 4 }}>Mensualidad</div>
+            <div style={{ fontSize: 12, color: GRAY, textTransform: "uppercase", marginBottom: 4 }}>Después, mensualidad</div>
             <div style={{ fontFamily: "Space Grotesk", fontWeight: 800, fontSize: 22, color: OFFWHITE }}>{fmtMoneyARS(MONTHLY_PRICE)}<span style={{ fontSize: 13, color: GRAY }}>/mes</span></div>
           </div>
         </div>
@@ -149,7 +148,7 @@ function StepPlan({ product, onNext, onBack }) {
           ))}
         </ul>
         <div style={{ fontSize: 12, color: GRAY, borderTop: `1px solid ${BORDER}`, paddingTop: 14 }}>
-          <span style={{ color: GREEN }}>＋</span> Si más adelante sumás funciones nuevas, se cotizan aparte.
+          <span style={{ color: GREEN }}>＋</span> Podés activar módulos adicionales (financiación, WhatsApp, facturación ARCA y más) cuando los necesites, probándolos gratis antes de pagar.
         </div>
       </div>
 
@@ -247,8 +246,8 @@ function StepConfirm({ product, biz, method, orderId, onRestart }) {
         <Row label="Contacto" value={`${biz.contact} · ${biz.phone}`} />
         <Row label="Medio de pago" value={methodLabel} />
         <div style={{ height: 1, background: BORDER, margin: "14px 0" }} />
-        <Row label="Implementación (única vez)" value={`USD ${IMPLEMENTATION_PRICE}`} strong />
-        <Row label="Mensualidad" value={`${fmtMoneyARS(MONTHLY_PRICE)}/mes`} strong />
+        <Row label="Implementación + 1er mes" value={`USD ${IMPLEMENTATION_PRICE}`} strong />
+        <Row label="Mensualidad (desde el 2do mes)" value={`${fmtMoneyARS(MONTHLY_PRICE)}/mes`} strong />
       </div>
 
       <div style={{ maxWidth: 520, background: "rgba(184,255,61,0.06)", border: `1px solid rgba(184,255,61,0.25)`, borderRadius: 12, padding: "18px 20px", marginBottom: 28 }}>
