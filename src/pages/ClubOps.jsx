@@ -157,6 +157,7 @@ export default function App() {
       try {
         const res = await window.storage.get(STORAGE_KEY, false);
         if (res && res.value) setData({ ...EMPTY_DATA, ...JSON.parse(res.value) });
+        else await persist(seedDemoData());
       } catch (e) { /* first run */ }
       finally { setLoaded(true); }
     })();

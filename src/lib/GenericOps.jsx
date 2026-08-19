@@ -254,6 +254,7 @@ export default function GenericOps({ product }) {
       try {
         const res = await window.storage.get(storageKey, false);
         if (res && res.value) setData({ ...emptyData, ...JSON.parse(res.value) });
+        else if (product.demoSeed) await persist({ ...emptyData, ...product.demoSeed() });
       } catch (e) { /* first run */ }
       finally { setLoaded(true); }
     })();
@@ -267,6 +268,8 @@ export default function GenericOps({ product }) {
   }, [storageKey]);
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 2200); };
+  const loadDemo = () => { if (product.demoSeed) { persist({ ...emptyData, ...product.demoSeed() }); showToast("Datos demo cargados"); } };
+  const clearAll = () => { persist(emptyData); showToast("Datos borrados"); };
 
   if (!loaded) {
     return <div style={{ background: CARBON, minHeight: 400, display: "flex", alignItems: "center", justifyContent: "center", color: GRAY, fontFamily: "Inter" }}>Cargando {product.name}...</div>;
@@ -297,6 +300,12 @@ export default function GenericOps({ product }) {
             ))}
           </div>
           <div style={{ marginTop: "auto", padding: "12px 10px", display: "flex", flexDirection: "column", gap: 6 }}>
+            {product.demoSeed && (
+              <>
+                <Btn variant="secondary" onClick={loadDemo} style={{ fontSize: 11.5, padding: "7px 10px", width: "100%" }}>Cargar datos demo</Btn>
+                <Btn variant="ghost" onClick={clearAll} style={{ fontSize: 11, padding: "5px 10px" }}>Borrar todo</Btn>
+              </>
+            )}
             {product.businessUrl && (
               <a href={product.businessUrl} target="_blank" rel="noopener noreferrer" style={{ fontFamily: "Inter", fontSize: 11.5, color: GREEN, textDecoration: "none" }}>
                 {product.businessName || product.name} ↗

@@ -5,10 +5,35 @@
 // RESTAURANT OPS, DISTRIBUIDORA OPS, GYM OPS y ACADEMY OPS quedan comentados
 // más abajo (no se muestran en el catálogo activo, pero el código sigue
 // andando) hasta que se decida volver a activarlos.
+//
+// `demoSeed`, si está definido, precarga la demo con datos de ejemplo la
+// primera vez que se abre (ver GenericOps.jsx) para que se vea el sistema
+// funcionando en vez de arrancar todo en cero.
+
+import { uid, todayStr, addDays } from "../lib/utils.js";
 
 export const PRODUCTS = [
   {
     id: "apple", name: "APPLE OPS", num: "01", rubro: "Locales de celulares", currency: "usd",
+    demoSeed: () => ({
+      stock: [
+        { id: uid(), model: "iPhone 13 128GB", condition: "Usado - Excelente", price: "650", status: "Disponible" },
+        { id: uid(), model: "iPhone 14 256GB", condition: "Nuevo", price: "980", status: "Disponible" },
+        { id: uid(), model: "iPhone 12 64GB", condition: "Usado - Bueno", price: "480", status: "Reservado" },
+        { id: uid(), model: "iPhone 15 128GB", condition: "Nuevo", price: "1150", status: "Vendido" },
+      ],
+      ventas: [
+        { id: uid(), client: "Martina Ríos", equipment: "iPhone 15 128GB", amount: "1150", method: "Transferencia", date: todayStr() },
+        { id: uid(), client: "Federico Suárez", equipment: "iPhone 11 64GB", amount: "380", method: "Efectivo", date: addDays(todayStr(), -2) },
+      ],
+      cash: [
+        { id: uid(), type: "Ingreso", concept: "Venta iPhone 15 128GB", amount: "1150", date: todayStr() },
+        { id: uid(), type: "Egreso", concept: "Alquiler local", amount: "300", date: addDays(todayStr(), -1) },
+      ],
+      canje: [
+        { id: uid(), client: "Federico Suárez", deviceIn: "iPhone 8 64GB", deviceCondition: "Bueno", recognizedValue: "150", date: addDays(todayStr(), -2) },
+      ],
+    }),
     modules: [
       {
         id: "stock", label: "Stock", icon: "▦", countLabel: "equipos publicados", addLabel: "Nuevo equipo",
