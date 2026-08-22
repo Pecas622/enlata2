@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { FONT_IMPORT, CARBON, CARD, CARD2, BORDER, OFFWHITE, GREEN, GRAY, RED, AMBER } from "../lib/theme.js";
 import { uid, todayStr, addDays, daysBetween, fmtUSD as fmtMoney, fmtDate } from "../lib/utils.js";
 import { Badge, Btn, Field, Input, Select, Card, EmptyState, PageHeader, FilterChips } from "../lib/ui.jsx";
+import FacturacionModule from "../lib/Facturacion.jsx";
 
 const STORAGE_KEY = "autoops-full-data";
 const MP_COMMISSION_RATE = 0.0604;
@@ -21,7 +22,7 @@ const TESTDRIVE_STATUSES = ["Programado", "Confirmado", "Realizado", "Cancelado"
 
 const EMPTY_DATA = {
   vehicles: [], clients: [], leads: [], tradeIns: [], purchases: [], sales: [],
-  financings: [], reservations: [], testDrives: [], cash: [], sellers: [],
+  financings: [], reservations: [], testDrives: [], cash: [], sellers: [], facturas: [],
   config: { agencyName: "Tu Concesionaria", brands: ["Toyota", "VW", "Ford", "Chevrolet"] },
 };
 
@@ -178,6 +179,7 @@ export default function App() {
     { id: "reservations", label: "Reservas", roles: ["Administrador", "Gerente", "Vendedor"] },
     { id: "testdrives", label: "Test Drives", roles: ["Administrador", "Gerente", "Vendedor"] },
     { id: "cash", label: "Caja", roles: ["Administrador", "Gerente", "Administrativo"] },
+    { id: "facturacion", label: "Facturación", roles: ["Administrador", "Gerente", "Administrativo"] },
     { id: "reports", label: "Reportes", roles: ["Administrador", "Gerente"] },
     { id: "config", label: "Configuración", roles: ["Administrador"] },
   ];
@@ -234,6 +236,9 @@ export default function App() {
           {page === "reservations" && <Reservations data={data} persist={persist} showToast={showToast} />}
           {page === "testdrives" && <TestDrives data={data} persist={persist} showToast={showToast} />}
           {page === "cash" && <Cash data={data} persist={persist} showToast={showToast} />}
+          {page === "facturacion" && (
+            <FacturacionModule data={data} persist={persist} showToast={showToast} fmtMoney={fmtMoney} negocio={{ nombre: data.config?.agencyName }} />
+          )}
           {page === "reports" && <Reports data={data} />}
           {page === "config" && <Config data={data} persist={persist} showToast={showToast} />}
         </div>

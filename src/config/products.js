@@ -61,6 +61,7 @@ export const PRODUCTS = [
         ],
       },
       { id: "cash", label: "Caja", icon: "$", type: "cash" },
+      { id: "facturas", label: "Facturación", icon: "▤", type: "invoicing" },
       {
         id: "canje", label: "Plan Canje", icon: "⇄", countLabel: "canjes", addLabel: "Nuevo canje",
         emptyText: "Todavía no hay canjes registrados.", addedMsg: "Canje registrado",

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { FONT_IMPORT, CARBON, CARD, CARD2, BORDER, OFFWHITE, GREEN, GRAY, RED, AMBER } from "../lib/theme.js";
 import { uid, todayStr, daysBetween, fmtDate } from "../lib/utils.js";
 import { Badge, Btn, Field, Input, Select, Card, EmptyState, PageHeader, FilterChips } from "../lib/ui.jsx";
+import FacturacionModule from "../lib/Facturacion.jsx";
 
 const STORAGE_KEY = "inmoops-full-data";
 const MP_COMMISSION_RATE = 0.0604;
@@ -22,7 +23,8 @@ const OPERATION_STATUSES = ["En proceso", "Reserva", "Contrato", "Cerrada", "Can
 
 const EMPTY_DATA = {
   properties: [], clients: [], owners: [], leads: [], visits: [], tasks: [],
-  operations: [], commissionPayments: [], config: { agencyName: "Tu Inmobiliaria", commissionPercent: "4" },
+  operations: [], commissionPayments: [], facturas: [],
+  config: { agencyName: "Tu Inmobiliaria", commissionPercent: "4" },
 };
 
 // unlike GenericOps/AutoOps money values, property prices here can carry a per-record currency
@@ -165,6 +167,7 @@ export default function App() {
     { id: "operations", label: "Operaciones", roles: ["Administrador", "Gerente", "Administrativo"] },
     { id: "matching", label: "Matching", roles: ["Administrador", "Gerente", "Asesor"] },
     { id: "commissions", label: "Comisiones", roles: ["Administrador", "Gerente"] },
+    { id: "facturacion", label: "Facturación", roles: ["Administrador", "Gerente", "Administrativo"] },
     { id: "reports", label: "Reportes", roles: ["Administrador", "Gerente"] },
     { id: "config", label: "Configuración", roles: ["Administrador"] },
   ];
@@ -220,6 +223,9 @@ export default function App() {
           {page === "operations" && <Operations data={data} persist={persist} showToast={showToast} />}
           {page === "matching" && <Matching data={data} />}
           {page === "commissions" && <Commissions data={data} persist={persist} showToast={showToast} />}
+          {page === "facturacion" && (
+            <FacturacionModule data={data} persist={persist} showToast={showToast} fmtMoney={fmtMoney} negocio={{ nombre: data.config?.agencyName }} />
+          )}
           {page === "reports" && <Reports data={data} />}
           {page === "config" && <Config data={data} persist={persist} showToast={showToast} />}
         </div>

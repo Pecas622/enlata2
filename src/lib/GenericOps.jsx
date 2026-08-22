@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { FONT_IMPORT, CARBON, BORDER, OFFWHITE, GREEN, GRAY, RED } from "./theme.js";
 import { uid, todayStr, fmtUSD, fmtARS, fmtDate } from "./utils.js";
 import { Badge, Btn, Field, Input, Select, Card, EmptyState, PageHeader, FilterChips, StatCard } from "./ui.jsx";
+import FacturacionModule from "./Facturacion.jsx";
 
 function fmtAmount(n, currency) {
   return currency === "usd" ? fmtUSD(n) : fmtARS(n);
@@ -323,6 +324,17 @@ export default function GenericOps({ product }) {
           {product.modules.map((m) => page === m.id && (
             m.type === "cash"
               ? <CashModule key={m.id} data={data} persist={persist} showToast={showToast} currency={product.currency} />
+              : m.type === "invoicing"
+              ? (
+                <FacturacionModule
+                  key={m.id}
+                  data={data}
+                  persist={persist}
+                  showToast={showToast}
+                  fmtMoney={(n) => fmtAmount(n, product.currency)}
+                  negocio={{ nombre: product.businessName || product.name }}
+                />
+              )
               : <CrudModule key={m.id} module={m} data={data} persist={persist} showToast={showToast} currency={product.currency} />
           ))}
         </div>

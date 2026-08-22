@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { FONT_IMPORT, CARBON, CARD, CARD2, BORDER, OFFWHITE, GREEN, GRAY, RED, AMBER } from "../lib/theme.js";
 import { uid, todayStr, addDays, daysBetween, fmtDate } from "../lib/utils.js";
 import { Badge, Btn, Field, Input, Select, Card, EmptyState, PageHeader, FilterChips } from "../lib/ui.jsx";
+import FacturacionModule from "../lib/Facturacion.jsx";
 
 const STORAGE_KEY = "clubops-full-data";
 const MP_COMMISSION_RATE = 0.0604;
@@ -23,7 +24,7 @@ const EVENT_TYPES = ["Torneo", "Fiesta", "Cena", "Clínica", "Campamento", "Reca
 const EMPTY_DATA = {
   members: [], sports: [], categories: [], players: [], coaches: [], trainings: [],
   matches: [], facilities: [], reservations: [], events: [], inventory: [], cash: [],
-  quotas: [], payments: [], config: { clubName: "Tu Club", quotaAmount: "15000" },
+  quotas: [], payments: [], facturas: [], config: { clubName: "Tu Club", quotaAmount: "15000" },
 };
 
 // club money is always ARS (unlike InmoOps where currency varies per record)
@@ -187,6 +188,7 @@ export default function App() {
     { id: "events", label: "Eventos", roles: ["Administrador", "Directivo", "Administrativo"] },
     { id: "inventory", label: "Inventario", roles: ["Administrador", "Directivo"] },
     { id: "cash", label: "Caja", roles: ["Administrador", "Directivo"] },
+    { id: "facturacion", label: "Facturación", roles: ["Administrador", "Directivo", "Administrativo"] },
     { id: "communication", label: "Comunicación", roles: ["Administrador", "Directivo", "Administrativo"] },
     { id: "reports", label: "Reportes", roles: ["Administrador", "Directivo"] },
     { id: "config", label: "Configuración", roles: ["Administrador"] },
@@ -246,6 +248,9 @@ export default function App() {
           {page === "events" && <Events data={data} persist={persist} showToast={showToast} />}
           {page === "inventory" && <Inventory data={data} persist={persist} showToast={showToast} />}
           {page === "cash" && <Cash data={data} persist={persist} showToast={showToast} />}
+          {page === "facturacion" && (
+            <FacturacionModule data={data} persist={persist} showToast={showToast} fmtMoney={fmtMoney} negocio={{ nombre: data.config?.clubName }} />
+          )}
           {page === "communication" && <Communication data={data} />}
           {page === "reports" && <Reports data={data} />}
           {page === "config" && <Config data={data} persist={persist} showToast={showToast} />}
