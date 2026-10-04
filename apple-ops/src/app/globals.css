@@ -69,3 +69,66 @@ a { color: inherit; text-decoration: none; }
 .user-pick.active { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(0,113,227,.2); }
 .user-pick b { display: block; font-size: 14px; }
 .user-pick span { font-size: 12px; color: var(--gray); }
+
+/* Encabezado de página, badges, avisos, tablas */
+.page-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+.page-head .page-sub { margin: 0; }
+.page-action { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.badge { display: inline-block; padding: 3px 9px; border-radius: 980px; font-size: 11.5px; font-weight: 600; background: var(--bg); color: var(--text); white-space: nowrap; }
+.badge-green { background: rgba(36,138,61,.10); color: var(--success); }
+.badge-red { background: rgba(215,0,21,.08); color: var(--red); }
+.badge-amber { background: rgba(178,80,0,.10); color: var(--amber); }
+.badge-blue { background: rgba(0,113,227,.10); color: var(--accent); }
+.badge-gray { background: #E8E8ED; color: var(--gray); }
+
+.notice { padding: 10px 14px; border-radius: 10px; font-size: 13px; }
+.notice-amber { background: rgba(178,80,0,.08); color: var(--amber); }
+.notice-red { background: rgba(215,0,21,.07); color: var(--red); }
+.notice-blue { background: rgba(0,113,227,.08); color: var(--accent); }
+
+.table-wrap { overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.table th { text-align: left; font-weight: 500; color: var(--gray); font-size: 12px; padding: 8px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.table td { padding: 10px; border-bottom: 1px solid #EDEDF0; vertical-align: middle; }
+.table tr.clickable { cursor: pointer; }
+.table tr.clickable:hover td { background: #FAFAFC; }
+.table .r { text-align: right; }
+.table .sub { color: var(--gray); font-size: 11.5px; }
+.empty { padding: 36px 20px; text-align: center; color: var(--gray); font-size: 13px; }
+
+.toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+.pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.pill { padding: 6px 12px; border-radius: 980px; border: 1px solid var(--border); background: #fff; font: inherit; font-size: 12.5px; color: var(--gray); cursor: pointer; }
+.pill.active { background: var(--text); border-color: var(--text); color: #fff; }
+.pill small { opacity: .7; margin-left: 4px; }
+
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; align-items: start; }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
+.row > .field { flex: 1 1 150px; }
+.card-title { font-weight: 600; font-size: 15px; margin: 0 0 10px; }
+.chip { padding: 6px 11px; border-radius: 980px; border: 1px solid var(--border); background: transparent; font: inherit; font-size: 12px; font-weight: 600; color: var(--gray); cursor: pointer; }
+.chip.on { background: rgba(178,80,0,.10); border-color: var(--amber); color: var(--amber); }
+.check { display: flex; gap: 8px; align-items: center; font-size: 13px; color: var(--text); cursor: pointer; }
+.facts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; margin-bottom: 14px; }
+.facts span { color: var(--gray); }
+.lines { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 13px; }
+.lines div { display: flex; justify-content: space-between; padding: 3px 0; }
+.lines .neg { color: var(--amber); }
+.lines .total { border-top: 1px solid var(--border); margin-top: 6px; padding-top: 8px; font-weight: 600; }
+.lines .total b { color: var(--accent); }
+.ok { color: var(--success); }
+.history { font-size: 12.5px; color: var(--gray); display: flex; flex-direction: column; gap: 4px; }
+.back { font-size: 13px; color: var(--accent); display: inline-block; margin-bottom: 12px; }
+
+/* Comprobantes */
+.ticket { font-family: Arial, sans-serif; font-size: 12px; color: #111; background: #fff; padding: 18px; max-width: 380px; margin: 24px auto; }
+.ticket h1 { font-size: 16px; margin: 0; }
+.ticket table { width: 100%; border-collapse: collapse; }
+.ticket td { padding: 3px 0; vertical-align: top; }
+.ticket .r { text-align: right; }
+.ticket hr { border: 0; border-top: 1px dashed #999; margin: 10px 0; }
+.ticket .s { color: #555; font-size: 11px; }
+.ticket .b { font-weight: bold; }
+@media print { body { background: #fff; } .no-print { display: none; } .ticket { margin: 0; } }
