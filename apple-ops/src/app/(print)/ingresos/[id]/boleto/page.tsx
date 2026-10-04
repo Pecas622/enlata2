@@ -4,7 +4,7 @@ import { requireSection } from "@/lib/guard";
 import { fmtUSD } from "@/lib/money";
 import { loadStoreConfig } from "@/lib/store";
 import { createClient } from "@/lib/supabase/server";
-import { PrintButton } from "./PrintButton";
+import { PrintButton } from "@/components/PrintButton";
 
 export default async function BoletoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
