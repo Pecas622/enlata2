@@ -17,6 +17,9 @@ export type Condition = (typeof CONDITIONS)[number];
 export const GRADE_NOTES: Partial<Record<Condition, string>> = { "Usado A": "Sin marcas visibles", "Usado B": "Marcas leves de uso" };
 export const DEVICE_STATUSES = ["Disponible", "Reservado", "En reparación", "Vendido", "Retirado"] as const;
 export type DeviceStatus = (typeof DEVICE_STATUSES)[number];
+export const ACC_CATEGORIES = ["Fundas", "Vidrios", "Cargadores", "Cables", "Auriculares", "Soportes", "Otros"] as const;
+export type AccCategory = (typeof ACC_CATEGORIES)[number];
+
 export const ORIGINS = ["Compra a particular", "Proveedor", "Otro"] as const;
 export type Origin = (typeof ORIGINS)[number] | "Canje";
 export const DEFECTS = ["Pantalla dañada", "Tapa trasera rota", "Cámara con falla", "Face ID / Touch ID no funciona", "Botones con falla", "Puerto de carga con falla", "Parlante / micrófono con falla"];
