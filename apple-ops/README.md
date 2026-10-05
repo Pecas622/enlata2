@@ -54,11 +54,12 @@ CI corre todo lo anterior en cada PR contra un Supabase local.
 - `supabase/migrations/`: esquema, vistas y políticas RLS. Los permisos por rol se aplican en la base: aunque alguien consulte Supabase directo, no recibe lo que su rol no ve.
 - Los costos viven en tablas aparte (`device_costs`, `accessory_costs`, `sale_line_costs`) que solo leen Administrador y Encargado.
 - El catálogo público lee únicamente las vistas `catalogo_publico`, `accesorios_publicos` y `catalogo_config_publica`, que no tienen costos, IMEI ni datos de clientes.
-- Ventas, anulaciones, ingresos y caja no se escriben directo: pasan por funciones SQL transaccionales (`registrar_ingreso`, `editar_equipo`, `registrar_venta`, `anular_venta`, `guardar_accesorio`, `reponer_accesorio`, `carga_masiva_accesorios`, `guardar_cliente`, `abrir_caja`, `movimiento_caja`, `cerrar_caja`, `guardar_usuario`, `guardar_config`). Cada una deja registro con usuario y hora.
+- Ventas, anulaciones, ingresos y caja no se escriben directo: pasan por funciones SQL transaccionales (`registrar_ingreso`, `editar_equipo`, `registrar_venta`, `anular_venta`, `guardar_accesorio`, `reponer_accesorio`, `carga_masiva_accesorios`, `guardar_cliente`, `abrir_caja`, `movimiento_caja`, `cerrar_caja`, `guardar_usuario`, `guardar_config`, `guardar_catalogo`, `catalogo_equipo`). Cada una deja registro con usuario y hora.
 - `registrar_venta` recalcula totales con la cotización del local, tasa el canje con `tasar_canje` (la misma cuenta que `appraise()`), controla precio, descuento y tope de canje según el rol, descuenta stock, cobra por la caja abierta y deja historial y registro. `anular_venta` devuelve el stock, registra el egreso en caja y retira el equipo del canje.
 - Caja: una sola abierta por local. `resumen_caja` devuelve el efectivo esperado y el desglose por medio de pago, salvo al Cajero, que cuenta a ciegas. `cerrar_caja` recalcula el esperado, guarda contado, diferencia y desglose, y exige motivo si hay diferencia (al Cajero no, porque no la ve).
 - Usuarios y configuración: solo el Administrador. El alta crea la cuenta de Auth en el servidor (con la clave de servicio) y `guardar_usuario` guarda rol, comisión y PIN, cuidando que quede al menos un administrador activo. `guardar_config` actualiza el local, la cotización y la tabla de tasación en una sola operación.
 - Reportes y dashboard calculan con funciones puras (`src/lib/reports.ts`). Los costos llegan solo a Administrador y Encargado, así que la ganancia no existe para los demás roles.
+- Catálogo público en `/catalogo/<link>` y cotizador en `/catalogo/<link>/cotizar`, sin login. Solo leen vistas (`catalogo_publico`, `accesorios_publicos`, `catalogo_config_publica`, `tasacion_publica`, `catalogo_estado`) que nunca exponen costos, IMEI, clientes ni márgenes, y hay un test que lo verifica. El cotizador usa `appraise()` con la tabla de tasación del local (mejor caso: Usado A, sin fallas) y dice "vale hasta"; si el modelo no tiene valor, deriva a un asesor. Los toques en WhatsApp pasan por `/catalogo/<link>/wa`, que los cuenta (`registrar_consulta`) para el panel.
 - Los datos demo traen seis días de ventas y cierres de caja, y la caja de hoy abierta.
 - Login con email y contraseña. En el mostrador, "Cambiar usuario" pasa a otro usuario del mismo local con su PIN de 4 dígitos (5 intentos fallidos lo bloquean 5 minutos).
 - Las altas de usuarios las hace el Administrador; el registro público está desactivado. En el Supabase de producción hay que desactivarlo también en Authentication → Sign In / Providers.
@@ -70,7 +71,7 @@ CI corre todo lo anterior en cada PR contra un Supabase local.
 3. Ventas y plan canje
 4. Accesorios y clientes
 5. Caja
-6. Reportes, usuarios y configuración ← esta
-7. Catálogo público
+6. Reportes, usuarios y configuración
+7. Catálogo público ← esta
 8. Asistente
 9. Deploy en Vercel
