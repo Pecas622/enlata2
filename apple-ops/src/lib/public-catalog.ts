@@ -10,7 +10,7 @@ export type PublicConfig = {
 };
 export type PublicDevice = {
   id: string; kind: string; model: string; capacity: number; color: string; condition: string; battery: number | null;
-  price_usd: number; warranty_days: number; featured: boolean; entry_date: string;
+  price_usd: number; warranty_days: number; featured: boolean; entry_date: string; photo_path: string | null;
 };
 export type PublicAccessory = { id: string; name: string; category: string; price_ars: number };
 
@@ -32,7 +32,7 @@ export async function loadPublicCatalog(supabase: SupabaseClient, slug: string):
     return data ? { state: "paused", storeName: data.store_name } : { state: "missing" };
   }
   const [{ data: devs }, { data: accs }] = await Promise.all([
-    supabase.from("catalogo_publico").select("id, kind, model, capacity, color, condition, battery, price_usd, warranty_days, featured, entry_date").eq("slug", slug),
+    supabase.from("catalogo_publico").select("id, kind, model, capacity, color, condition, battery, price_usd, warranty_days, featured, entry_date, photo_path").eq("slug", slug),
     supabase.from("accesorios_publicos").select("id, name, category, price_ars").eq("slug", slug).order("category").order("name"),
   ]);
   return {

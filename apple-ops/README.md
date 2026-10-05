@@ -64,6 +64,8 @@ CI corre todo lo anterior en cada PR contra un Supabase local.
 - Reportes y dashboard calculan con funciones puras (`src/lib/reports.ts`). Los costos llegan solo a Administrador y Encargado, así que la ganancia no existe para los demás roles.
 - Catálogo público en `/catalogo/<link>` y cotizador en `/catalogo/<link>/cotizar`, sin login. Solo leen vistas (`catalogo_publico`, `accesorios_publicos`, `catalogo_config_publica`, `tasacion_publica`, `catalogo_estado`) que nunca exponen costos, IMEI, clientes ni márgenes, y hay un test que lo verifica. El cotizador usa `appraise()` con la tabla de tasación del local (mejor caso: Usado A, sin fallas) y dice "vale hasta"; si el modelo no tiene valor, deriva a un asesor. Los toques en WhatsApp pasan por `/catalogo/<link>/wa`, que los cuenta (`registrar_consulta`) para el panel.
 - Asistente de chat del catálogo (botón "Preguntanos"): el navegador habla con `/catalogo/<link>/asistente`, que corre en el servidor. Con `ANTHROPIC_API_KEY` responde Claude (`claude-opus-5-5`, esfuerzo bajo, con el modelo de respaldo automático de la API si el pedido es rechazado) usando las herramientas `buscar_stock`, `cotizar_canje`, `mostrar_equipos` y `derivar_a_asesor`, que solo leen vistas públicas. Si no hay clave, o la IA falla o tarda más de 12 s, responde el motor de reglas (`src/lib/assistant.ts`, réplica de `assistantStep()` del prototipo). Las cotizaciones de canje son rangos orientativos con `appraise()`; reclamos, descuentos, cuotas y equipos sin referencia se derivan a WhatsApp. Cada charla queda en el panel del catálogo (`registrar_chat`) y las opciones se guardan con `guardar_asistente`.
+- Fotos del catálogo: se suben desde Catálogo online al bucket público `fotos-equipos` de Supabase Storage. La base valida rol y equipo (`catalogo_equipo_foto`) y el servidor sube el archivo con la clave de servicio; el navegador achica la foto a 1200 px antes de mandarla.
+- Producción: ver [DEPLOY.md](DEPLOY.md). El primer local se crea con `npm run crear-local` (función `crear_local`, solo con la clave de servicio).
 - Los datos demo traen seis días de ventas y cierres de caja, y la caja de hoy abierta.
 - Login con email y contraseña. En el mostrador, "Cambiar usuario" pasa a otro usuario del mismo local con su PIN de 4 dígitos (5 intentos fallidos lo bloquean 5 minutos).
 - Las altas de usuarios las hace el Administrador; el registro público está desactivado. En el Supabase de producción hay que desactivarlo también en Authentication → Sign In / Providers.
@@ -77,5 +79,5 @@ CI corre todo lo anterior en cada PR contra un Supabase local.
 5. Caja
 6. Reportes, usuarios y configuración
 7. Catálogo público
-8. Asistente de chat ← esta
-9. Deploy en Vercel
+8. Asistente de chat
+9. Deploy en Vercel y fotos del catálogo ← esta

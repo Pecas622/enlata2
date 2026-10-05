@@ -1,4 +1,6 @@
-// Ilustración del equipo por tipo y color, portada de DeviceArt del prototipo (sin foto real).
+// Foto real del equipo si tiene, o ilustración por tipo y color (DeviceArt del prototipo).
+import { photoUrl } from "@/lib/photos";
+
 export const COLOR_HEX: Record<string, string> = {
   Negro: "#2E2E30", Blanco: "#F0F0F0", Plata: "#D9DADC", Azul: "#9DB7D0", Rojo: "#BF2C3A", Verde: "#B3CBB6",
   Rosa: "#F2CFD6", "Titanio natural": "#BDB3A6", "Titanio negro": "#3E3E41", Dorado: "#E3CFA8",
@@ -10,7 +12,9 @@ function shade(hex: string, amt: number) {
   return "#" + [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => f(v).toString(16).padStart(2, "0")).join("");
 }
 
-export function DeviceArt({ kind, color }: { kind: string; color: string }) {
+export function DeviceArt({ kind, color, photo }: { kind: string; color: string; photo?: string | null }) {
+  // eslint-disable-next-line @next/next/no-img-element -- fotos del bucket público, sin optimizador de Next
+  if (photo) return <img src={photoUrl(photo)} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "contain" }} data-testid="device-photo" />;
   const hex = COLOR_HEX[color] || "#BDBDBD";
   const dark = shade(hex, -38);
   const light = shade(hex, 22);
