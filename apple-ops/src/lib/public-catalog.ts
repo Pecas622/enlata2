@@ -1,10 +1,12 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { AppraisalConfig } from "./appraise";
 import type { PublicValue } from "./quote";
 
 // Solo lee las vistas públicas: nunca costos, IMEI, clientes ni márgenes.
 export type PublicConfig = {
   slug: string; store_name: string; address: string; whatsapp: string; phone: string; headline: string; tagline: string;
   fx: number; warranty_new_days: number; warranty_used_days: number;
+  assistant_on: boolean; assistant_name: string; greeting: string;
 };
 export type PublicDevice = {
   id: string; kind: string; model: string; capacity: number; color: string; condition: string; battery: number | null;
@@ -18,7 +20,7 @@ export type PublicCatalog =
   | { state: "ok"; cfg: PublicConfig; devices: PublicDevice[]; accessories: PublicAccessory[] };
 
 export async function loadPublicConfig(supabase: SupabaseClient, slug: string) {
-  const { data } = await supabase.from("catalogo_config_publica").select("slug, store_name, address, whatsapp, phone, headline, tagline, fx, warranty_new_days, warranty_used_days").eq("slug", slug).maybeSingle();
+  const { data } = await supabase.from("catalogo_config_publica").select("slug, store_name, address, whatsapp, phone, headline, tagline, fx, warranty_new_days, warranty_used_days, assistant_on, assistant_name, greeting").eq("slug", slug).maybeSingle();
   if (!data) return null;
   return { ...data, fx: Number(data.fx) } as PublicConfig;
 }
@@ -44,6 +46,19 @@ export async function loadPublicCatalog(supabase: SupabaseClient, slug: string):
 export async function loadPublicValues(supabase: SupabaseClient, slug: string): Promise<PublicValue[]> {
   const { data } = await supabase.from("tasacion_publica").select("model, capacity, value_usd, mult_usado_a").eq("slug", slug);
   return (data ?? []).map((v) => ({ ...v, value_usd: Number(v.value_usd), mult_usado_a: Number(v.mult_usado_a) }));
+}
+
+// Tabla de tasación del local para el canje por chat (estado y fallas incluidos).
+export async function loadPublicAppraisal(supabase: SupabaseClient, slug: string): Promise<AppraisalConfig> {
+  const { data } = await supabase.from("tasacion_publica").select("model, capacity, value_usd, mult_por_estado, descuentos_por_falla").eq("slug", slug);
+  const rows = data ?? [];
+  const nums = (o: unknown) => Object.fromEntries(Object.entries((o ?? {}) as Record<string, unknown>).map(([k, v]) => [k, Number(v) || 0]));
+  return {
+    baseValues: rows.map((r) => ({ model: r.model, capacity: Number(r.capacity), value: Number(r.value_usd) })),
+    condMult: nums(rows[0]?.mult_por_estado),
+    defectCosts: nums(rows[0]?.descuentos_por_falla),
+    targetMargin: 0,
+  };
 }
 
 // Link de WhatsApp que pasa por el servidor para contar la consulta en el panel.
