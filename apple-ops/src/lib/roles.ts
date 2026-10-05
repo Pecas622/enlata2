@@ -52,3 +52,18 @@ export function navFor(role: Role): NavItem[] {
 export function canOpen(role: Role, section: string): boolean {
   return navFor(role).some((item) => item.id === section);
 }
+
+// Matriz de permisos que se muestra en Usuarios y roles, calculada de las mismas reglas.
+export const PERM_MATRIX: readonly [string, (r: Role) => boolean][] = [
+  ["Ver costos y ganancia", (r) => permsFor(r).seeCost],
+  ["Vender y cobrar", (r) => canOpen(r, "ventas")],
+  ["Descuentos sin tope", (r) => permsFor(r).editPrice],
+  ["Tomar canje sobre el valor sugerido", (r) => permsFor(r).overTradeIn],
+  ["Editar precios y stock", (r) => permsFor(r).editStock],
+  ["Ingresar equipos", (r) => canOpen(r, "ingresos")],
+  ["Anular ventas", (r) => permsFor(r).voidSale],
+  ["Abrir y cerrar caja", (r) => canOpen(r, "caja")],
+  ["Ver todos los cierres", (r) => permsFor(r).seeAllShifts],
+  ["Reportes", (r) => canOpen(r, "reportes")],
+  ["Usuarios y configuración", (r) => permsFor(r).manageUsers],
+];
