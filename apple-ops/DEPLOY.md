@@ -20,6 +20,8 @@ Lo que necesitás: una cuenta de Supabase, la cuenta de Vercel donde ya está `e
    ```
 
    Esto crea tablas, permisos, funciones y el bucket público `fotos-equipos` para las fotos del catálogo.
+
+   Sin instalar nada: en **SQL Editor** pegá y corré `supabase/produccion/base-parte-1.sql` y después, en otra query, `base-parte-2.sql`.
 5. En **Project Settings → API** copiá la **Project URL**, la clave **anon** y la clave **service_role**. La service_role es secreta: va solo en Vercel y en tu compu, nunca en el repo ni en el navegador.
 
 ## 2. Vercel
