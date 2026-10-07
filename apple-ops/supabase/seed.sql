@@ -106,12 +106,118 @@ insert into accessory_moves (store_id, accessory_id, qty, note, by_profile, at)
 select store_id, id, stock, 'Stock inicial', '00000000-0000-4000-8000-0000000000a2', now() - interval '20 days'
 from accessories where stock > 0;
 
-insert into clients (store_id, name, phone, dni, notes, created_at) values
-  ('00000000-0000-4000-8000-000000000001', 'María Gómez', '+54 9 261 555 0101', '30111222', '', now() - interval '40 days'),
-  ('00000000-0000-4000-8000-000000000001', 'Juan Pérez', '+54 9 261 555 0102', '28999111', 'Siempre cambia el equipo cada año', now() - interval '33 days'),
-  ('00000000-0000-4000-8000-000000000001', 'Lucas Romero', '+54 9 261 555 0103', '35444111', '', now() - interval '20 days'),
-  ('00000000-0000-4000-8000-000000000001', 'Sofía Ledesma', '+54 9 261 555 0104', '37222444', '', now() - interval '12 days'),
-  ('00000000-0000-4000-8000-000000000001', 'Diego Navarro', '+54 9 261 555 0105', '31777555', '', now() - interval '6 days');
+insert into clients (id, store_id, name, phone, dni, notes, created_at) values
+  ('00000000-0000-4000-8000-300000000001', '00000000-0000-4000-8000-000000000001', 'María Gómez', '+54 9 261 555 0101', '30111222', '', now() - interval '40 days'),
+  ('00000000-0000-4000-8000-300000000002', '00000000-0000-4000-8000-000000000001', 'Juan Pérez', '+54 9 261 555 0102', '28999111', 'Siempre cambia el equipo cada año', now() - interval '33 days'),
+  ('00000000-0000-4000-8000-300000000003', '00000000-0000-4000-8000-000000000001', 'Lucas Romero', '+54 9 261 555 0103', '35444111', '', now() - interval '20 days'),
+  ('00000000-0000-4000-8000-300000000004', '00000000-0000-4000-8000-000000000001', 'Sofía Ledesma', '+54 9 261 555 0104', '37222444', '', now() - interval '12 days'),
+  ('00000000-0000-4000-8000-300000000005', '00000000-0000-4000-8000-000000000001', 'Diego Navarro', '+54 9 261 555 0105', '31777555', '', now() - interval '6 days');
+
+-- ---------- historial de ventas y cajas ----------
+-- Seis días cerrados y hoy con la caja abierta, como en el prototipo. Las ventas pasan por
+-- registrar_venta (la misma función que usa la app), con la sesión de quien vende.
+create function pg_temp.dev(n int) returns text language sql as $$ select '00000000-0000-4000-8000-1' || lpad(n::text, 11, '0') $$;
+create function pg_temp.acc(n int) returns text language sql as $$ select '00000000-0000-4000-8000-2' || lpad(n::text, 11, '0') $$;
+create function pg_temp.cli(n int) returns text language sql as $$ select '00000000-0000-4000-8000-3' || lpad(n::text, 11, '0') $$;
+create function pg_temp.momento(p_off int, p_hour int) returns timestamptz language sql as $$
+  select least(now(), ((dia_ar(now()) - p_off) + make_time(p_hour, 0, 0)) at time zone 'America/Argentina/Mendoza')
+$$;
+
+create function pg_temp.abrir(p_off int) returns void language sql as $$
+  insert into cash_shifts (store_id, number, opened_at, opened_by, opening_ars, opening_usd)
+  values ('00000000-0000-4000-8000-000000000001', next_number('00000000-0000-4000-8000-000000000001', 'T'),
+    pg_temp.momento(p_off, 9), '00000000-0000-4000-8000-0000000000a4', 50000, 200)
+$$;
+
+create function pg_temp.cerrar(p_off int, p_diff_ars numeric, p_diff_usd numeric) returns void language plpgsql as $$
+declare
+  sh cash_shifts%rowtype;
+  v_ars numeric;
+  v_usd numeric;
+begin
+  select * into sh from cash_shifts where status = 'Abierta';
+  select ars, usd into v_ars, v_usd from efectivo_esperado(sh.id);
+  update cash_shifts set status = 'Cerrada', closed_at = pg_temp.momento(p_off, 21), closed_by = sh.opened_by,
+    expected_ars = v_ars, expected_usd = v_usd, counted_ars = v_ars + p_diff_ars, counted_usd = v_usd + p_diff_usd,
+    diff_ars = p_diff_ars, diff_usd = p_diff_usd,
+    note = case when p_diff_ars <> 0 or p_diff_usd <> 0 then 'Diferencia detectada al contar.' else '' end,
+    breakdown = desglose_caja(sh.id)
+  where id = sh.id;
+end $$;
+
+-- Cobra la mitad en dólares (redondeado a 10) y el resto por transferencia, como el seed del prototipo.
+create function pg_temp.vender(p_off int, p_hour int, p_user text, p jsonb) returns void language plpgsql as $$
+declare
+  v_fx numeric := (select fx from stores where id = '00000000-0000-4000-8000-000000000001');
+  v_sub numeric;
+  v_due numeric;
+  v_usd numeric;
+  v_at timestamptz := pg_temp.momento(p_off, p_hour);
+  t jsonb := p -> 'trade_in';
+  r json;
+begin
+  perform set_config('request.jwt.claims', json_build_object('sub', '00000000-0000-4000-8000-0000000000' || p_user, 'role', 'authenticated')::text, true);
+  select coalesce(sum(case when l ->> 'kind' = 'device' then d.price_usd else a.price_ars * coalesce((l ->> 'qty')::int, 1) / v_fx end), 0)
+  into v_sub
+  from jsonb_array_elements(p -> 'lines') l
+  left join devices d on d.id = (l ->> 'device_id')::uuid
+  left join accessories a on a.id = (l ->> 'accessory_id')::uuid;
+  v_due := v_sub * (1 - coalesce((p ->> 'discount_pct')::numeric, 0) / 100);
+  if t is not null then
+    v_due := v_due - (tasar_canje(t ->> 'model', (t ->> 'capacity')::int, t ->> 'cond', (t ->> 'battery')::int,
+      array(select jsonb_array_elements_text(t -> 'defects')), true, true) ->> 'value')::numeric;
+  end if;
+  v_usd := floor(v_due * 0.5 / 10 + 0.5) * 10;
+  r := registrar_venta(p || jsonb_build_object('payments', jsonb_build_array(
+    jsonb_build_object('method', 'Efectivo USD', 'amount', v_usd),
+    jsonb_build_object('method', 'Transferencia ARS', 'amount', greatest(0, round((v_due - v_usd) * v_fx))))));
+
+  update sales set at = v_at where id = (r ->> 'sale_id')::uuid;
+  update cash_moves set at = v_at where sale_id = (r ->> 'sale_id')::uuid;
+  update device_events set at = v_at where action like '%' || (r ->> 'number') || '%';
+  update accessory_moves set at = v_at where note = 'Venta ' || (r ->> 'number');
+  update audit_log set at = v_at where detail like (r ->> 'number') || ' ·%';
+  update devices set entry_date = dia_ar(v_at) where id = (select device_id from trade_ins where sale_id = (r ->> 'sale_id')::uuid);
+end $$;
+
+create function pg_temp.dl(n int) returns jsonb language sql as $$ select jsonb_build_object('kind', 'device', 'device_id', pg_temp.dev(n)) $$;
+create function pg_temp.al(n int, q int) returns jsonb language sql as $$ select jsonb_build_object('kind', 'acc', 'accessory_id', pg_temp.acc(n), 'qty', q) $$;
+
+-- usuarios: a2 Lucía (Encargado), a3 Mati (Vendedor), a4 Caro (Cajero)
+select pg_temp.abrir(6);
+select pg_temp.vender(6, 14, 'a3', jsonb_build_object('lines', jsonb_build_array(pg_temp.dl(9), pg_temp.al(4, 1)), 'client_id', pg_temp.cli(3), 'seller_id', '00000000-0000-4000-8000-0000000000a3'));
+select pg_temp.cerrar(6, 0, 0);
+
+select pg_temp.abrir(5);
+select pg_temp.vender(5, 16, 'a4', jsonb_build_object('lines', jsonb_build_array(pg_temp.dl(2), pg_temp.al(1, 1), pg_temp.al(4, 1)), 'client_id', pg_temp.cli(1), 'seller_id', '00000000-0000-4000-8000-0000000000a2'));
+select pg_temp.cerrar(5, -2000, 0);
+
+select pg_temp.abrir(4);
+select pg_temp.vender(4, 13, 'a3', jsonb_build_object('lines', jsonb_build_array(pg_temp.dl(11)), 'seller_id', '00000000-0000-4000-8000-0000000000a3'));
+select pg_temp.vender(4, 17, 'a4', jsonb_build_object('lines', jsonb_build_array(pg_temp.al(7, 1), pg_temp.al(9, 2)), 'seller_id', '00000000-0000-4000-8000-0000000000a3'));
+select pg_temp.cerrar(4, 0, 0);
+
+select pg_temp.abrir(3);
+select pg_temp.vender(3, 15, 'a2', jsonb_build_object('lines', jsonb_build_array(pg_temp.dl(14), pg_temp.al(2, 1)), 'client_id', pg_temp.cli(2), 'seller_id', '00000000-0000-4000-8000-0000000000a2',
+  'trade_in', jsonb_build_object('kind', 'iPhone', 'model', 'iPhone 13', 'capacity', 128, 'color', 'Azul', 'cond', 'Usado B', 'battery', 86, 'defects', '[]'::jsonb,
+    'imei', '35' || left((9000000000000 + 31 * 7919317)::text, 13))));
+select pg_temp.cerrar(3, 0, 0);
+
+select pg_temp.abrir(2);
+select pg_temp.vender(2, 18, 'a3', jsonb_build_object('lines', jsonb_build_array(pg_temp.dl(12), pg_temp.al(8, 1)), 'client_id', pg_temp.cli(4), 'seller_id', '00000000-0000-4000-8000-0000000000a3'));
+select pg_temp.cerrar(2, 0, 20);
+
+select pg_temp.abrir(1);
+select pg_temp.vender(1, 12, 'a4', jsonb_build_object('lines', jsonb_build_array(pg_temp.dl(8), pg_temp.al(12, 1)), 'client_id', pg_temp.cli(5), 'seller_id', '00000000-0000-4000-8000-0000000000a2', 'discount_pct', 2));
+select pg_temp.vender(1, 19, 'a3', jsonb_build_object('lines', jsonb_build_array(pg_temp.al(5, 2), pg_temp.al(10, 1), pg_temp.al(13, 2)), 'seller_id', '00000000-0000-4000-8000-0000000000a3'));
+select pg_temp.cerrar(1, 0, 0);
+
+-- hoy: caja abierta, una venta con canje y una de accesorios
+select pg_temp.abrir(0);
+select pg_temp.vender(0, 10, 'a3', jsonb_build_object('lines', jsonb_build_array(pg_temp.dl(3), pg_temp.al(1, 1), pg_temp.al(5, 1)), 'client_id', pg_temp.cli(2), 'seller_id', '00000000-0000-4000-8000-0000000000a3',
+  'trade_in', jsonb_build_object('kind', 'iPhone', 'model', 'iPhone 12', 'capacity', 64, 'color', 'Negro', 'cond', 'Usado B', 'battery', 81, 'defects', '["Tapa trasera rota"]'::jsonb,
+    'imei', '35' || left((9000000000000 + 32 * 7919317)::text, 13))));
+select pg_temp.vender(0, 11, 'a3', jsonb_build_object('lines', jsonb_build_array(pg_temp.al(9, 1), pg_temp.al(13, 1)), 'seller_id', '00000000-0000-4000-8000-0000000000a3'));
 
 insert into audit_log (store_id, profile_id, user_name, action, detail)
 values ('00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000a1', 'Santiago', 'Datos demo', 'Se cargaron datos de demostración');

@@ -10,9 +10,11 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "db:reset": "supabase db reset"
+    "db:reset": "supabase db reset",
+    "crear-local": "node scripts/crear-local.mjs"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.131.0",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.117.2",
     "next": "15.5.27",

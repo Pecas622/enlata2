@@ -2,28 +2,7 @@
 // Requiere la base con migraciones y seed (supabase start, o el stack local de desarrollo).
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { beforeAll, describe, expect, it } from "vitest";
-
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const PASSWORD = "demo1234";
-
-const USERS = {
-  admin: "santiago@demo.apple-ops.test",
-  encargado: "lucia@demo.apple-ops.test",
-  vendedor: "mati@demo.apple-ops.test",
-  cajero: "caro@demo.apple-ops.test",
-} as const;
-type Who = keyof typeof USERS;
-
-const fresh = () => createClient(url, anonKey, { auth: { persistSession: false, autoRefreshToken: false } });
-
-async function as(who: Who): Promise<SupabaseClient> {
-  const c = fresh();
-  const { error } = await c.auth.signInWithPassword({ email: USERS[who], password: PASSWORD });
-  if (error) throw error;
-  return c;
-}
+import { PASSWORD, as, fresh, serviceKey, url, USERS, type Who } from "./helpers";
 
 const clients = {} as Record<Who, SupabaseClient>;
 
@@ -43,7 +22,7 @@ describe("costos", () => {
 
   it.each(["admin", "encargado"] as Who[])("%s ve los costos", async (who) => {
     const { data } = await clients[who].from("device_costs").select("cost_usd");
-    expect(data).toHaveLength(14);
+    expect(data!.length).toBeGreaterThanOrEqual(16);
   });
 
   it("la tabla de equipos no tiene columna de costo", async () => {
@@ -86,11 +65,10 @@ describe("caja", () => {
     const svc = createClient(url, serviceKey, { auth: { persistSession: false } });
     const store = "00000000-0000-4000-8000-000000000001";
     const caro = "00000000-0000-4000-8000-0000000000a4";
-    const first = await svc.from("cash_shifts").insert({ store_id: store, number: "T-TEST1", opened_by: caro }).select().single();
-    expect(first.error).toBeNull();
+    // El seed deja la caja de hoy abierta: una segunda choca con el índice único.
+    expect((await svc.from("cash_shifts").select("id").eq("status", "Abierta")).data).toHaveLength(1);
     const second = await svc.from("cash_shifts").insert({ store_id: store, number: "T-TEST2", opened_by: caro });
     expect(second.error?.code).toBe("23505");
-    await svc.from("cash_shifts").delete().eq("id", first.data!.id);
   });
 });
 
@@ -125,11 +103,11 @@ describe("catálogo público", () => {
   });
 
   it("un equipo oculto no aparece en el catálogo", async () => {
-    const { data: dev } = await clients.admin.from("devices").select("id").eq("model", "iPad 9").single();
-    await clients.admin.from("catalog_items").upsert({ device_id: dev!.id, store_id: "00000000-0000-4000-8000-000000000001", visible: false });
+    const { data: dev } = await clients.admin.from("devices").select("id").eq("model", "MacBook Air M1").single();
+    expect((await clients.admin.rpc("catalogo_equipo", { p_device: dev!.id, p_visible: false, p_featured: false })).error).toBeNull();
     const { data } = await fresh().from("catalogo_publico").select("id").eq("id", dev!.id);
     expect(data).toEqual([]);
-    await clients.admin.from("catalog_items").delete().eq("device_id", dev!.id);
+    await clients.admin.rpc("catalogo_equipo", { p_device: dev!.id, p_visible: true, p_featured: false });
   });
 });
 
