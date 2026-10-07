@@ -1,3 +1,9 @@
 # Base para un Supabase nuevo, desde el navegador
 
 Las mismas migraciones de `supabase/migrations`, juntas en dos archivos para pegar en **SQL Editor** sin instalar nada. Van en dos partes porque un valor nuevo de enum no se puede usar en la misma ejecución en que se agrega: primero `base-parte-1.sql`, después `base-parte-2.sql`, cada una en su propia query. Las dos registran las migraciones, así que un `supabase db push` posterior no las repite. No incluyen datos demo.
+
+## Actualizaciones
+
+Cada migración nueva trae su archivo `actualizacion-*.sql` para pegar en **SQL Editor** sobre una base que ya tiene las dos partes:
+
+- `actualizacion-demo.sql`: botones "Cargar demo" y "Borrar demo" en Configuración.
