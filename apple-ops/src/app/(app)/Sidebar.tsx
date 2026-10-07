@@ -6,7 +6,7 @@ import { useState, type ReactNode } from "react";
 import { Logo, NavIcon } from "@/components/icons";
 import type { NavItem } from "@/lib/roles";
 
-export function Shell({ nav, storeName, footer, children }: { nav: NavItem[]; storeName: string; footer: ReactNode; children: ReactNode }) {
+export function Shell({ nav, locked = [], storeName, footer, children }: { nav: NavItem[]; locked?: NavItem[]; storeName: string; footer: ReactNode; children: ReactNode }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const current = pathname.split("/")[1] || "dashboard";
@@ -37,6 +37,13 @@ export function Shell({ nav, storeName, footer, children }: { nav: NavItem[]; st
             data-testid={`nav-${item.id}`}
             onClick={() => setOpen(false)}
           >
+            <NavIcon name={item.icon} />
+            {item.label}
+          </Link>
+        ))}
+        {locked.length > 0 && <div className="nav-group">Sumá a tu plan</div>}
+        {locked.map((item) => (
+          <Link key={item.id} href="/config#plan" className="nav-item nav-locked" data-testid={`nav-locked-${item.id}`} onClick={() => setOpen(false)}>
             <NavIcon name={item.icon} />
             {item.label}
           </Link>

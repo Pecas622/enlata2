@@ -7,7 +7,7 @@ export default async function SectionPage({ params }: { params: Promise<{ seccio
   const item = NAV_ITEMS.find((i) => i.id === seccion);
   if (!item) notFound();
   const user = await getCurrentUser();
-  if (!canOpen(user.role, seccion)) redirect("/dashboard");
+  if (!canOpen(user.role, seccion, user.modules)) redirect("/dashboard");
   return (
     <>
       <h1 className="page-title" data-testid="page-title">{item.label}</h1>

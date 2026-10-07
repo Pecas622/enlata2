@@ -11,7 +11,7 @@ export default async function CotizarPage({ params }: { params: Promise<{ slug: 
   const { slug } = await params;
   const supabase = await createClient();
   const cfg = await loadPublicConfig(supabase, slug);
-  if (!cfg) notFound();
+  if (!cfg || !cfg.quote_on) notFound();
   const values = await loadPublicValues(supabase, slug);
   return (
     <div className="pc" data-testid="quote-page">

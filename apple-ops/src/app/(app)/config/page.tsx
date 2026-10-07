@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { ConfigForm } from "./ConfigForm";
 import { DemoCard } from "./DemoCard";
 import { FxCard } from "./FxCard";
+import { PlanCard } from "./PlanCard";
+import { hasModule } from "@/lib/modules";
 import type { FxSource } from "@/lib/fx";
 import { FX_SOURCE_LABEL } from "@/lib/fx";
 
@@ -27,9 +29,9 @@ export default async function ConfigPage() {
   return (
     <>
       <PageHeader title="Configuración" subtitle="Datos del local, cotización y tabla de tasación" />
-      <div style={{ marginBottom: 16 }}>
+      {hasModule(user.modules, "alertas") && <div style={{ marginBottom: 16 }}>
         <FxCard source={fxSource} extra={Number(fxRow?.fx_extra ?? 0)} staleDays={fxRow?.stale_days ?? 30} fx={cfg.fx} updatedAt={fxRow?.fx_updated_at ?? null} />
-      </div>
+      </div>}
       <ConfigForm
         fxAuto={fxSource === "manual" ? undefined : FX_SOURCE_LABEL[fxSource]}
         initial={{
@@ -39,6 +41,7 @@ export default async function ConfigPage() {
           base_values: [...cfg.baseValues].sort((a, b) => a.model.localeCompare(b.model, "es", { numeric: true }) || a.capacity - b.capacity),
         }}
       />
+      <div style={{ marginTop: 16 }}><PlanCard modules={user.modules} /></div>
       {demo && <div style={{ marginTop: 16 }}><DemoCard demoSince={demo.demoSince} hasData={demo.hasData} /></div>}
     </>
   );

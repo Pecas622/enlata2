@@ -4,6 +4,7 @@ import { Tabs } from "@/components/Tabs";
 import { deviceShort } from "@/lib/catalog";
 import { fmtDate, localDay } from "@/lib/dates";
 import { requireSection } from "@/lib/guard";
+import { hasModule } from "@/lib/modules";
 import { fmtUSD } from "@/lib/money";
 import { createClient } from "@/lib/supabase/server";
 import { loadPosData } from "../ventas/pos-data";
@@ -44,7 +45,7 @@ export default async function CanjePage({ searchParams }: { searchParams: Promis
         <div className="stat"><span>Diferencia promedio cobrada</span><b>{fmtUSD(avgDiff)}</b></div>
       </div>
       {tab === "cotizar" && <QuotePanel cfg={pos.cfg} devices={pos.devices} overTradeIn={perms.overTradeIn} />}
-      {tab === "nuevo" && <SaleBuilder {...pos} perms={perms} userId={user.id} canTradeIn startWithTradeIn />}
+      {tab === "nuevo" && <SaleBuilder {...pos} perms={perms} userId={user.id} canTradeIn startWithTradeIn withAcc={hasModule(user.modules, "accesorios")} />}
       {tab === "historial" && (
         <div className="card">
           {sales.length === 0 ? (

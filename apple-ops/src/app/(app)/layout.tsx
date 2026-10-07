@@ -3,7 +3,7 @@ import { after } from "next/server";
 import type { ReactNode } from "react";
 import { logout } from "@/app/login/actions";
 import { refreshFxQuietly } from "@/lib/fx-server";
-import { navFor } from "@/lib/roles";
+import { lockedNavFor, navFor } from "@/lib/roles";
 import { getCurrentUser } from "@/lib/session";
 import { Shell } from "./Sidebar";
 
@@ -24,7 +24,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
     </>
   );
   return (
-    <Shell nav={navFor(user.role)} storeName={user.storeName} footer={footer}>
+    <Shell nav={navFor(user.role, user.modules)} locked={lockedNavFor(user.role, user.modules)} storeName={user.storeName} footer={footer}>
       {children}
     </Shell>
   );

@@ -9,7 +9,7 @@ import { periodOf } from "../period";
 // Exporta las ventas del período. La ganancia solo va para quien ve costos.
 export async function GET(req: NextRequest) {
   const user = await getCurrentUser();
-  if (!canOpen(user.role, "reportes")) return new NextResponse("Sin permiso", { status: 403 });
+  if (!canOpen(user.role, "reportes", user.modules)) return new NextResponse("Sin permiso", { status: 403 });
   const supabase = await createClient();
   const sales = await loadReportSales(supabase, periodFrom(periodOf(req.nextUrl.searchParams.get("p") ?? undefined)));
   const csv = toCSV(salesCSVRows(sales, permsFor(user.role).seeCost));

@@ -6,7 +6,7 @@ import type { PublicValue } from "./quote";
 export type PublicConfig = {
   slug: string; store_name: string; address: string; whatsapp: string; phone: string; headline: string; tagline: string;
   fx: number; warranty_new_days: number; warranty_used_days: number;
-  assistant_on: boolean; assistant_name: string; greeting: string;
+  assistant_on: boolean; assistant_name: string; greeting: string; quote_on: boolean;
 };
 export type PublicDevice = {
   id: string; kind: string; model: string; capacity: number; color: string; condition: string; battery: number | null;
@@ -20,7 +20,7 @@ export type PublicCatalog =
   | { state: "ok"; cfg: PublicConfig; devices: PublicDevice[]; accessories: PublicAccessory[] };
 
 export async function loadPublicConfig(supabase: SupabaseClient, slug: string) {
-  const { data } = await supabase.from("catalogo_config_publica").select("slug, store_name, address, whatsapp, phone, headline, tagline, fx, warranty_new_days, warranty_used_days, assistant_on, assistant_name, greeting").eq("slug", slug).maybeSingle();
+  const { data } = await supabase.from("catalogo_config_publica").select("slug, store_name, address, whatsapp, phone, headline, tagline, fx, warranty_new_days, warranty_used_days, assistant_on, assistant_name, greeting, quote_on").eq("slug", slug).maybeSingle();
   if (!data) return null;
   return { ...data, fx: Number(data.fx) } as PublicConfig;
 }
