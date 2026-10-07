@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { PERM_MATRIX, ROLES, canOpen, navFor, permsFor } from "./roles";
+import { parseModules } from "./modules";
+import { PERM_MATRIX, ROLES, canOpen, lockedNavFor, navFor, permsFor } from "./roles";
 
 describe("permsFor", () => {
   it("el vendedor no ve costos ni anula ventas", () => {
@@ -38,5 +39,18 @@ describe("matriz de permisos", () => {
       "Usuarios y configuración": [1, 0, 0, 0],
     };
     for (const [label, fn] of PERM_MATRIX) expect(ROLES.map((r) => (fn(r) ? 1 : 0)), label).toEqual(expected[label]);
+  });
+});
+
+describe("menú por módulos", () => {
+  it("sin un módulo la sección no aparece ni se abre, y el administrador la ve para sumarla", () => {
+    const mods = parseModules(["reportes", "whatsapp"]);
+    expect(mods).toEqual(["reportes"]);
+    expect(navFor("Administrador", mods).map((i) => i.id)).toEqual(["dashboard", "ventas", "stock", "ingresos", "clientes", "caja", "reportes", "usuarios", "config"]);
+    expect(canOpen("Encargado", "canje", mods)).toBe(false);
+    expect(canOpen("Encargado", "reportes", mods)).toBe(true);
+    expect(lockedNavFor("Administrador", mods).map((i) => i.id)).toEqual(["alertas", "canje", "accesorios", "catalogo"]);
+    expect(lockedNavFor("Encargado", mods)).toEqual([]);
+    expect(parseModules(null)).toEqual([]);
   });
 });

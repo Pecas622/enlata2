@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/ui";
 import { Tabs } from "@/components/Tabs";
 import { fmtDateTime } from "@/lib/dates";
 import { requireSection } from "@/lib/guard";
+import { hasModule } from "@/lib/modules";
 import { fmtUSD } from "@/lib/money";
 import { createClient } from "@/lib/supabase/server";
 import { loadPosData } from "./pos-data";
@@ -18,14 +19,14 @@ export default async function VentasPage({ searchParams }: { searchParams: Promi
   return (
     <>
       <PageHeader title="Ventas" subtitle="Equipos, accesorios y servicios en una sola operación" action={<Tabs base="/ventas" tabs={TABS} active={tab} />} />
-      {tab === "historial" ? <Historial q={q} /> : <Nueva userId={user.id} perms={perms} canTradeIn={user.role !== "Cajero"} />}
+      {tab === "historial" ? <Historial q={q} /> : <Nueva userId={user.id} perms={perms} canTradeIn={user.role !== "Cajero" && hasModule(user.modules, "canje")} withAcc={hasModule(user.modules, "accesorios")} />}
     </>
   );
 }
 
-async function Nueva({ userId, perms, canTradeIn }: { userId: string; perms: Parameters<typeof SaleBuilder>[0]["perms"]; canTradeIn: boolean }) {
+async function Nueva({ userId, perms, canTradeIn, withAcc }: { userId: string; perms: Parameters<typeof SaleBuilder>[0]["perms"]; canTradeIn: boolean; withAcc: boolean }) {
   const pos = await loadPosData();
-  return <SaleBuilder {...pos} perms={perms} userId={userId} canTradeIn={canTradeIn} />;
+  return <SaleBuilder {...pos} accessories={withAcc ? pos.accessories : []} perms={perms} userId={userId} canTradeIn={canTradeIn} withAcc={withAcc} />;
 }
 
 async function Historial({ q }: { q: string }) {

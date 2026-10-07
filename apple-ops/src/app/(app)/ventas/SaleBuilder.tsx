@@ -28,11 +28,12 @@ type Props = {
   userId: string;
   canTradeIn: boolean;
   startWithTradeIn?: boolean;
+  withAcc?: boolean;
 };
 
 const firstPayment = (): Payment[] => [{ method: "Efectivo USD", amount: "" }];
 
-export function SaleBuilder({ cfg, devices, accessories, clients, sellers, shiftOpen, perms, userId, canTradeIn, startWithTradeIn = false }: Props) {
+export function SaleBuilder({ cfg, devices, accessories, clients, sellers, shiftOpen, perms, userId, canTradeIn, startWithTradeIn = false, withAcc = true }: Props) {
   const router = useRouter();
   const fx = cfg.fx;
   const [tab, setTab] = useState<"equipos" | "accesorios" | "libre">("equipos");
@@ -124,7 +125,7 @@ export function SaleBuilder({ cfg, devices, accessories, clients, sellers, shift
     <div className="grid-2">
       <div className="card">
         <div className="pills">
-          {(["equipos", "accesorios", "libre"] as const).map((t) => (
+          {(withAcc ? (["equipos", "accesorios", "libre"] as const) : (["equipos", "libre"] as const)).map((t) => (
             <button key={t} className={`pill${tab === t ? " active" : ""}`} onClick={() => setTab(t)} data-testid={`pos-tab-${t}`}>{t[0].toUpperCase() + t.slice(1)}</button>
           ))}
         </div>

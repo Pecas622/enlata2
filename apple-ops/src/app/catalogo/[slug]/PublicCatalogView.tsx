@@ -47,19 +47,21 @@ export function PublicCatalogView({ cfg, devices, accessories }: { cfg: PublicCo
         <p>{cfg.tagline}</p>
         <div className="pc-actions">
           <a href="#catalogo-lista" className="pc-pill pc-blue">Ver equipos</a>
-          <Link href={`/catalogo/${cfg.slug}/cotizar`} className="pc-pill pc-ghost" data-testid="cat-quote-hero">Cotizá tu iPhone ›</Link>
+          {cfg.quote_on && <Link href={`/catalogo/${cfg.slug}/cotizar`} className="pc-pill pc-ghost" data-testid="cat-quote-hero">Cotizá tu iPhone ›</Link>}
         </div>
       </section>
 
+      {cfg.quote_on && (
       <section className="pc-wrap">
-        <div className="pc-band">
-          <div>
-            <div className="pc-band-title">Plan canje</div>
-            <div className="pc-sub">Entregá tu iPhone usado y pagá solo la diferencia. Mirá cuánto vale en segundos.</div>
+          <div className="pc-band">
+            <div>
+              <div className="pc-band-title">Plan canje</div>
+              <div className="pc-sub">Entregá tu iPhone usado y pagá solo la diferencia. Mirá cuánto vale en segundos.</div>
+            </div>
+            <Link href={`/catalogo/${cfg.slug}/cotizar`} className="pc-pill pc-blue" data-testid="cat-quote">Cotizá tu iPhone</Link>
           </div>
-          <Link href={`/catalogo/${cfg.slug}/cotizar`} className="pc-pill pc-blue" data-testid="cat-quote">Cotizá tu iPhone</Link>
-        </div>
-      </section>
+        </section>
+      )}
 
       <section id="catalogo-lista" className="pc-wrap" style={{ paddingTop: 36 }}>
         <div className="pc-chips">

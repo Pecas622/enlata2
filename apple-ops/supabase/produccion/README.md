@@ -8,3 +8,4 @@ Cada migración nueva trae su archivo `actualizacion-*.sql` para pegar en **SQL 
 
 - `actualizacion-demo.sql`: botones "Cargar demo" y "Borrar demo" en Configuración (ya incluido en `base-parte-2.sql` para proyectos nuevos).
 - `actualizacion-dolar-alertas.sql`: dólar automático (oficial, blue o MEP) y sección Alertas (ya incluido en `base-parte-2.sql`).
+- `actualizacion-modulos.sql`: venta por módulos y `set_modulos` (ya incluido en `base-parte-2.sql`).

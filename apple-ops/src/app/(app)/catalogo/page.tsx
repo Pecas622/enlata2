@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/ui";
 import { deviceShort } from "@/lib/catalog";
 import { dayStartISO, fmtDateTime, localDay } from "@/lib/dates";
 import { requireSection } from "@/lib/guard";
+import { hasModule } from "@/lib/modules";
 import { fmtUSD } from "@/lib/money";
 import { addDays } from "@/lib/reports";
 import { createClient } from "@/lib/supabase/server";
@@ -16,7 +17,9 @@ type Chat = { id: string; created_at: string; updated_at: string; topic: string;
 type Device = { id: string; kind: string; model: string; capacity: number; color: string; condition: string; price_usd: number; catalog_items: { visible: boolean; featured: boolean; photo_path: string | null } | null };
 
 export default async function CatalogoAdminPage() {
-  await requireSection("catalogo");
+  const { user } = await requireSection("catalogo");
+  const withBot = hasModule(user.modules, "asistente");
+  const withQuote = hasModule(user.modules, "canje");
   const supabase = await createClient();
   const [{ data: settings }, { data: devs }, { data: clicks }, { data: chatRows }] = await Promise.all([
     supabase.from("catalog_settings").select("slug, headline, tagline, whatsapp, published, show_accessories, assistant_on, assistant_name, greeting").maybeSingle(),
@@ -42,7 +45,7 @@ export default async function CatalogoAdminPage() {
       <PageHeader
         title="Catálogo online"
         subtitle="Un link para la bio de Instagram: tus equipos disponibles, siempre actualizados desde el stock"
-        action={s.slug && <div className="row"><Link href={`/catalogo/${s.slug}`} target="_blank" className="btn btn-secondary" data-testid="cat-preview">Ver catálogo</Link><Link href={`/catalogo/${s.slug}/cotizar`} target="_blank" className="btn btn-secondary">Ver cotizador</Link></div>}
+        action={s.slug && <div className="row"><Link href={`/catalogo/${s.slug}`} target="_blank" className="btn btn-secondary" data-testid="cat-preview">Ver catálogo</Link>{withQuote && <Link href={`/catalogo/${s.slug}/cotizar`} target="_blank" className="btn btn-secondary">Ver cotizador</Link>}</div>}
       />
       <div className="stats">
         <div className={`stat ${s.published ? "good" : "warn"}`}><span>Estado</span><b data-testid="cat-state">{s.published ? "Publicado" : "Pausado"}</b></div>
@@ -54,7 +57,7 @@ export default async function CatalogoAdminPage() {
         <div className="muted" style={{ fontSize: 12, marginBottom: 6 }}>Tu link</div>
         <div style={{ fontSize: 15, color: "var(--accent)", wordBreak: "break-all" }} data-testid="cat-url">{url}</div>
         <p className="muted" style={{ fontSize: 12.5, marginBottom: 0 }}>
-          Pegalo en la bio de Instagram: cada visita ve el stock real. El cotizador está en {url}/cotizar.{!s.published && " Mientras esté pausado, el link muestra un aviso."}
+          Pegalo en la bio de Instagram: cada visita ve el stock real.{withQuote && ` El cotizador está en ${url}/cotizar.`}{!s.published && " Mientras esté pausado, el link muestra un aviso."}
         </p>
       </div>
       <div className="grid-2" style={{ marginBottom: 16 }}>
@@ -71,36 +74,43 @@ export default async function CatalogoAdminPage() {
           )}
         </div>
       </div>
+      {withBot ? (
       <div className="card" style={{ marginBottom: 16 }}>
-        <h2 className="card-title">Asistente de chat</h2>
-        <AssistantForm s={s} ai={!!process.env.ANTHROPIC_API_KEY} />
-        <h3 style={{ fontSize: 13.5, margin: "18px 0 6px" }}>Últimas conversaciones</h3>
-        {!chats.length ? <div className="empty">Todavía no hubo conversaciones.</div> : (
-          <div className="table-wrap">
-            <table className="table" data-testid="cat-chats-table">
-              <thead><tr><th>Cuándo</th><th>Tema</th><th>Último mensaje del cliente</th><th className="r">Mensajes</th><th>Derivado</th></tr></thead>
-              <tbody>
-                {chats.slice(0, 10).map((c) => (
-                  <tr key={c.id} data-testid="cat-chat-row">
-                    <td style={{ whiteSpace: "nowrap" }}>{fmtDateTime(c.updated_at)}</td>
-                    <td>{c.topic}</td>
-                    <td>
-                      <details>
-                        <summary style={{ cursor: "pointer" }}>{c.last_message || "—"}</summary>
-                        <div className="chat-log">
-                          {c.messages.map((m, i) => <div key={i} className={m.role === "user" ? "me" : ""}><b>{m.role === "user" ? "Cliente" : s.assistant_name}:</b> {m.text}</div>)}
-                        </div>
-                      </details>
-                    </td>
-                    <td className="r">{c.messages.length}</td>
-                    <td>{c.handoff ? <span className="badge badge-amber">Sí</span> : "No"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+          <h2 className="card-title">Asistente de chat</h2>
+          <AssistantForm s={s} ai={!!process.env.ANTHROPIC_API_KEY} />
+          <h3 style={{ fontSize: 13.5, margin: "18px 0 6px" }}>Últimas conversaciones</h3>
+          {!chats.length ? <div className="empty">Todavía no hubo conversaciones.</div> : (
+            <div className="table-wrap">
+              <table className="table" data-testid="cat-chats-table">
+                <thead><tr><th>Cuándo</th><th>Tema</th><th>Último mensaje del cliente</th><th className="r">Mensajes</th><th>Derivado</th></tr></thead>
+                <tbody>
+                  {chats.slice(0, 10).map((c) => (
+                    <tr key={c.id} data-testid="cat-chat-row">
+                      <td style={{ whiteSpace: "nowrap" }}>{fmtDateTime(c.updated_at)}</td>
+                      <td>{c.topic}</td>
+                      <td>
+                        <details>
+                          <summary style={{ cursor: "pointer" }}>{c.last_message || "—"}</summary>
+                          <div className="chat-log">
+                            {c.messages.map((m, i) => <div key={i} className={m.role === "user" ? "me" : ""}><b>{m.role === "user" ? "Cliente" : s.assistant_name}:</b> {m.text}</div>)}
+                          </div>
+                        </details>
+                      </td>
+                      <td className="r">{c.messages.length}</td>
+                      <td>{c.handoff ? <span className="badge badge-amber">Sí</span> : "No"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="card muted" style={{ marginBottom: 16 }} data-testid="cat-bot-locked">
+          <h2 className="card-title">Asistente de chat</h2>
+          El asistente que responde stock, precios y canje no está en tu plan. <Link href="/config#plan" className="link">Ver tu plan</Link>
+        </div>
+      )}
       <div className="card">
         <h2 className="card-title">Equipos del catálogo</h2>
         {devices.length === 0 ? <div className="empty">No hay equipos disponibles en stock.</div> : (
