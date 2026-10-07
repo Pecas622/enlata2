@@ -30,3 +30,13 @@ export async function setDeviceFlags(device: string, visible: boolean, featured:
   refresh();
   return {};
 }
+
+export async function saveAssistant(_: FormState, fd: FormData): Promise<FormState> {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("guardar_asistente", {
+    p_on: fd.get("assistant_on") === "on", p_name: String(fd.get("assistant_name") ?? ""), p_greeting: String(fd.get("greeting") ?? ""),
+  });
+  if (error) return { error: error.message };
+  refresh(String(fd.get("slug") ?? ""));
+  return { ok: true };
+}

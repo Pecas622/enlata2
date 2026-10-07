@@ -5,6 +5,7 @@ import { useState } from "react";
 import { COLOR_HEX, DeviceArt } from "@/components/DeviceArt";
 import { deviceShort, deviceTitle, KINDS } from "@/lib/catalog";
 import { fmtARS, fmtUSD } from "@/lib/money";
+import { AssistantChat } from "./AssistantChat";
 import { waHref, waNumber, type PublicAccessory, type PublicConfig, type PublicDevice } from "@/lib/public-catalog";
 
 type Sel = { type: "device"; item: PublicDevice } | { type: "acc"; item: PublicAccessory } | null;
@@ -122,6 +123,8 @@ export function PublicCatalogView({ cfg, devices, accessories }: { cfg: PublicCo
           </p>
         </div>
       </footer>
+
+      {cfg.assistant_on && <AssistantChat cfg={cfg} devices={devices} hasWa={hasWa} waHref={wa} onOpenDevice={(d) => setSel({ type: "device", item: d })} />}
 
       {sel && (
         <div className="pc-overlay" onClick={() => setSel(null)}>
