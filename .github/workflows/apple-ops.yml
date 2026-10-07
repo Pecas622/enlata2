@@ -1,0 +1,52 @@
+name: APPLE OPS
+
+on:
+  pull_request:
+    paths: ["apple-ops/**", ".github/workflows/apple-ops.yml"]
+  push:
+    branches: [main]
+    paths: ["apple-ops/**", ".github/workflows/apple-ops.yml"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apple-ops
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apple-ops/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.119.0
+      - name: Levantar Supabase local con migraciones y seed
+        run: supabase start -x studio,imgproxy,inbucket,edge-runtime,logflare,vector,supavisor
+      - name: Variables de entorno de prueba
+        run: |
+          supabase status -o env > /tmp/sb.env
+          . /tmp/sb.env
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"
+            echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY"
+          } > .env.local
+
+      - name: Tests unitarios y de RLS
+        run: npm test
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Tests de punta a punta
+        run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-traces
+          path: apple-ops/test-results
