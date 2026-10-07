@@ -2,8 +2,8 @@ import { expect, test } from "@playwright/test";
 import { login, USERS, type Name } from "./helpers";
 
 const MENUS: Record<Name, string[]> = {
-  Santiago: ["dashboard", "ventas", "canje", "stock", "ingresos", "accesorios", "catalogo", "clientes", "caja", "reportes", "usuarios", "config"],
-  Lucía: ["dashboard", "ventas", "canje", "stock", "ingresos", "accesorios", "catalogo", "clientes", "caja", "reportes"],
+  Santiago: ["dashboard", "alertas", "ventas", "canje", "stock", "ingresos", "accesorios", "catalogo", "clientes", "caja", "reportes", "usuarios", "config"],
+  Lucía: ["dashboard", "alertas", "ventas", "canje", "stock", "ingresos", "accesorios", "catalogo", "clientes", "caja", "reportes"],
   Mati: ["dashboard", "ventas", "canje", "stock", "accesorios", "clientes"],
   Caro: ["dashboard", "ventas", "accesorios", "clientes", "caja"],
 };

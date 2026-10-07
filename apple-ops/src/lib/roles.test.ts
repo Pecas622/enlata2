@@ -21,7 +21,7 @@ describe("menú por rol", () => {
   it("coincide con el prototipo", () => {
     expect(navFor("Cajero").map((i) => i.id)).toEqual(["dashboard", "ventas", "accesorios", "clientes", "caja"]);
     expect(navFor("Vendedor").map((i) => i.id)).toEqual(["dashboard", "ventas", "canje", "stock", "accesorios", "clientes"]);
-    expect(navFor("Administrador")).toHaveLength(12);
+    expect(navFor("Administrador")).toHaveLength(13);
   });
   it("bloquea secciones fuera del rol", () => {
     expect(canOpen("Vendedor", "caja")).toBe(false);

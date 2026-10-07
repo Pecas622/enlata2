@@ -7,3 +7,4 @@ Las mismas migraciones de `supabase/migrations`, juntas en dos archivos para peg
 Cada migración nueva trae su archivo `actualizacion-*.sql` para pegar en **SQL Editor** sobre una base que ya tiene las dos partes:
 
 - `actualizacion-demo.sql`: botones "Cargar demo" y "Borrar demo" en Configuración (ya incluido en `base-parte-2.sql` para proyectos nuevos).
+- `actualizacion-dolar-alertas.sql`: dólar automático (oficial, blue o MEP) y sección Alertas (ya incluido en `base-parte-2.sql`).

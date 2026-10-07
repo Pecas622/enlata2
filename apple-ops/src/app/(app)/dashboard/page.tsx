@@ -1,32 +1,34 @@
 import Link from "next/link";
 import { Badge, Notice, PageHeader } from "@/components/ui";
 import { isLow } from "@/lib/accessories";
+import { lowMarginDevices, lowMarginSales, staleDevices } from "@/lib/alerts";
 import { deviceShort } from "@/lib/catalog";
-import { daysSince, fmtDate, fmtTime, localDay } from "@/lib/dates";
+import { fmtDate, fmtTime, localDay } from "@/lib/dates";
 import { requireSection } from "@/lib/guard";
 import { fmtARS, fmtUSD } from "@/lib/money";
 import { loadReportSales } from "@/lib/report-data";
 import { addDays, closed, inPeriod, last7Days, saleCost } from "@/lib/reports";
 import { createClient } from "@/lib/supabase/server";
 
-type Device = { id: string; model: string; capacity: number; condition: string; entry_date: string; device_costs: { cost_usd: number } | null };
+type Device = { id: string; model: string; capacity: number; condition: string; entry_date: string; price_usd: number; device_costs: { cost_usd: number } | null };
 type Shift = { number: string; opened_at: string; opened_by: string };
 
 export default async function DashboardPage() {
-  const { perms } = await requireSection("dashboard");
+  const { perms, user } = await requireSection("dashboard");
   const supabase = await createClient();
   const today = localDay();
   const monthStart = today.slice(0, 8) + "01";
   const from = [monthStart, addDays(today, -6)].sort()[0];
-  const [sales, recent, { data: devs }, { data: accs }, { data: shift }, { data: lastClosed }] = await Promise.all([
+  const [sales, recent, { data: devs }, { data: accs }, { data: shift }, { data: lastClosed }, { data: store }] = await Promise.all([
     loadReportSales(supabase, from),
     loadReportSales(supabase, undefined, 6),
-    supabase.from("devices").select("id, model, capacity, condition, entry_date, device_costs(cost_usd)").eq("status", "Disponible").order("entry_date"),
+    supabase.from("devices").select("id, model, capacity, condition, entry_date, price_usd, device_costs(cost_usd)").eq("status", "Disponible").order("entry_date"),
     supabase.from("accessories").select("id, name, stock, min_stock").order("stock"),
     supabase.rpc("estado_caja"),
     perms.seeAllShifts
       ? supabase.from("cash_shifts").select("number, diff_ars, diff_usd").eq("status", "Cerrada").order("closed_at", { ascending: false }).limit(1).maybeSingle()
       : Promise.resolve({ data: null }),
+    supabase.from("stores").select("stale_days, target_margin").eq("id", user.storeId).single(),
   ]);
   const open = shift as Shift | null;
   const todaySales = closed(inPeriod(sales, today));
@@ -36,7 +38,11 @@ export default async function DashboardPage() {
   const capital = inStock.reduce((a, d) => a + Number(d.device_costs?.cost_usd ?? 0), 0);
   const canjesMes = closed(inPeriod(sales, monthStart)).filter((s) => s.trade_in_usd > 0);
   const lowAcc = (accs ?? []).filter(isLow);
-  const oldStock = inStock.filter((d) => daysSince(d.entry_date) > 45);
+  const alertDevs = inStock.map((d) => ({ ...d, price_usd: Number(d.price_usd), cost_usd: d.device_costs ? Number(d.device_costs.cost_usd) : null }));
+  const oldStock = staleDevices(alertDevs, store?.stale_days ?? 30);
+  const target = Number(store?.target_margin ?? 0.12);
+  const marginAlerts = perms.seeCost ? lowMarginDevices(alertDevs, target).length + lowMarginSales(inPeriod(sales, addDays(today, -6)), target).length : 0;
+  const canSeeAlerts = perms.seeCost;
   const days = last7Days(sales, today);
   const max = Math.max(1, ...days.map((d) => d.value));
   const diffArs = Number(lastClosed?.diff_ars ?? 0);
@@ -86,9 +92,11 @@ export default async function DashboardPage() {
               <div key={a.id}><span>{a.name}</span><Badge tone={a.stock === 0 ? "red" : "amber"}>{a.stock === 0 ? "Sin stock" : `${a.stock} u.`}</Badge></div>
             ))}
             {oldStock.slice(0, 3).map((d) => (
-              <div key={d.id}><span>{deviceShort(d)} ({d.condition})</span><Badge tone="amber">{daysSince(d.entry_date)} días en stock</Badge></div>
+              <div key={d.id}><span>{deviceShort(d)} ({d.condition})</span><Badge tone="amber">{d.days} días en stock</Badge></div>
             ))}
-            {lowAcc.length === 0 && oldStock.length === 0 && <div className="muted">Todo en orden.</div>}
+            {marginAlerts > 0 && <div data-testid="todo-margin"><span>Precios o ventas por debajo del margen</span><Badge tone="red">{marginAlerts}</Badge></div>}
+            {lowAcc.length === 0 && oldStock.length === 0 && marginAlerts === 0 && <div className="muted">Todo en orden.</div>}
+            {canSeeAlerts && <Link href="/alertas" className="link" data-testid="todo-alertas">Ver todas las alertas</Link>}
           </div>
         </div>
       </div>

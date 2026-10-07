@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { after } from "next/server";
+import { refreshFxForSlug } from "@/lib/fx-server";
 import { loadPublicCatalog } from "@/lib/public-catalog";
 import { createClient } from "@/lib/supabase/server";
 import { PublicCatalogView } from "./PublicCatalogView";
@@ -14,6 +16,7 @@ export default async function CatalogoPublicoPage({ params }: { params: Promise<
   const { slug } = await params;
   const cat = await loadPublicCatalog(await createClient(), slug);
   if (cat.state === "missing") notFound();
+  after(() => refreshFxForSlug(slug));
   if (cat.state === "paused") {
     return (
       <div className="pc pc-paused" data-testid="catalog-paused">
