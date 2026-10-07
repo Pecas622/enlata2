@@ -96,7 +96,7 @@ export function AssistantChat({ cfg, devices, hasWa, waHref, onOpenDevice }: {
                   if (!d) return null;
                   return (
                     <div key={c.id} className="pc-chat-card" data-testid="chat-card">
-                      <div className="pc-chat-art"><DeviceArt kind={d.kind} color={d.color} /></div>
+                      <div className="pc-chat-art"><DeviceArt kind={d.kind} color={d.color} photo={d.photo_path} /></div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div className="pc-chat-card-name">{deviceShort(d)}</div>
                         <div className="pc-sub">{d.condition}{d.battery && d.condition !== "Nuevo sellado" ? ` · batería ${d.battery}%` : ""}</div>

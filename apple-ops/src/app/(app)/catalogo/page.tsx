@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { headers } from "next/headers";
-import { DeviceArt } from "@/components/DeviceArt";
 import { PageHeader } from "@/components/ui";
 import { deviceShort } from "@/lib/catalog";
 import { dayStartISO, fmtDateTime, localDay } from "@/lib/dates";
@@ -11,16 +10,17 @@ import { createClient } from "@/lib/supabase/server";
 import { AssistantForm } from "./AssistantForm";
 import { CatalogForm, type CatalogSettings } from "./CatalogForm";
 import { DeviceToggles } from "./DeviceToggles";
+import { PhotoCell } from "./PhotoCell";
 
 type Chat = { id: string; created_at: string; updated_at: string; topic: string; last_message: string; handoff: boolean; messages: { role: string; text: string }[] };
-type Device = { id: string; kind: string; model: string; capacity: number; color: string; condition: string; price_usd: number; catalog_items: { visible: boolean; featured: boolean } | null };
+type Device = { id: string; kind: string; model: string; capacity: number; color: string; condition: string; price_usd: number; catalog_items: { visible: boolean; featured: boolean; photo_path: string | null } | null };
 
 export default async function CatalogoAdminPage() {
   await requireSection("catalogo");
   const supabase = await createClient();
   const [{ data: settings }, { data: devs }, { data: clicks }, { data: chatRows }] = await Promise.all([
     supabase.from("catalog_settings").select("slug, headline, tagline, whatsapp, published, show_accessories, assistant_on, assistant_name, greeting").maybeSingle(),
-    supabase.from("devices").select("id, kind, model, capacity, color, condition, price_usd, catalog_items(visible, featured)").eq("status", "Disponible").order("entry_date", { ascending: false }),
+    supabase.from("devices").select("id, kind, model, capacity, color, condition, price_usd, catalog_items(visible, featured, photo_path)").eq("status", "Disponible").order("entry_date", { ascending: false }),
     supabase.from("assistant_chats").select("id, created_at, topic, item_id").eq("kind", "click").order("created_at", { ascending: false }).limit(500),
     supabase.from("assistant_chats").select("id, created_at, updated_at, topic, last_message, handoff, messages").eq("kind", "chat").order("updated_at", { ascending: false }).limit(200),
   ]);
@@ -106,11 +106,11 @@ export default async function CatalogoAdminPage() {
         {devices.length === 0 ? <div className="empty">No hay equipos disponibles en stock.</div> : (
           <div className="table-wrap">
             <table className="table" data-testid="cat-devices">
-              <thead><tr><th /><th>Equipo</th><th className="r">Precio</th><th className="r">Consultas</th><th>Destacado</th><th>Visible</th></tr></thead>
+              <thead><tr><th>Foto</th><th>Equipo</th><th className="r">Precio</th><th className="r">Consultas</th><th>Destacado</th><th>Visible</th></tr></thead>
               <tbody>
                 {devices.map((d) => (
                   <tr key={d.id} data-testid="cat-device-row">
-                    <td><div style={{ width: 40, height: 40, background: "var(--bg)", borderRadius: 8, padding: 4 }}><DeviceArt kind={d.kind} color={d.color} /></div></td>
+                    <PhotoCell id={d.id} kind={d.kind} color={d.color} photo={d.catalog_items?.photo_path ?? null} />
                     <td><b>{deviceShort(d)}</b><div className="muted" style={{ fontSize: 11.5 }}>{d.color} · {d.condition}</div></td>
                     <td className="r">{fmtUSD(Number(d.price_usd))}</td>
                     <td className="r">{clicksBy.get(d.id) ?? 0}</td>
@@ -121,7 +121,7 @@ export default async function CatalogoAdminPage() {
             </table>
           </div>
         )}
-        <p className="muted" style={{ fontSize: 12, marginBottom: 0 }}>Por ahora el catálogo muestra una ilustración del color de cada equipo. La carga de fotos reales llega con el despliegue.</p>
+        <p className="muted" style={{ fontSize: 12, marginBottom: 0 }}>Tocá la miniatura para subir una foto real del equipo (JPG, PNG o WebP). Sin foto, el catálogo muestra una ilustración del color.</p>
       </div>
     </>
   );

@@ -5,7 +5,7 @@ import type { PublicDevice } from "./public-catalog";
 
 const dev = (id: string, model: string, capacity: number, price: number, extra: Partial<PublicDevice> = {}): PublicDevice => ({
   id, kind: model.startsWith("iPhone") ? "iPhone" : model.startsWith("iPad") ? "iPad" : "Mac", model, capacity, color: "Negro",
-  condition: "Usado A", battery: 90, price_usd: price, warranty_days: 90, featured: false, entry_date: "2026-10-01", ...extra,
+  condition: "Usado A", battery: 90, price_usd: price, warranty_days: 90, featured: false, entry_date: "2026-10-01", photo_path: null, ...extra,
 });
 
 const ctx: AssistCtx = {

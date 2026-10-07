@@ -80,7 +80,7 @@ export function PublicCatalogView({ cfg, devices, accessories }: { cfg: PublicCo
             {list.map((d) => (
               <button key={d.id} className="pc-card" onClick={() => setSel({ type: "device", item: d })} data-testid="cat-item">
                 <div className="pc-art">
-                  <DeviceArt kind={d.kind} color={d.color} />
+                  <DeviceArt kind={d.kind} color={d.color} photo={d.photo_path} />
                   {d.featured && <span className="pc-badge">Destacado</span>}
                 </div>
                 <div className="pc-card-body">
@@ -132,7 +132,7 @@ export function PublicCatalogView({ cfg, devices, accessories }: { cfg: PublicCo
             <div style={{ display: "flex", justifyContent: "flex-end" }}><button className="pc-close" onClick={() => setSel(null)} aria-label="Cerrar">×</button></div>
             {sel.type === "device" ? (
               <div>
-                <div className="pc-art pc-art-big"><DeviceArt kind={sel.item.kind} color={sel.item.color} /></div>
+                <div className="pc-art pc-art-big"><DeviceArt kind={sel.item.kind} color={sel.item.color} photo={sel.item.photo_path} /></div>
                 <h2 className="pc-sheet-title">{deviceShort(sel.item)}</h2>
                 <div className="pc-sub" style={{ fontSize: 15 }}>{sel.item.color} · {sel.item.condition}</div>
                 <div className="pc-sheet-price">{fmtUSD(sel.item.price_usd)} <span>≈ {fmtARS(sel.item.price_usd * cfg.fx)}</span></div>
