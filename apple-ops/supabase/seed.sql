@@ -136,21 +136,12 @@ declare
   v_usd numeric;
 begin
   select * into sh from cash_shifts where status = 'Abierta';
-  select sh.opening_ars + coalesce(sum(case when type = 'Ingreso' then amount else -amount end) filter (where method = 'Efectivo ARS'), 0),
-         sh.opening_usd + coalesce(sum(case when type = 'Ingreso' then amount else -amount end) filter (where method = 'Efectivo USD'), 0)
-  into v_ars, v_usd from cash_moves where shift_id = sh.id;
+  select ars, usd into v_ars, v_usd from efectivo_esperado(sh.id);
   update cash_shifts set status = 'Cerrada', closed_at = pg_temp.momento(p_off, 21), closed_by = sh.opened_by,
     expected_ars = v_ars, expected_usd = v_usd, counted_ars = v_ars + p_diff_ars, counted_usd = v_usd + p_diff_usd,
     diff_ars = p_diff_ars, diff_usd = p_diff_usd,
     note = case when p_diff_ars <> 0 or p_diff_usd <> 0 then 'Diferencia detectada al contar.' else '' end,
-    breakdown = (
-      select jsonb_agg(jsonb_build_object('method', m.method, 'cur', case when m.method = 'Efectivo USD' then 'USD' else 'ARS' end,
-        'inc', coalesce(x.inc, 0), 'out', coalesce(x.out, 0), 'net', coalesce(x.inc, 0) - coalesce(x.out, 0)) order by m.ord)
-      from unnest(enum_range(null::pay_method)) with ordinality m(method, ord)
-      left join (
-        select method, sum(amount) filter (where type = 'Ingreso') inc, sum(amount) filter (where type = 'Egreso') out
-        from cash_moves where shift_id = sh.id group by method
-      ) x on x.method = m.method)
+    breakdown = desglose_caja(sh.id)
   where id = sh.id;
 end $$;
 

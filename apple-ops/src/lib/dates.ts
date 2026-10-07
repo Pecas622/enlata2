@@ -28,3 +28,8 @@ export function fmtDateTime(v: string | null | undefined) {
   const time = new Date(v).toLocaleTimeString("es-AR", { timeZone: TZ, hour: "2-digit", minute: "2-digit" });
   return `${fmtDate(v)} ${time}`;
 }
+
+export function fmtTime(v: string | null | undefined) {
+  if (!v) return "-";
+  return new Date(v).toLocaleTimeString("es-AR", { timeZone: TZ, hour: "2-digit", minute: "2-digit" });
+}
