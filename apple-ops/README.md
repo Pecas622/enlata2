@@ -42,6 +42,10 @@ Contraseña `demo1234` para todos.
 
 Para volver a los datos demo: `npm run db:reset`.
 
+### Demo para mostrarle a un cliente
+
+En producción, el Administrador de un local vacío tiene en **Configuración → Demo para clientes** el botón "Cargar demo": carga equipos, accesorios, clientes y una semana de ventas y cajas. Para entregar el local, "Borrar demo" deja todo en cero y conserva el local, los usuarios, la configuración, la tabla de tasación y el catálogo. En una base que ya existe, la función se agrega pegando `supabase/produccion/actualizacion-demo.sql` en SQL Editor.
+
 ## Tests
 
 ```bash

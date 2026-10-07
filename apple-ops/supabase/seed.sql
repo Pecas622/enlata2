@@ -221,3 +221,5 @@ select pg_temp.vender(0, 11, 'a3', jsonb_build_object('lines', jsonb_build_array
 
 insert into audit_log (store_id, profile_id, user_name, action, detail)
 values ('00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000a1', 'Santiago', 'Datos demo', 'Se cargaron datos de demostración');
+
+update stores set demo_since = now() where id = '00000000-0000-4000-8000-000000000001';
