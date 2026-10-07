@@ -5,7 +5,7 @@ import { login } from "./helpers";
 
 loadEnvConfig(process.cwd());
 const service = () => createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, { auth: { persistSession: false } });
-const ALL = ["canje", "accesorios", "reportes", "catalogo", "asistente", "alertas"];
+const ALL = ["imei", "reportes", "catalogo", "asistente", "alertas"];
 const setModules = (mods: string[]) => service().rpc("set_modulos", { p_slug: "demo", p_modules: mods });
 
 test.beforeAll(async () => {
@@ -18,24 +18,24 @@ test.afterAll(async () => {
 
 test("un local con el plan base y reportes no ve ni usa los módulos que no compró", async ({ page }) => {
   await login(page, "Santiago");
-  for (const id of ["canje", "accesorios", "catalogo", "alertas"]) {
+  for (const id of ["catalogo", "alertas"]) {
     await expect(page.getByTestId(`nav-${id}`)).toHaveCount(0);
     await expect(page.getByTestId(`nav-locked-${id}`)).toBeVisible();
   }
-  await expect(page.getByTestId("nav-reportes")).toBeVisible();
+  for (const id of ["canje", "accesorios", "reportes"]) await expect(page.getByTestId(`nav-${id}`)).toBeVisible();
 
-  await page.goto("/canje");
+  await page.goto("/alertas");
   await expect(page).toHaveURL(/\/dashboard$/);
 
-  await page.goto("/ventas");
-  await expect(page.getByTestId("pos-tab-equipos")).toBeVisible();
-  await expect(page.getByTestId("pos-tab-accesorios")).toHaveCount(0);
-  await expect(page.getByTestId("pos-use-tradein")).toHaveCount(0);
+  await page.goto("/stock");
+  await expect(page.getByTestId("stock-table")).not.toContainText("IMEI");
+  await page.goto("/ingresos");
+  await expect(page.getByText("IMEI (15 dígitos) (opcional)")).toBeVisible();
 
-  await page.getByTestId("nav-locked-canje").click();
+  await page.getByTestId("nav-locked-catalogo").click();
   await expect(page).toHaveURL(/\/config#plan$/);
   await expect(page.getByTestId("plan-reportes")).toContainText("Incluido");
-  await expect(page.getByTestId("plan-canje")).toContainText("No incluido");
+  await expect(page.getByTestId("plan-imei")).toContainText("No incluido");
   await expect(page.getByTestId("fx-source")).toHaveCount(0);
 
   const res = await page.goto("/catalogo/demo");
@@ -44,6 +44,6 @@ test("un local con el plan base y reportes no ve ni usa los módulos que no comp
 
 test("el vendedor no ve los módulos bloqueados", async ({ page }) => {
   await login(page, "Mati");
-  await expect(page.getByTestId("nav-canje")).toHaveCount(0);
+  await expect(page.getByTestId("nav-canje")).toBeVisible();
   await expect(page.locator("[data-testid^=nav-locked-]")).toHaveCount(0);
 });

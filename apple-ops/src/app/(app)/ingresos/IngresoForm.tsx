@@ -9,9 +9,9 @@ import { METHODS, ORIGINS, deviceShort, idLooksOk, methodOf } from "@/lib/catalo
 import { fmtUSD } from "@/lib/money";
 import { imeiInStock, registrarIngreso } from "./actions";
 
-type Props = { cfg: AppraisalConfig & { fx: number }; shiftOpen: boolean; seeCost: boolean };
+type Props = { cfg: AppraisalConfig & { fx: number }; shiftOpen: boolean; seeCost: boolean; requireImei?: boolean };
 
-export function IngresoForm({ cfg, shiftOpen, seeCost }: Props) {
+export function IngresoForm({ cfg, shiftOpen, seeCost, requireImei = true }: Props) {
   const [origin, setOrigin] = useState<string>("Compra a particular");
   const [person, setPerson] = useState({ name: "", dni: "", phone: "" });
   const [draft, setDraft] = useState<DeviceDraft>(newDraft("Usado A"));
@@ -42,7 +42,7 @@ export function IngresoForm({ cfg, shiftOpen, seeCost }: Props) {
 
   const errors: string[] = [];
   if (!draft.model) errors.push("Elegí el modelo.");
-  if (!idLooksOk(draft.kind, draft.imei)) errors.push("Ingresá un IMEI / serie válido.");
+  if ((requireImei || draft.imei) && !idLooksOk(draft.kind, draft.imei)) errors.push("Ingresá un IMEI / serie válido.");
   if (duplicate) errors.push("El IMEI ya está en stock.");
   if (!sealed && ap.blocked) errors.push(ap.reason!);
   if (origin === "Compra a particular" && (!person.name.trim() || !person.dni.trim())) errors.push("Cargá nombre y DNI de quien vende (queda en el boleto de compra).");
@@ -88,7 +88,7 @@ export function IngresoForm({ cfg, shiftOpen, seeCost }: Props) {
             <label className="field">Teléfono<input className="input" value={person.phone} onChange={(e) => setPerson({ ...person, phone: e.target.value })} /></label>
           </div>
         )}
-        <DeviceEvalForm draft={draft} onChange={setDraft} allowSealed={sealed || origin === "Otro"} duplicate={duplicate} />
+        <DeviceEvalForm draft={draft} onChange={setDraft} allowSealed={sealed || origin === "Otro"} duplicate={duplicate} imeiOptional={!requireImei} />
       </div>
 
       <div className="stack" style={{ gap: 16 }}>

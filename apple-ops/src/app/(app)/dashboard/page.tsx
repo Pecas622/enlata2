@@ -38,9 +38,7 @@ export default async function DashboardPage() {
   const inStock = (devs ?? []) as unknown as Device[];
   const capital = inStock.reduce((a, d) => a + Number(d.device_costs?.cost_usd ?? 0), 0);
   const canjesMes = closed(inPeriod(sales, monthStart)).filter((s) => s.trade_in_usd > 0);
-  const withAcc = hasModule(user.modules, "accesorios");
-  const withCanje = hasModule(user.modules, "canje");
-  const lowAcc = withAcc ? (accs ?? []).filter(isLow) : [];
+  const lowAcc = (accs ?? []).filter(isLow);
   const alertDevs = inStock.map((d) => ({ ...d, price_usd: Number(d.price_usd), cost_usd: d.device_costs ? Number(d.device_costs.cost_usd) : null }));
   const oldStock = staleDevices(alertDevs, store?.stale_days ?? 30);
   const target = Number(store?.target_margin ?? 0.12);
@@ -72,8 +70,8 @@ export default async function DashboardPage() {
           <span>Caja</span><b data-testid="stat-caja">{open ? "Abierta" : "Cerrada"}</b>
           <small>{open ? `Desde ${fmtTime(open.opened_at)} · ${open.opened_by}` : "Abrila para vender"}</small>
         </div>
-        {withCanje && <div className="stat"><span>Canjes del mes</span><b>{canjesMes.length}</b><small>{fmtUSD(canjesMes.reduce((a, s) => a + s.trade_in_usd, 0))} tomados</small></div>}
-        {withAcc && <div className={`stat${lowAcc.length ? " warn" : ""}`}><span>Accesorios a reponer</span><b>{lowAcc.length}</b></div>}
+        <div className="stat"><span>Canjes del mes</span><b>{canjesMes.length}</b><small>{fmtUSD(canjesMes.reduce((a, s) => a + s.trade_in_usd, 0))} tomados</small></div>
+        <div className={`stat${lowAcc.length ? " warn" : ""}`}><span>Accesorios a reponer</span><b>{lowAcc.length}</b></div>
       </div>
       <div className="grid-2">
         <div className="card">

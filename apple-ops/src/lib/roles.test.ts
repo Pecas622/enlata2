@@ -46,10 +46,10 @@ describe("menú por módulos", () => {
   it("sin un módulo la sección no aparece ni se abre, y el administrador la ve para sumarla", () => {
     const mods = parseModules(["reportes", "whatsapp"]);
     expect(mods).toEqual(["reportes"]);
-    expect(navFor("Administrador", mods).map((i) => i.id)).toEqual(["dashboard", "ventas", "stock", "ingresos", "clientes", "caja", "reportes", "usuarios", "config"]);
-    expect(canOpen("Encargado", "canje", mods)).toBe(false);
+    expect(navFor("Administrador", mods).map((i) => i.id)).toEqual(["dashboard", "ventas", "canje", "stock", "ingresos", "accesorios", "clientes", "caja", "reportes", "usuarios", "config"]);
+    expect(canOpen("Encargado", "catalogo", mods)).toBe(false);
     expect(canOpen("Encargado", "reportes", mods)).toBe(true);
-    expect(lockedNavFor("Administrador", mods).map((i) => i.id)).toEqual(["alertas", "canje", "accesorios", "catalogo"]);
+    expect(lockedNavFor("Administrador", mods).map((i) => i.id)).toEqual(["alertas", "catalogo"]);
     expect(lockedNavFor("Encargado", mods)).toEqual([]);
     expect(parseModules(null)).toEqual([]);
   });

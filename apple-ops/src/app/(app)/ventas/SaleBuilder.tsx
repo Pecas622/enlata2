@@ -28,12 +28,12 @@ type Props = {
   userId: string;
   canTradeIn: boolean;
   startWithTradeIn?: boolean;
-  withAcc?: boolean;
+  requireImei?: boolean;
 };
 
 const firstPayment = (): Payment[] => [{ method: "Efectivo USD", amount: "" }];
 
-export function SaleBuilder({ cfg, devices, accessories, clients, sellers, shiftOpen, perms, userId, canTradeIn, startWithTradeIn = false, withAcc = true }: Props) {
+export function SaleBuilder({ cfg, devices, accessories, clients, sellers, shiftOpen, perms, userId, canTradeIn, startWithTradeIn = false, requireImei = true }: Props) {
   const router = useRouter();
   const fx = cfg.fx;
   const [tab, setTab] = useState<"equipos" | "accesorios" | "libre">("equipos");
@@ -66,7 +66,7 @@ export function SaleBuilder({ cfg, devices, accessories, clients, sellers, shift
   }, [draft.imei, useTI]);
 
   const totals = saleTotals(lines, discountPct, fx);
-  const ti = useTI ? tradeInState(draft, cfg, tiValue, perms.overTradeIn, Boolean(duplicate)) : null;
+  const ti = useTI ? tradeInState(draft, cfg, tiValue, perms.overTradeIn, Boolean(duplicate), requireImei) : null;
   const tiUSD = ti && ti.valid ? ti.value : 0;
   const due = totals.revenue - tiUSD;
   const paid = paymentsUSD(payments, fx);
@@ -125,7 +125,7 @@ export function SaleBuilder({ cfg, devices, accessories, clients, sellers, shift
     <div className="grid-2">
       <div className="card">
         <div className="pills">
-          {(withAcc ? (["equipos", "accesorios", "libre"] as const) : (["equipos", "libre"] as const)).map((t) => (
+          {(["equipos", "accesorios", "libre"] as const).map((t) => (
             <button key={t} className={`pill${tab === t ? " active" : ""}`} onClick={() => setTab(t)} data-testid={`pos-tab-${t}`}>{t[0].toUpperCase() + t.slice(1)}</button>
           ))}
         </div>
@@ -140,7 +140,7 @@ export function SaleBuilder({ cfg, devices, accessories, clients, sellers, shift
               <button key={d.id} type="button" className={`pos-item${inCart(d.id) ? " on" : ""}`} onClick={() => addDevice(d)} data-testid="pos-device">
                 <div>
                   <b>{deviceTitle(d)}</b>
-                  <small>{d.condition}{d.battery && d.condition !== "Nuevo sellado" ? ` · batería ${d.battery}%` : ""} · IMEI …{d.imei.slice(-4)}</small>
+                  <small>{d.condition}{d.battery && d.condition !== "Nuevo sellado" ? ` · batería ${d.battery}%` : ""}{d.imei ? ` · IMEI …${d.imei.slice(-4)}` : ""}</small>
                 </div>
                 <span className="price">{fmtUSD(d.price_usd)}</span>
               </button>
@@ -227,7 +227,7 @@ export function SaleBuilder({ cfg, devices, accessories, clients, sellers, shift
           <div className="card tradein" data-testid="tradein-block">
             <h2 className="card-title" style={{ color: "var(--accent)" }}>Equipo que entrega el cliente</h2>
             <div className="stack">
-              <DeviceEvalForm draft={draft} onChange={setDraft} kinds={["iPhone", "iPad", "Mac"]} duplicate={duplicate} />
+              <DeviceEvalForm draft={draft} onChange={setDraft} kinds={["iPhone", "iPad", "Mac"]} duplicate={duplicate} imeiOptional={!requireImei} />
               <AppraisalBox ap={draft.model ? ti.ap : null} />
               <div className="row">
                 <label className="field">

@@ -21,6 +21,7 @@ type TradeInSale = {
 export default async function CanjePage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   const { tab = "cotizar" } = await searchParams;
   const { user, perms } = await requireSection("canje");
+  const withImei = hasModule(user.modules, "imei");
   const supabase = await createClient();
   const [pos, { data }] = await Promise.all([
     loadPosData(),
@@ -44,8 +45,8 @@ export default async function CanjePage({ searchParams }: { searchParams: Promis
         <div className="stat"><span>Valor tomado en el mes</span><b>{fmtUSD(mes.reduce((a, s) => a + s.trade_in_usd, 0))}</b></div>
         <div className="stat"><span>Diferencia promedio cobrada</span><b>{fmtUSD(avgDiff)}</b></div>
       </div>
-      {tab === "cotizar" && <QuotePanel cfg={pos.cfg} devices={pos.devices} overTradeIn={perms.overTradeIn} />}
-      {tab === "nuevo" && <SaleBuilder {...pos} perms={perms} userId={user.id} canTradeIn startWithTradeIn withAcc={hasModule(user.modules, "accesorios")} />}
+      {tab === "cotizar" && <QuotePanel cfg={pos.cfg} devices={pos.devices} overTradeIn={perms.overTradeIn} requireImei={withImei} />}
+      {tab === "nuevo" && <SaleBuilder {...pos} perms={perms} userId={user.id} canTradeIn startWithTradeIn requireImei={withImei} />}
       {tab === "historial" && (
         <div className="card">
           {sales.length === 0 ? (
@@ -63,7 +64,7 @@ export default async function CanjePage({ searchParams }: { searchParams: Promis
                         <td>{fmtDate(s.at)}</td>
                         <td>{s.client_name}</td>
                         <td>{d ? `${deviceShort(d)} · ${d.condition}` : "-"}</td>
-                        <td>{d?.imei ?? "-"}</td>
+                        <td>{d?.imei || "-"}</td>
                         <td className="r">{fmtUSD(s.trade_in_usd)}</td>
                         <td className="r">{fmtUSD(s.total_usd - s.trade_in_usd)}</td>
                       </tr>

@@ -19,14 +19,14 @@ export default async function VentasPage({ searchParams }: { searchParams: Promi
   return (
     <>
       <PageHeader title="Ventas" subtitle="Equipos, accesorios y servicios en una sola operación" action={<Tabs base="/ventas" tabs={TABS} active={tab} />} />
-      {tab === "historial" ? <Historial q={q} /> : <Nueva userId={user.id} perms={perms} canTradeIn={user.role !== "Cajero" && hasModule(user.modules, "canje")} withAcc={hasModule(user.modules, "accesorios")} />}
+      {tab === "historial" ? <Historial q={q} /> : <Nueva userId={user.id} perms={perms} canTradeIn={user.role !== "Cajero"} requireImei={hasModule(user.modules, "imei")} />}
     </>
   );
 }
 
-async function Nueva({ userId, perms, canTradeIn, withAcc }: { userId: string; perms: Parameters<typeof SaleBuilder>[0]["perms"]; canTradeIn: boolean; withAcc: boolean }) {
+async function Nueva({ userId, perms, canTradeIn, requireImei }: { userId: string; perms: Parameters<typeof SaleBuilder>[0]["perms"]; canTradeIn: boolean; requireImei: boolean }) {
   const pos = await loadPosData();
-  return <SaleBuilder {...pos} accessories={withAcc ? pos.accessories : []} perms={perms} userId={userId} canTradeIn={canTradeIn} withAcc={withAcc} />;
+  return <SaleBuilder {...pos} perms={perms} userId={userId} canTradeIn={canTradeIn} requireImei={requireImei} />;
 }
 
 async function Historial({ q }: { q: string }) {

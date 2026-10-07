@@ -53,14 +53,14 @@ En **Configuración → Dólar y alertas** el Administrador elige si la cotizaci
 
 ### Venta por módulos
 
-Todo local tiene la base: ventas, stock con IMEI, ingresos, clientes, caja, usuarios y configuración. Encima se suman módulos: `canje` (plan canje y cotizador web), `accesorios`, `reportes`, `catalogo` (catálogo online), `asistente` (chat del catálogo, necesita `catalogo`) y `alertas` (alertas y dólar automático). Un local nuevo arranca con todos. Los cambia Enlata2 desde SQL Editor, con el link del catálogo del local:
+Todo local tiene la base: ventas, stock, ingresos, plan canje, accesorios, clientes, caja, usuarios y configuración. Encima se suman módulos: `imei` (stock con IMEI o serie obligatorio y sin repetidos; sin él el número es opcional), `reportes`, `catalogo` (catálogo online y cotizador web), `asistente` (chat con IA del catálogo, necesita `catalogo`) y `alertas` (alertas y dólar automático). Un local nuevo arranca con todos. Los cambia Enlata2 desde SQL Editor, con el link del catálogo del local:
 
 ```sql
-select set_modulos('enlata2', array['canje', 'reportes']);  -- base + plan canje + reportes
-select set_modulos('enlata2', array['canje', 'accesorios', 'reportes', 'catalogo', 'asistente', 'alertas']);  -- todo
+select set_modulos('enlata2', array['imei', 'reportes']);  -- base + IMEI + reportes
+select set_modulos('enlata2', array['imei', 'reportes', 'catalogo', 'asistente', 'alertas']);  -- todo
 ```
 
-Sin un módulo, sus secciones no aparecen en el menú (el Administrador las ve atenuadas en "Sumá a tu plan") y la base rechaza lo que el módulo cubre: canje y accesorios en las ventas, dólar automático, catálogo público, cotizador y asistente. **Configuración → Tu plan** muestra qué incluye el plan del local. Cada cambio queda en el historial como "Enlata2".
+Sin un módulo, sus secciones no aparecen en el menú (el Administrador las ve atenuadas en "Sumá a tu plan") y la base rechaza lo que el módulo cubre: dólar automático, catálogo público y asistente; sin `imei`, el ingreso y el canje aceptan equipos sin número. **Configuración → Tu plan** muestra qué incluye el plan del local. Cada cambio queda en el historial como "Enlata2".
 
 ## Tests
 

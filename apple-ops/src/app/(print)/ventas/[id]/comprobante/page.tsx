@@ -36,7 +36,7 @@ export default async function ComprobantePage({ params }: { params: Promise<{ id
           {sale.discount_usd > 0 && <tr><td>Descuento {sale.discount_pct}%</td><td className="r">-{fmtUSD(sale.discount_usd)}</td></tr>}
           {sale.trade_in_usd > 0 && (
             <tr>
-              <td>Plan canje{sale.tradeIn ? `: ${deviceShort(sale.tradeIn)} (IMEI ${sale.tradeIn.imei})` : ""}</td>
+              <td>Plan canje{sale.tradeIn ? `: ${deviceShort(sale.tradeIn)} ${sale.tradeIn.imei ? ` (IMEI ${sale.tradeIn.imei})` : ""}` : ""}</td>
               <td className="r">-{fmtUSD(sale.trade_in_usd)}</td>
             </tr>
           )}

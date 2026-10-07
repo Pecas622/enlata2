@@ -11,11 +11,11 @@ import type { StoreConfig } from "@/lib/store";
 import { waLink } from "@/lib/whatsapp";
 import type { PosDevice } from "../ventas/pos-data";
 
-export function QuotePanel({ cfg, devices, overTradeIn }: { cfg: StoreConfig; devices: PosDevice[]; overTradeIn: boolean }) {
+export function QuotePanel({ cfg, devices, overTradeIn, requireImei = true }: { cfg: StoreConfig; devices: PosDevice[]; overTradeIn: boolean; requireImei?: boolean }) {
   const [draft, setDraft] = useState<DeviceDraft>(newDraft("Usado B"));
   const [targetId, setTargetId] = useState("");
   const [phone, setPhone] = useState("");
-  const st = tradeInState(draft, cfg, "", overTradeIn, false);
+  const st = tradeInState(draft, cfg, "", overTradeIn, false, requireImei);
   const target = devices.find((d) => d.id === targetId);
   const value = st.valid ? st.value : 0;
   const diff = target ? target.price_usd - value : 0;
@@ -27,7 +27,7 @@ export function QuotePanel({ cfg, devices, overTradeIn }: { cfg: StoreConfig; de
     <div className="grid-2">
       <div className="card">
         <h2 className="card-title">1. Equipo del cliente</h2>
-        <DeviceEvalForm draft={draft} onChange={setDraft} kinds={["iPhone", "iPad", "Mac"]} />
+        <DeviceEvalForm draft={draft} onChange={setDraft} kinds={["iPhone", "iPad", "Mac"]} imeiOptional={!requireImei} />
       </div>
       <div className="card stack">
         <h2 className="card-title" style={{ margin: 0 }}>2. Cotización</h2>
@@ -47,8 +47,8 @@ export function QuotePanel({ cfg, devices, overTradeIn }: { cfg: StoreConfig; de
             <div className="muted" style={{ justifyContent: "flex-end", fontSize: 11.5 }}>≈ {fmtARS(diff * cfg.fx)}</div>
           </div>
         )}
-        {!st.valid && draft.model && draft.imei && <Notice>{st.errors[0]}</Notice>}
-        {!draft.imei && draft.model && <p className="muted" style={{ margin: 0 }}>Cargá el IMEI para validar el equipo.</p>}
+        {!st.valid && draft.model && (draft.imei || !requireImei) && <Notice>{st.errors[0]}</Notice>}
+        {requireImei && !draft.imei && draft.model && <p className="muted" style={{ margin: 0 }}>Cargá el IMEI para validar el equipo.</p>}
         {msg && (
           <>
             <label className="field">WhatsApp del cliente (opcional)<input className="input" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+54 9 261 ..." /></label>

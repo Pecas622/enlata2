@@ -2,6 +2,7 @@ import Link from "next/link";
 import { PageHeader } from "@/components/ui";
 import { fmtDateTime } from "@/lib/dates";
 import { requireSection } from "@/lib/guard";
+import { hasModule } from "@/lib/modules";
 import { fmtUSD } from "@/lib/money";
 import { loadStoreConfig } from "@/lib/store";
 import { createClient } from "@/lib/supabase/server";
@@ -14,7 +15,7 @@ type Purchase = {
 };
 
 export default async function IngresosPage() {
-  const { perms } = await requireSection("ingresos");
+  const { perms, user } = await requireSection("ingresos");
   const supabase = await createClient();
   const [cfg, { data: shift }, { data: purchases }] = await Promise.all([
     loadStoreConfig(supabase),
@@ -25,7 +26,7 @@ export default async function IngresosPage() {
   return (
     <>
       <PageHeader title="Ingreso de equipos" subtitle="Comprá usados a particulares o cargá mercadería de proveedor, con control de IMEI y pago por caja" />
-      <IngresoForm cfg={cfg} shiftOpen={Boolean(shift)} seeCost={perms.seeCost} />
+      <IngresoForm cfg={cfg} shiftOpen={Boolean(shift)} seeCost={perms.seeCost} requireImei={hasModule(user.modules, "imei")} />
       <div className="card" style={{ marginTop: 16 }}>
         <h2 className="card-title">Ingresos recientes</h2>
         {rows.length === 0 ? (

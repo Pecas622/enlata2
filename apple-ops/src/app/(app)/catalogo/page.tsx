@@ -19,7 +19,6 @@ type Device = { id: string; kind: string; model: string; capacity: number; color
 export default async function CatalogoAdminPage() {
   const { user } = await requireSection("catalogo");
   const withBot = hasModule(user.modules, "asistente");
-  const withQuote = hasModule(user.modules, "canje");
   const supabase = await createClient();
   const [{ data: settings }, { data: devs }, { data: clicks }, { data: chatRows }] = await Promise.all([
     supabase.from("catalog_settings").select("slug, headline, tagline, whatsapp, published, show_accessories, assistant_on, assistant_name, greeting").maybeSingle(),
@@ -45,7 +44,7 @@ export default async function CatalogoAdminPage() {
       <PageHeader
         title="Catálogo online"
         subtitle="Un link para la bio de Instagram: tus equipos disponibles, siempre actualizados desde el stock"
-        action={s.slug && <div className="row"><Link href={`/catalogo/${s.slug}`} target="_blank" className="btn btn-secondary" data-testid="cat-preview">Ver catálogo</Link>{withQuote && <Link href={`/catalogo/${s.slug}/cotizar`} target="_blank" className="btn btn-secondary">Ver cotizador</Link>}</div>}
+        action={s.slug && <div className="row"><Link href={`/catalogo/${s.slug}`} target="_blank" className="btn btn-secondary" data-testid="cat-preview">Ver catálogo</Link><Link href={`/catalogo/${s.slug}/cotizar`} target="_blank" className="btn btn-secondary">Ver cotizador</Link></div>}
       />
       <div className="stats">
         <div className={`stat ${s.published ? "good" : "warn"}`}><span>Estado</span><b data-testid="cat-state">{s.published ? "Publicado" : "Pausado"}</b></div>
@@ -57,7 +56,7 @@ export default async function CatalogoAdminPage() {
         <div className="muted" style={{ fontSize: 12, marginBottom: 6 }}>Tu link</div>
         <div style={{ fontSize: 15, color: "var(--accent)", wordBreak: "break-all" }} data-testid="cat-url">{url}</div>
         <p className="muted" style={{ fontSize: 12.5, marginBottom: 0 }}>
-          Pegalo en la bio de Instagram: cada visita ve el stock real.{withQuote && ` El cotizador está en ${url}/cotizar.`}{!s.published && " Mientras esté pausado, el link muestra un aviso."}
+          Pegalo en la bio de Instagram: cada visita ve el stock real. El cotizador está en {url}/cotizar.{!s.published && " Mientras esté pausado, el link muestra un aviso."}
         </p>
       </div>
       <div className="grid-2" style={{ marginBottom: 16 }}>
