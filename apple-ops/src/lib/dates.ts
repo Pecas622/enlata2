@@ -33,3 +33,8 @@ export function fmtTime(v: string | null | undefined) {
   if (!v) return "-";
   return new Date(v).toLocaleTimeString("es-AR", { timeZone: TZ, hour: "2-digit", minute: "2-digit" });
 }
+
+// Inicio del día local como instante, para filtrar en la base. Argentina no usa horario de verano (UTC−3).
+export function dayStartISO(day: string) {
+  return `${day}T00:00:00-03:00`;
+}
