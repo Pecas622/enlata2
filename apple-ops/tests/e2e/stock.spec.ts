@@ -22,7 +22,7 @@ test("filtros de stock por tipo y búsqueda", async ({ page }) => {
   await expect(page.getByTestId("stock-row")).toContainText("MacBook Air M1");
   await page.getByTestId("kind-Todos").click();
   await page.getByTestId("stock-search").fill("titanio");
-  await expect(page.getByTestId("stock-row")).toHaveCount(2);
+  await expect(page.getByTestId("stock-row")).toHaveCount(1);
 });
 
 test("ingreso de un usado comprado a un particular", async ({ page }) => {
@@ -63,13 +63,13 @@ test("no deja ingresar un IMEI que ya está en stock", async ({ page }) => {
 test("el encargado cambia el precio y queda en el historial", async ({ page }) => {
   await login(page, "Lucía");
   await page.goto("/stock");
-  await page.getByTestId("stock-search").fill("Watch Series 9");
+  await page.getByTestId("stock-search").fill("359000102951121"); // iPhone 13 256GB del seed
   await page.getByTestId("stock-row").click();
-  await page.getByTestId("dev-price").fill("399");
+  await page.getByTestId("dev-price").fill("480");
   await page.getByTestId("dev-save").click();
   await expect(page.getByTestId("dev-saved")).toBeVisible();
-  await expect(page.getByTestId("dev-price-view")).toContainText("399");
-  await expect(page.getByTestId("dev-history")).toContainText("precio US$ 410 → US$ 399");
+  await expect(page.getByTestId("dev-price-view")).toContainText("480");
+  await expect(page.getByTestId("dev-history")).toContainText("precio US$ 500 → US$ 480");
 });
 
 test("el boleto de compra se puede imprimir", async ({ page }) => {

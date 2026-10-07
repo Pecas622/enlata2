@@ -23,11 +23,12 @@ export function newDraft(cond: Condition = "Usado A"): DeviceDraft {
   return { kind: "iPhone", model: "", capacity: 128, color: "Negro", cond, battery: 90, imei: "", defects: [], icloudFree: true, imeiClean: true, note: "" };
 }
 
-export function DeviceEvalForm({ draft, onChange, allowSealed = false, duplicate }: {
+export function DeviceEvalForm({ draft, onChange, allowSealed = false, duplicate, kinds = KINDS }: {
   draft: DeviceDraft;
   onChange: (d: DeviceDraft) => void;
   allowSealed?: boolean;
   duplicate?: string | null;
+  kinds?: readonly Kind[];
 }) {
   const up = (patch: Partial<DeviceDraft>) => onChange({ ...draft, ...patch });
   const toggleDefect = (def: string) => up({ defects: draft.defects.includes(def) ? draft.defects.filter((x) => x !== def) : [...draft.defects, def] });
@@ -39,7 +40,7 @@ export function DeviceEvalForm({ draft, onChange, allowSealed = false, duplicate
           Tipo
           <select className="input" value={draft.kind} data-testid="ev-kind"
             onChange={(e) => { const kind = e.target.value as Kind; up({ kind, model: "", capacity: CAPACITIES[kind][0] }); }}>
-            {KINDS.map((k) => <option key={k}>{k}</option>)}
+            {kinds.map((k) => <option key={k}>{k}</option>)}
           </select>
         </label>
         <label className="field">

@@ -1,10 +1,9 @@
 // Ingresos y edición de equipos: siempre por las funciones SQL, con historial, caja y registro.
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { PROFILE, STORE, service, signInAll, testIMEI, type Who } from "./helpers";
+import { beforeAll, describe, expect, it } from "vitest";
+import { openShiftId, signInAll, testIMEI, withShiftClosed, type Who } from "./helpers";
 
 let c: Record<Who, SupabaseClient>;
-let shiftId: string | null = null;
 
 const base = (imei: string) => ({
   p_kind: "iPhone", p_model: "iPhone 14", p_capacity: 128, p_color: "Negro", p_condition: "Usado A", p_imei: imei,
@@ -14,14 +13,6 @@ const base = (imei: string) => ({
 
 beforeAll(async () => {
   c = await signInAll();
-});
-
-afterAll(async () => {
-  if (shiftId) {
-    const svc = service();
-    await svc.from("cash_moves").delete().eq("shift_id", shiftId);
-    await svc.from("cash_shifts").delete().eq("id", shiftId);
-  }
 });
 
 describe("registrar_ingreso", () => {
@@ -62,13 +53,13 @@ describe("registrar_ingreso", () => {
   });
 
   it("sin caja abierta no se puede pagar desde caja", async () => {
-    const { error } = await c.admin.rpc("registrar_ingreso", { ...base(testIMEI()), p_pay_method: "Efectivo USD", p_pay_amount: 450 });
+    const { error } = await withShiftClosed(() =>
+      c.admin.rpc("registrar_ingreso", { ...base(testIMEI()), p_pay_method: "Efectivo USD", p_pay_amount: 450 }));
     expect(error?.message).toBe("Abrí la caja para registrar el pago.");
   });
 
   it("con caja abierta, el pago queda como egreso del turno", async () => {
-    const { data: shift } = await service().from("cash_shifts").insert({ store_id: STORE, number: "T-ING", opened_by: PROFILE.cajero }).select().single();
-    shiftId = shift!.id;
+    const shiftId = await openShiftId();
     const { data, error } = await c.admin.rpc("registrar_ingreso", { ...base(testIMEI()), p_pay_method: "Efectivo USD", p_pay_amount: 450 });
     expect(error).toBeNull();
     const { data: moves } = await c.admin.from("cash_moves").select("type, currency, amount, concept, shift_id").eq("purchase_id", data.purchase_id);

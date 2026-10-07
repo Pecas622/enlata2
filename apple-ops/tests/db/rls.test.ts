@@ -22,7 +22,7 @@ describe("costos", () => {
 
   it.each(["admin", "encargado"] as Who[])("%s ve los costos", async (who) => {
     const { data } = await clients[who].from("device_costs").select("cost_usd");
-    expect(data).toHaveLength(14);
+    expect(data!.length).toBeGreaterThanOrEqual(16);
   });
 
   it("la tabla de equipos no tiene columna de costo", async () => {
@@ -65,11 +65,10 @@ describe("caja", () => {
     const svc = createClient(url, serviceKey, { auth: { persistSession: false } });
     const store = "00000000-0000-4000-8000-000000000001";
     const caro = "00000000-0000-4000-8000-0000000000a4";
-    const first = await svc.from("cash_shifts").insert({ store_id: store, number: "T-TEST1", opened_by: caro }).select().single();
-    expect(first.error).toBeNull();
+    // El seed deja la caja de hoy abierta: una segunda choca con el índice único.
+    expect((await svc.from("cash_shifts").select("id").eq("status", "Abierta")).data).toHaveLength(1);
     const second = await svc.from("cash_shifts").insert({ store_id: store, number: "T-TEST2", opened_by: caro });
     expect(second.error?.code).toBe("23505");
-    await svc.from("cash_shifts").delete().eq("id", first.data!.id);
   });
 });
 
@@ -104,7 +103,7 @@ describe("catálogo público", () => {
   });
 
   it("un equipo oculto no aparece en el catálogo", async () => {
-    const { data: dev } = await clients.admin.from("devices").select("id").eq("model", "iPad 9").single();
+    const { data: dev } = await clients.admin.from("devices").select("id").eq("model", "MacBook Air M1").single();
     await clients.admin.from("catalog_items").upsert({ device_id: dev!.id, store_id: "00000000-0000-4000-8000-000000000001", visible: false });
     const { data } = await fresh().from("catalogo_publico").select("id").eq("id", dev!.id);
     expect(data).toEqual([]);

@@ -40,3 +40,20 @@ export async function signInAll() {
 export function testIMEI() {
   return "99" + String(Date.now()).slice(-10) + String(Math.floor(Math.random() * 1000)).padStart(3, "0");
 }
+
+// El seed deja la caja de hoy abierta.
+export async function openShiftId() {
+  const { data } = await service().from("cash_shifts").select("id").eq("store_id", STORE).eq("status", "Abierta").single();
+  return data!.id as string;
+}
+
+// Para probar "sin caja abierta": se cierra la caja del seed un momento y se vuelve a abrir.
+export async function withShiftClosed<T>(fn: () => PromiseLike<T>): Promise<T> {
+  const id = await openShiftId();
+  await service().from("cash_shifts").update({ status: "Cerrada" }).eq("id", id);
+  try {
+    return await fn();
+  } finally {
+    await service().from("cash_shifts").update({ status: "Abierta" }).eq("id", id);
+  }
+}
