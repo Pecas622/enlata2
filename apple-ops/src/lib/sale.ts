@@ -43,12 +43,13 @@ export function tradeInState(
   valueStr: string,
   overTradeIn: boolean,
   duplicate: boolean,
+  requireImei = true,
 ): TradeInState {
   const ap = appraise(cfg, draft);
   const value = valueStr === "" ? (ap.ok ? ap.value : 0) : Number(valueStr) || 0;
   const errors: string[] = [];
   if (!draft.model) errors.push("Elegí el modelo del equipo que entrega el cliente.");
-  if (!idLooksOk(draft.kind, draft.imei)) errors.push("Ingresá un IMEI / serie válido.");
+  if ((requireImei || draft.imei) && !idLooksOk(draft.kind, draft.imei)) errors.push("Ingresá un IMEI / serie válido.");
   if (ap.blocked) errors.push(ap.reason!);
   if (!ap.ok && !ap.blocked && draft.model && valueStr === "") errors.push("Sin valor de referencia: ingresá el valor a mano.");
   if (duplicate) errors.push("El IMEI ya está en stock.");

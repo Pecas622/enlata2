@@ -29,7 +29,7 @@ export default async function BoletoPage({ params }: { params: Promise<{ id: str
           <tr><td>Vendedor</td><td className="r">{p.person_name || "-"}</td></tr>
           <tr><td>DNI</td><td className="r">{p.person_dni || "-"}</td></tr>
           <tr><td>Equipo</td><td className="r">{d.model}{d.capacity ? ` ${d.capacity}GB` : ""} · {d.color}</td></tr>
-          <tr><td>IMEI / serie</td><td className="r">{d.imei}</td></tr>
+          {d.imei && <tr><td>IMEI / serie</td><td className="r">{d.imei}</td></tr>}
           <tr><td className="b">Valor abonado</td><td className="r b">{fmtUSD(Number(p.cost_usd))}</td></tr>
         </tbody>
       </table>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { PageHeader } from "@/components/ui";
 import { DEVICE_COLUMNS, withCost } from "@/lib/devices";
 import { requireSection } from "@/lib/guard";
+import { hasModule } from "@/lib/modules";
 import { canOpen } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 import { StockTable } from "./StockTable";
@@ -19,7 +20,7 @@ export default async function StockPage() {
         subtitle="Cada equipo con su IMEI, condición e historial"
         action={canOpen(user.role, "ingresos") && <Link className="btn btn-primary" href="/ingresos" data-testid="go-ingreso">+ Ingresar equipo</Link>}
       />
-      <StockTable rows={rows} seeCost={perms.seeCost} />
+      <StockTable rows={rows} seeCost={perms.seeCost} showImei={hasModule(user.modules, "imei")} />
     </>
   );
 }

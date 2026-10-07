@@ -23,12 +23,13 @@ export function newDraft(cond: Condition = "Usado A"): DeviceDraft {
   return { kind: "iPhone", model: "", capacity: 128, color: "Negro", cond, battery: 90, imei: "", defects: [], icloudFree: true, imeiClean: true, note: "" };
 }
 
-export function DeviceEvalForm({ draft, onChange, allowSealed = false, duplicate, kinds = KINDS }: {
+export function DeviceEvalForm({ draft, onChange, allowSealed = false, duplicate, kinds = KINDS, imeiOptional = false }: {
   draft: DeviceDraft;
   onChange: (d: DeviceDraft) => void;
   allowSealed?: boolean;
   duplicate?: string | null;
   kinds?: readonly Kind[];
+  imeiOptional?: boolean;
 }) {
   const up = (patch: Partial<DeviceDraft>) => onChange({ ...draft, ...patch });
   const toggleDefect = (def: string) => up({ defects: draft.defects.includes(def) ? draft.defects.filter((x) => x !== def) : [...draft.defects, def] });
@@ -81,7 +82,7 @@ export function DeviceEvalForm({ draft, onChange, allowSealed = false, duplicate
         )}
       </div>
       <label className="field">
-        {usesIMEI(draft.kind) ? "IMEI (15 dígitos)" : "N.º de serie"}
+        {usesIMEI(draft.kind) ? "IMEI (15 dígitos)" : "N.º de serie"}{imeiOptional && " (opcional)"}
         <input className="input" value={draft.imei} placeholder="Ej: 353912080123456" onChange={(e) => up({ imei: e.target.value.replace(/\s/g, "") })} data-testid="ev-imei" />
         {draft.imei && !idLooksOk(draft.kind, draft.imei) && <span style={{ color: "var(--amber)" }}>Revisá el número: formato inválido</span>}
       </label>

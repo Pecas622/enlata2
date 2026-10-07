@@ -20,7 +20,7 @@ function downloadCSV(filename: string, rows: Record<string, string | number>[]) 
   URL.revokeObjectURL(url);
 }
 
-export function StockTable({ rows, seeCost }: { rows: DeviceRow[]; seeCost: boolean }) {
+export function StockTable({ rows, seeCost, showImei = true }: { rows: DeviceRow[]; seeCost: boolean; showImei?: boolean }) {
   const router = useRouter();
   const [kind, setKind] = useState("Todos");
   const [status, setStatus] = useState("Disponible");
@@ -36,7 +36,7 @@ export function StockTable({ rows, seeCost }: { rows: DeviceRow[]; seeCost: bool
   return (
     <div className="card">
       <div className="toolbar">
-        <input className="input" style={{ maxWidth: 300 }} placeholder="Buscar modelo, IMEI, condición..." value={q} onChange={(e) => setQ(e.target.value)} data-testid="stock-search" />
+        <input className="input" style={{ maxWidth: 300 }} placeholder={showImei ? "Buscar modelo, IMEI, condición..." : "Buscar modelo o condición..."} value={q} onChange={(e) => setQ(e.target.value)} data-testid="stock-search" />
         <select className="input" style={{ maxWidth: 170 }} value={status} onChange={(e) => setStatus(e.target.value)} data-testid="stock-status">
           {["Todos", ...DEVICE_STATUSES].map((s) => <option key={s}>{s}</option>)}
         </select>
@@ -44,7 +44,7 @@ export function StockTable({ rows, seeCost }: { rows: DeviceRow[]; seeCost: bool
           <button
             className="btn btn-secondary"
             style={{ marginLeft: "auto" }}
-            onClick={() => downloadCSV("stock-equipos.csv", shown.map((d) => ({ Equipo: deviceTitle(d), Condicion: d.condition, IMEI: d.imei, Costo: d.cost_usd ?? "", Precio: d.price_usd, Estado: d.status, Ingreso: d.entry_date })))}
+            onClick={() => downloadCSV("stock-equipos.csv", shown.map((d) => ({ Equipo: deviceTitle(d), Condicion: d.condition, ...(showImei ? { IMEI: d.imei } : {}), Costo: d.cost_usd ?? "", Precio: d.price_usd, Estado: d.status, Ingreso: d.entry_date })))}
           >
             Exportar CSV
           </button>
@@ -64,7 +64,7 @@ export function StockTable({ rows, seeCost }: { rows: DeviceRow[]; seeCost: bool
           <table className="table" data-testid="stock-table">
             <thead>
               <tr>
-                <th>Equipo</th><th>IMEI / serie</th><th>Batería</th><th>Origen</th><th>Días</th>
+                <th>Equipo</th>{showImei && <th>IMEI / serie</th>}<th>Batería</th><th>Origen</th><th>Días</th>
                 {seeCost && <th className="r">Costo</th>}
                 <th className="r">Precio</th><th>Estado</th>
               </tr>
@@ -75,7 +75,7 @@ export function StockTable({ rows, seeCost }: { rows: DeviceRow[]; seeCost: bool
                 return (
                   <tr key={d.id} className="clickable" onClick={() => router.push(`/stock/${d.id}`)} data-testid="stock-row">
                     <td><b>{deviceTitle(d)}</b><div className="sub">{d.condition}</div></td>
-                    <td className="sub">{d.imei}</td>
+                    {showImei && <td className="sub">{d.imei || "-"}</td>}
                     <td>{d.condition === "Nuevo sellado" || !d.battery ? "-" : `${d.battery}%`}</td>
                     <td><Badge tone={d.origin === "Canje" ? "green" : "gray"}>{d.origin}</Badge></td>
                     <td style={{ color: d.status === "Disponible" && days > 45 ? "var(--amber)" : undefined }}>{d.status === "Disponible" ? days : "-"}</td>

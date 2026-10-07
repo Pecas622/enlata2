@@ -36,7 +36,7 @@ export default async function DevicePage({ params }: { params: Promise<{ id: str
           <Badge tone="gray">{d.origin}</Badge>
         </div>
         <div className="facts">
-          <div><span>IMEI / serie: </span>{d.imei}</div>
+          {d.imei && <div><span>IMEI / serie: </span>{d.imei}</div>}
           {d.battery != null && d.condition !== "Nuevo sellado" && <div><span>Batería: </span>{d.battery}%</div>}
           <div><span>Ingreso: </span>{fmtDate(d.entry_date)} ({daysSince(d.entry_date)} días)</div>
           <div><span>Garantía: </span>{d.warranty_days} días</div>
