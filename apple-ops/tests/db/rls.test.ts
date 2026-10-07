@@ -104,10 +104,10 @@ describe("catálogo público", () => {
 
   it("un equipo oculto no aparece en el catálogo", async () => {
     const { data: dev } = await clients.admin.from("devices").select("id").eq("model", "MacBook Air M1").single();
-    await clients.admin.from("catalog_items").upsert({ device_id: dev!.id, store_id: "00000000-0000-4000-8000-000000000001", visible: false });
+    expect((await clients.admin.rpc("catalogo_equipo", { p_device: dev!.id, p_visible: false, p_featured: false })).error).toBeNull();
     const { data } = await fresh().from("catalogo_publico").select("id").eq("id", dev!.id);
     expect(data).toEqual([]);
-    await clients.admin.from("catalog_items").delete().eq("device_id", dev!.id);
+    await clients.admin.rpc("catalogo_equipo", { p_device: dev!.id, p_visible: true, p_featured: false });
   });
 });
 
