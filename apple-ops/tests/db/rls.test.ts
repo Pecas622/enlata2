@@ -2,28 +2,7 @@
 // Requiere la base con migraciones y seed (supabase start, o el stack local de desarrollo).
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { beforeAll, describe, expect, it } from "vitest";
-
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const PASSWORD = "demo1234";
-
-const USERS = {
-  admin: "santiago@demo.apple-ops.test",
-  encargado: "lucia@demo.apple-ops.test",
-  vendedor: "mati@demo.apple-ops.test",
-  cajero: "caro@demo.apple-ops.test",
-} as const;
-type Who = keyof typeof USERS;
-
-const fresh = () => createClient(url, anonKey, { auth: { persistSession: false, autoRefreshToken: false } });
-
-async function as(who: Who): Promise<SupabaseClient> {
-  const c = fresh();
-  const { error } = await c.auth.signInWithPassword({ email: USERS[who], password: PASSWORD });
-  if (error) throw error;
-  return c;
-}
+import { PASSWORD, as, fresh, serviceKey, url, USERS, type Who } from "./helpers";
 
 const clients = {} as Record<Who, SupabaseClient>;
 
