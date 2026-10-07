@@ -44,7 +44,7 @@ Para volver a los datos demo: `npm run db:reset`.
 ```bash
 npm test          # unitarios y permisos en la base (necesita Supabase levantado)
 npm run build
-npm run test:e2e  # Playwright: login, menú por rol, PIN, stock, ingresos, ventas y canje
+npm run test:e2e  # Playwright: login, menú por rol, PIN, stock, ingresos, ventas, canje, accesorios y clientes
 ```
 
 CI corre todo lo anterior en cada PR contra un Supabase local.
@@ -54,7 +54,7 @@ CI corre todo lo anterior en cada PR contra un Supabase local.
 - `supabase/migrations/`: esquema, vistas y políticas RLS. Los permisos por rol se aplican en la base: aunque alguien consulte Supabase directo, no recibe lo que su rol no ve.
 - Los costos viven en tablas aparte (`device_costs`, `accessory_costs`, `sale_line_costs`) que solo leen Administrador y Encargado.
 - El catálogo público lee únicamente las vistas `catalogo_publico`, `accesorios_publicos` y `catalogo_config_publica`, que no tienen costos, IMEI ni datos de clientes.
-- Ventas, anulaciones, ingresos y caja no se escriben directo: pasan por funciones SQL transaccionales (`registrar_ingreso`, `editar_equipo`, `registrar_venta`, `anular_venta`; la caja en la etapa 5).
+- Ventas, anulaciones, ingresos y caja no se escriben directo: pasan por funciones SQL transaccionales (`registrar_ingreso`, `editar_equipo`, `registrar_venta`, `anular_venta`, `guardar_accesorio`, `reponer_accesorio`, `carga_masiva_accesorios`, `guardar_cliente`; la caja en la etapa 5). Cada una deja registro con usuario y hora.
 - `registrar_venta` recalcula totales con la cotización del local, tasa el canje con `tasar_canje` (la misma cuenta que `appraise()`), controla precio, descuento y tope de canje según el rol, descuenta stock, cobra por la caja abierta y deja historial y registro. `anular_venta` devuelve el stock, registra el egreso en caja y retira el equipo del canje.
 - Los datos demo traen seis días de ventas y cierres de caja, y la caja de hoy abierta.
 - Login con email y contraseña. En el mostrador, "Cambiar usuario" pasa a otro usuario del mismo local con su PIN de 4 dígitos (5 intentos fallidos lo bloquean 5 minutos).
@@ -64,8 +64,8 @@ CI corre todo lo anterior en cada PR contra un Supabase local.
 
 1. Base y login
 2. Stock e ingresos
-3. Ventas y plan canje ← esta
-4. Accesorios y clientes
+3. Ventas y plan canje
+4. Accesorios y clientes ← esta
 5. Caja
 6. Reportes, usuarios y configuración
 7. Catálogo público
