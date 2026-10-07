@@ -32,6 +32,7 @@ export type NavItem = { id: string; label: string; icon: string; roles: readonly
 
 export const NAV_ITEMS: readonly NavItem[] = [
   { id: "dashboard", label: "Dashboard", icon: "dashboard", roles: ROLES, stage: 6 },
+  { id: "alertas", label: "Alertas", icon: "alertas", roles: ["Administrador", "Encargado"], stage: 10 },
   { id: "ventas", label: "Ventas", icon: "ventas", roles: ROLES, stage: 3 },
   { id: "canje", label: "Plan Canje", icon: "canje", roles: ["Administrador", "Encargado", "Vendedor"], stage: 3 },
   { id: "stock", label: "Stock de equipos", icon: "stock", roles: ["Administrador", "Encargado", "Vendedor"], stage: 2 },

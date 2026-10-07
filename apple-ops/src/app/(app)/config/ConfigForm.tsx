@@ -15,7 +15,7 @@ const toDraft = (c: ConfigInput): Draft => ({
   base_values: c.base_values.map((b) => ({ model: b.model, capacity: String(b.capacity), value: String(b.value) })),
 });
 
-export function ConfigForm({ initial }: { initial: ConfigInput }) {
+export function ConfigForm({ initial, fxAuto }: { initial: ConfigInput; fxAuto?: string }) {
   const [c, setC] = useState<Draft>(() => toDraft(initial));
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -40,8 +40,8 @@ export function ConfigForm({ initial }: { initial: ConfigInput }) {
   const text = (label: string, k: "name" | "cuit" | "phone" | "address", testid?: string) => (
     <label className="field">{label}<input className="input" value={c[k]} onChange={(e) => up({ [k]: e.target.value })} data-testid={testid} /></label>
   );
-  const num = (label: string, k: "fx" | "target_margin" | "max_discount_seller" | "warranty_new_days" | "warranty_used_days", testid?: string, step = "1", hint?: string) => (
-    <label className="field">{label}<input className="input" type="number" step={step} value={c[k]} onChange={(e) => up({ [k]: e.target.value })} data-testid={testid} />{hint && <span>{hint}</span>}</label>
+  const num = (label: string, k: "fx" | "target_margin" | "max_discount_seller" | "warranty_new_days" | "warranty_used_days", testid?: string, step = "1", hint?: string, disabled = false) => (
+    <label className="field">{label}<input className="input" type="number" step={step} value={c[k]} onChange={(e) => up({ [k]: e.target.value })} data-testid={testid} disabled={disabled} />{hint && <span>{hint}</span>}</label>
   );
 
   return (
@@ -56,7 +56,7 @@ export function ConfigForm({ initial }: { initial: ConfigInput }) {
         <div className="card stack">
           <h2 className="card-title" style={{ margin: 0 }}>Reglas comerciales</h2>
           <div className="row">
-            {num("Cotización dólar (ARS)", "fx", "cfg-fx")}
+            {num("Cotización dólar (ARS)", "fx", "cfg-fx", "1", fxAuto ? `Automática (${fxAuto}).` : undefined, !!fxAuto)}
             {num("Margen objetivo de reventa", "target_margin", "cfg-margin", "0.01", "0.12 es 12%.")}
             {num("Descuento máx. vendedor (%)", "max_discount_seller", "cfg-discount")}
           </div>

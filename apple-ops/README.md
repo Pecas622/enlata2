@@ -46,6 +46,11 @@ Para volver a los datos demo: `npm run db:reset`.
 
 En producción, el Administrador de un local vacío tiene en **Configuración → Demo para clientes** el botón "Cargar demo": carga equipos, accesorios, clientes y una semana de ventas y cajas. Para entregar el local, "Borrar demo" deja todo en cero y conserva el local, los usuarios, la configuración, la tabla de tasación y el catálogo. En una base que ya existe, la función se agrega pegando `supabase/produccion/actualizacion-demo.sql` en SQL Editor.
 
+
+### Dólar automático y alertas
+
+En **Configuración → Dólar y alertas** el Administrador elige si la cotización es manual o sale sola del dólar oficial, blue o MEP (precio de venta de DolarAPI), más un ajuste en pesos. Se actualiza cada media hora mientras alguien usa la app o mira el catálogo, y una vez por día con Vercel Cron (`/api/cron/cotizacion`, protegido con `CRON_SECRET` si está configurado). Si la consulta falla queda la última cotización. La sección **Alertas** (Administrador y Encargado) muestra equipos parados, equipos con precio por debajo del margen objetivo, accesorios a reponer y ventas de los últimos 30 días con margen bajo.
+
 ## Tests
 
 ```bash

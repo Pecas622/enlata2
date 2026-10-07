@@ -15,6 +15,7 @@ export function Logo({ size = 28 }: { size?: number }) {
 
 const PATHS: Record<string, ReactElement> = {
   dashboard: <g><rect x="3" y="3" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="3" width="7.5" height="7.5" rx="2" /><rect x="3" y="13.5" width="7.5" height="7.5" rx="2" /><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2" /></g>,
+  alertas: <g><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15L6 16z" /><path d="M10 20.5a2 2 0 0 0 4 0" /></g>,
   ventas: <g><path d="M6 8h12l-1 12H7L6 8z" /><path d="M9 8V6.5a3 3 0 0 1 6 0V8" /></g>,
   canje: <g><path d="M4 8h14m0 0-3-3m3 3-3 3" /><path d="M20 16H6m0 0 3-3m-3 3 3 3" /></g>,
   stock: <g><rect x="7" y="2.5" width="10" height="19" rx="2.6" /><path d="M11 18.5h2" /></g>,
