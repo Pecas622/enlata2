@@ -389,14 +389,14 @@
     <div class="catalog-grid">
       <div class="prod-card" data-product-id="apple">
         <div class="prod-icon"><svg class="icon" viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="10" y1="18" x2="14" y2="18"/></svg></div>
-        <div class="prod-name">Enlata2 Apple</div>
+        <div class="prod-name">Enlata2 para locales de iPhone</div>
         <div class="prod-rubro">Locales de celulares</div>
-        <ul class="prod-feats"><li>Stock de equipos</li><li>Ventas y caja</li><li>Plan canje</li></ul>
+        <ul class="prod-feats"><li>Plan canje tasado</li><li>Caja y ventas</li><li>Stock con IMEI</li></ul>
         <div class="prod-card-foot">
-          <div class="prod-price">Desde <b>$50.000</b>/mes</div>
+          <div class="prod-price">Desde <b>$29.900</b>/mes</div>
           <div class="prod-tag">Ver demo <svg class="icon" viewBox="0 0 24 24" style="width:12px;height:12px;"><path d="M9 5l7 7-7 7"/></svg></div>
         </div>
-        <a class="btn btn-primary btn-sm prod-buy" data-alta href="#" target="_top">Contratar online</a>
+        <a class="btn btn-primary btn-sm prod-buy" data-alta href="#" target="_top">Ver precios y contratar</a>
       </div>
       <div class="prod-card" data-product-id="inmo">
         <div class="prod-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M4 11 12 4l8 7"/><path d="M6 10v9h12v-9"/><path d="M10 19v-5h4v5"/></svg></div>
@@ -616,7 +616,7 @@
     <div class="arca-cta-card">
       <div class="arca-offer">
         <b>Probá tus primeras 2 facturas gratis.</b>
-        Emitido a través de ARCA, sin cargar nada por fuera del sistema.
+        Pensado para emitir a través de ARCA. En la demo la emisión es simulada.
       </div>
       <div class="arca-actions">
         <a class="btn btn-primary" href="/checkout" target="_top">Probar facturación</a>
@@ -662,7 +662,6 @@
           <li>Precio accesible desde el día uno</li>
           <li>Sistema listo para usar</li>
           <li>Implementación en días</li>
-          <li>Sistema ya probado en otros negocios</li>
           <li>Activás funciones solo cuando las necesitás</li>
         </ul>
       </div>
@@ -685,7 +684,7 @@
         <li>Soporte, actualizaciones y backups incluidos</li>
       </ul>
       <a class="btn btn-primary btn-lg" style="width:100%;" href="/checkout" target="_top">Quiero mi sistema</a>
-      <p style="margin-top:12px;font-size:13.5px;">¿Tenés un local de celulares? <a data-alta href="#" target="_top"><b>Contratá Enlata2 Apple online</b></a> y empezá hoy, con Mercado Pago.</p>
+      <p style="margin-top:12px;font-size:13.5px;">¿Tenés un local de celulares? <a data-alta href="#" target="_top"><b>Conocé el sistema para locales de iPhone</b></a>: desde $29.900/mes y lo contratás online con Mercado Pago.</p>
     </div>
 
     <div class="price-more">
@@ -783,8 +782,8 @@
     });
   }
 
-  // Alta online de Enlata2 Apple (APPLE OPS): crea la cuenta y cobra el plan con Mercado Pago.
-  var APPLE_OPS_ALTA = 'https://enlata2-rni3.vercel.app/alta';
+  // Landing de Enlata2 para locales de iPhone (APPLE OPS): precios reales y alta online con Mercado Pago.
+  var APPLE_OPS_ALTA = 'https://enlata2-rni3.vercel.app/';
   document.querySelectorAll('[data-alta]').forEach(function(link){
     link.href = APPLE_OPS_ALTA;
     link.addEventListener('click', function(e){ e.stopPropagation(); });
