@@ -34,7 +34,7 @@ Cuidados al comunicar:
 - **Módulos:** todo local tiene la base (ventas, stock, ingresos, plan canje, accesorios, clientes, caja, usuarios). IMEI obligatorio, reportes, catálogo online, asistente y alertas con dólar automático son módulos que se suman al plan (README "Venta por módulos"). Si una pieza muestra un módulo, no digas que viene en todos los planes.
 - **IA:** el asistente responde con Claude cuando la instalación tiene `ANTHROPIC_API_KEY`, que tiene costo por uso; sin clave, o si la IA falla, responde el motor de reglas. Es parte del módulo asistente: no prometas IA ilimitada sin costo.
 - **Facturación:** los comprobantes son sin validez fiscal. No digas que factura.
-- **Precios del producto:** no los inventes. Dejá `[US$ ___]` para que Santiago los complete.
+- **Precios del producto:** usá solo los de lanzamiento que están en `apple-ops/supabase/migrations/20261008010000_suscripciones.sql` (tabla `plan_prices`, en pesos por mes: base $29.900; IMEI, reportes y alertas $4.900 cada uno; catálogo $7.900; asistente $20.000). Si no los encontrás ahí, no los inventes: dejá `[$ ___]` para que Santiago los complete.
 - **Datos de mercado:** solo con fuente abierta y citada. Si un número no tiene fuente, tratalo como dirección y decilo.
 - **Capturas:** los datos que se ven son de la demo. Si usás el sistema de un cliente real, pedí permiso y tapá IMEI, nombres y costos.
 
@@ -47,6 +47,7 @@ Cuidados al comunicar:
 | Reel principal de 33 s (orgánico, anuncio de Meta y versión sin música) | Archivos del proyecto: `marketing/reel-apple-ops-*.mp4` |
 | Capturas reales de cada pantalla | Archivos del proyecto: `apple-ops/etapa-*.png` |
 | Scripts para regenerar el Reel | [`marketing/reel/`](reel/) |
+| Marca y presencia digital (Encargo 2 resuelto: nombre propuesto Cuadra, identidad, Instagram, 15 Reels, calendario de 30 días, TikTok, WhatsApp Business, embudo, Meta Ads y lanzamiento de 14 días) | https://claude.ai/code/artifact/bd4aea41-6ee3-488e-be0b-19959d89b204 |
 
 Decisiones ya tomadas (cambialas solo si Santiago lo pide o los datos de campaña lo justifican):
 
