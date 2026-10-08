@@ -20,21 +20,21 @@ const PROBLEMS = [
 
 const FEATURES = [
   {
-    id: "stock", eyebrow: "Stock de equipos", title: "Cada iPhone con su IMEI",
-    img: "/landing/stock.webp", h: 1195, alt: "Stock de equipos con IMEI, batería, origen, días en stock, costo y precio",
-    points: [
-      "IMEI, condición, batería, origen y días en stock de cada iPhone, iPad, Mac, Watch o AirPods.",
-      "Ingreso de equipos de proveedor o de particulares, con boleto de compra para imprimir.",
-      "Los equipos parados se marcan solos y el stock se exporta a CSV.",
-    ],
-  },
-  {
     id: "canje", eyebrow: "Plan canje", title: "El usado se tasa solo, siempre con la misma regla",
     img: "/landing/canje.webp", h: 956, alt: "Tasación de un iPhone 13 128GB usado: valor de referencia, ajuste por condición y batería, diferencia a pagar",
     points: [
       "Valor de referencia del modelo, ajustado por condición, batería y defectos. Con el detalle a la vista.",
       "Si tiene iCloud activo o el IMEI con denuncia, el sistema no deja tomarlo.",
       "El vendedor no puede pagar más que el valor sugerido. El equipo entra solo al stock y la diferencia queda en la venta y en la caja.",
+    ],
+  },
+  {
+    id: "stock", eyebrow: "Stock de equipos", title: "Cada iPhone con su IMEI",
+    img: "/landing/stock.webp", h: 1195, alt: "Stock de equipos con IMEI, batería, origen, días en stock, costo y precio",
+    points: [
+      "IMEI, condición, batería, origen y días en stock de cada iPhone, iPad, Mac, Watch o AirPods.",
+      "Ingreso de equipos de proveedor o de particulares, con boleto de compra para imprimir.",
+      "Los equipos parados se marcan solos y el stock se exporta a CSV.",
     ],
   },
   {
@@ -119,7 +119,7 @@ export function Landing({ prices }: { prices: Prices }) {
         <div className={s.wrap}>
           <p className={s.eyebrowDark}>Para locales que venden iPhone y productos Apple</p>
           <h1 className={s.heroTitle}>Controlá tu local<br />aunque no estés.</h1>
-          <p className={s.heroSub}>Stock con IMEI, canje tasado siempre igual, caja que cuadra y catálogo online. Todo en un solo sistema, en dólares y en pesos.</p>
+          <p className={s.heroSub}>Canje tasado siempre igual, caja que cuadra, stock con IMEI y catálogo online. Todo en un solo sistema, en dólares y en pesos.</p>
           <div className={s.ctaRow}>
             <Link href="/alta" className={`${s.btn} ${s.btnPrimary}`} data-testid="landing-cta-hero">Empezá ahora</Link>
             {demo
