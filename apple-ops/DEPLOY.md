@@ -40,6 +40,8 @@ El proyecto `enlata2` que ya existe publica la web de la raíz del repo. APPLE O
    | `ANTHROPIC_API_KEY` | opcional: con esta clave el asistente del catálogo responde con IA |
    | `MP_ACCESS_TOKEN` | opcional: Access Token de producción de Mercado Pago, para vender el plan y los módulos online (Sensitive) |
    | `MP_WEBHOOK_SECRET` | opcional: clave secreta de las notificaciones de Mercado Pago (Sensitive) |
+   | `NEXT_PUBLIC_SALES_WHATSAPP` | opcional: WhatsApp de ventas con código de país (por ejemplo `5492611234567`); muestra "Pedí una demo" en la landing |
+   | `NEXT_PUBLIC_PRODUCT_NAME` | opcional: nombre del producto en la landing, si deja de ser APPLE OPS |
 
 4. **Deploy**. Las funciones corren en São Paulo (`vercel.json`), al lado de la base.
 5. Si querés un dominio propio (por ejemplo `ops.enlata2.com`), agregalo en **Settings → Domains** y actualizá la Site URL de Supabase.
