@@ -10,7 +10,7 @@ create table if not exists plan_prices (
   price_ars numeric(12,2) not null check (price_ars > 0)
 );
 insert into plan_prices (item, price_ars) values
-  ('base', 50000), ('imei', 10000), ('reportes', 10000), ('catalogo', 15000), ('asistente', 25000), ('alertas', 10000)
+  ('base', 29900), ('imei', 4900), ('reportes', 4900), ('catalogo', 7900), ('asistente', 14900), ('alertas', 4900)
 on conflict (item) do nothing;
 alter table plan_prices enable row level security;
 drop policy if exists plan_prices_read on plan_prices;

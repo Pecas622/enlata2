@@ -1,5 +1,6 @@
 // Mercado Pago de mentira para los e2e: crea suscripciones (preapproval), muestra un checkout con
-// un botón "Pagar" que las autoriza y vuelve al back_url, como el de verdad.
+// un botón "Pagar" que las autoriza y vuelve al back_url, como el de verdad. También acepta el cambio
+// de monto (PUT) que usa scripts/ajustar-precios.mjs.
 import { createServer } from "node:http";
 
 const PORT = Number(process.env.MP_MOCK_PORT ?? 3999);
@@ -21,6 +22,11 @@ createServer(async (req, res) => {
     sub.init_point = `http://localhost:${PORT}/checkout/${sub.id}`;
     subs.set(sub.id, sub);
     return json(res, 201, sub);
+  }
+  if (a === "preapproval" && req.method === "PUT" && subs.has(id)) {
+    const body = await read(req);
+    Object.assign(subs.get(id).auto_recurring, body.auto_recurring ?? {});
+    return json(res, 200, subs.get(id));
   }
   if (a === "preapproval" && req.method === "GET") return subs.has(id) ? json(res, 200, subs.get(id)) : json(res, 404, { message: "no existe" });
   if (a === "subs" && req.method === "GET") return json(res, 200, [...subs.values()]);

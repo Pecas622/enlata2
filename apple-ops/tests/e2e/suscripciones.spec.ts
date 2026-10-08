@@ -33,7 +33,7 @@ test("un local nuevo se da de alta, paga el plan base y después suma un módulo
 
   // Mercado Pago: sin pagar, el local no entra a la app.
   await expect(page).toHaveURL(new RegExp(`^${MOCK}/checkout/`));
-  await expect(page.getByTestId("mp-monto")).toHaveText("$ 50000");
+  await expect(page.getByTestId("mp-monto")).toHaveText("$ 29900");
   await page.goto("/dashboard");
   await expect(page).toHaveURL(/\/plan$/);
   await expect(page.getByTestId("plan-pendiente")).toContainText("Falta activar Local E2E");
