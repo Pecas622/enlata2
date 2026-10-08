@@ -27,6 +27,8 @@ SUPABASE_SERVICE_ROLE_KEY=...   # solo servidor, nunca en el navegador
 ANTHROPIC_API_KEY=...           # opcional: el asistente del catálogo responde con IA (solo servidor)
 MP_ACCESS_TOKEN=...             # opcional: cobro online del plan y los módulos con Mercado Pago (solo servidor)
 MP_WEBHOOK_SECRET=...           # opcional: firma de las notificaciones de Mercado Pago (solo servidor)
+NEXT_PUBLIC_PRODUCT_NAME=...    # opcional: nombre del producto en la landing (por defecto APPLE OPS)
+NEXT_PUBLIC_SALES_WHATSAPP=...  # opcional: WhatsApp de ventas con código de país; muestra "Pedí una demo" en la landing
 ```
 
 Sin `ANTHROPIC_API_KEY` el asistente responde con el motor de reglas, con los mismos datos.
@@ -63,6 +65,10 @@ select set_modulos('enlata2', array['imei', 'reportes', 'catalogo', 'asistente',
 ```
 
 Sin un módulo, sus secciones no aparecen en el menú (el Administrador las ve atenuadas en "Sumá a tu plan") y la base rechaza lo que el módulo cubre: dólar automático, catálogo público y asistente; sin `imei`, el ingreso y el canje aceptan equipos sin número. **Configuración → Tu plan** muestra qué incluye el plan del local. Cada cambio queda en el historial como "Enlata2".
+
+### Landing de venta
+
+`/` es la landing para quien no inició sesión (con sesión va directo al dashboard). Sigue la presentación comercial: problema, qué hace, stock, canje, caja, roles, dashboard, catálogo y asistente, confianza, precios y preguntas. Los precios salen de `plan_prices` en el momento y todos los botones llevan a `/alta`. El nombre del producto y el WhatsApp de ventas están en `src/lib/brand.ts` (o en las variables `NEXT_PUBLIC_PRODUCT_NAME` y `NEXT_PUBLIC_SALES_WHATSAPP`). Las capturas de `public/landing/` son de la demo. Para regenerarlas, sacalas con los datos del seed y convertilas a WebP de 1600 px de ancho (780 px las del celular). Solo dice lo que el sistema hace hoy: si cambia una función, revisá `src/app/_landing/Landing.tsx`.
 
 ### Venta online del plan
 
