@@ -6,6 +6,7 @@ Guía para agentes de IA (Claude Code, Codex, Cursor, etc.) que trabajan en este
 
 - **Raíz**: sitio comercial y demos de Enlata2 (React + Vite, sin backend). Lo publica el proyecto de Vercel `enlata2`.
 - **`apple-ops/`**: APPLE OPS, la app real (Next.js App Router + TypeScript + Supabase + Vercel). Tiene su propio `package.json`, su propio CI y su propio proyecto de Vercel.
+- **`marketing/`**: cómo vender APPLE OPS (presentación, Reels, redes, WhatsApp, publicidad). Si el pedido es de marketing, leé [marketing/AGENTS.md](marketing/AGENTS.md).
 
 Son independientes. Un cambio en una no debe tocar la otra salvo que el pedido lo diga explícitamente.
 
