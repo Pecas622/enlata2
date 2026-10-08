@@ -10,3 +10,4 @@ Cada migración nueva trae su archivo `actualizacion-*.sql` para pegar en **SQL 
 - `actualizacion-dolar-alertas.sql`: dólar automático (oficial, blue o MEP) y sección Alertas (ya incluido en `base-parte-2.sql`).
 - `actualizacion-modulos.sql`: venta por módulos y `set_modulos` (ya incluido en `base-parte-2.sql`).
 - `actualizacion-modulos-imei.sql`: canje y accesorios pasan a la base y se suma el módulo de stock con IMEI. Va después de `actualizacion-modulos.sql` (ya incluido en `base-parte-2.sql`).
+- `actualizacion-suscripciones.sql`: venta online del plan y de los módulos con Mercado Pago (precios, alta pendiente de pago y suscripciones). Va después de `actualizacion-modulos-imei.sql` (ya incluido en `base-parte-2.sql`).

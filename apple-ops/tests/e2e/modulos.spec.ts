@@ -35,7 +35,7 @@ test("un local con el plan base y reportes no ve ni usa los módulos que no comp
   await page.getByTestId("nav-locked-catalogo").click();
   await expect(page).toHaveURL(/\/config#plan$/);
   await expect(page.getByTestId("plan-reportes")).toContainText("Incluido");
-  await expect(page.getByTestId("plan-imei")).toContainText("No incluido");
+  await expect(page.getByTestId("plan-imei")).toContainText("Sumar por");
   await expect(page.getByTestId("fx-source")).toHaveCount(0);
 
   const res = await page.goto("/catalogo/demo");

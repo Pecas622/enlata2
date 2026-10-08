@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { after } from "next/server";
 import type { ReactNode } from "react";
 import { logout } from "@/app/login/actions";
@@ -9,6 +10,8 @@ import { Shell } from "./Sidebar";
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
   const user = await getCurrentUser();
+  // Un local dado de alta desde la web entra recién cuando Mercado Pago confirma el plan base.
+  if (user.billingStatus !== "activo") redirect("/plan");
   // Si el local usa cotización automática y está vieja, se actualiza después de responder.
   after(() => refreshFxQuietly(user.storeId));
   const footer = (

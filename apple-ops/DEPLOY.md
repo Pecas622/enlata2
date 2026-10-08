@@ -38,6 +38,8 @@ El proyecto `enlata2` que ya existe publica la web de la raíz del repo. APPLE O
    | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | clave anon |
    | `SUPABASE_SERVICE_ROLE_KEY` | clave service_role (marcala como Sensitive) |
    | `ANTHROPIC_API_KEY` | opcional: con esta clave el asistente del catálogo responde con IA |
+   | `MP_ACCESS_TOKEN` | opcional: Access Token de producción de Mercado Pago, para vender el plan y los módulos online (Sensitive) |
+   | `MP_WEBHOOK_SECRET` | opcional: clave secreta de las notificaciones de Mercado Pago (Sensitive) |
 
 4. **Deploy**. Las funciones corren en São Paulo (`vercel.json`), al lado de la base.
 5. Si querés un dominio propio (por ejemplo `ops.enlata2.com`), agregalo en **Settings → Domains** y actualizá la Site URL de Supabase.
@@ -66,6 +68,13 @@ Para sumar otro local más adelante se corre el mismo comando con otro link y ot
 - Abrir y cerrar una caja de prueba, hacer una venta y anularla.
 - Subir una foto en Catálogo online y verla en `/catalogo/<link>`.
 - Si cargaste `ANTHROPIC_API_KEY`: en el catálogo, "Preguntanos" → "tenés iPhone 15?" y "quiero cotizar mi iPhone 13". En el panel, la sección del asistente dice "Responde con IA". Si la IA no responde, la charla sigue con el motor automático y queda un aviso en los logs de Vercel ("la IA no respondió").
+
+## 5. Cobro online con Mercado Pago
+
+1. En [Mercado Pago Developers](https://www.mercadopago.com.ar/developers/panel/app) creá una aplicación (producto: suscripciones) y copiá el **Access Token de producción** en Vercel como `MP_ACCESS_TOKEN`.
+2. En la aplicación, **Webhooks → Configurar notificaciones**: URL `https://<tu-app>/api/mercadopago`, evento **Planes y suscripciones**. Copiá la clave secreta en Vercel como `MP_WEBHOOK_SECRET`.
+3. Redeploy. Los precios de lanzamiento ya vienen cargados. Para un precio puntual de clientes nuevos: `update plan_prices set price_ars = 34900 where item = 'base';` (ítems: `base`, `imei`, `reportes`, `catalogo`, `asistente`, `alertas`). Para el ajuste periódico, que también sube a los clientes actuales: `npm run ajustar-precios -- --porcentaje 15 --env .env.produccion` (agregá `MP_ACCESS_TOKEN` a ese archivo) y, si lo que muestra está bien, lo mismo con `--aplicar`.
+4. Probá con un email distinto al de tu cuenta de Mercado Pago: `https://<tu-app>/alta`.
 
 ## Cambios futuros
 
