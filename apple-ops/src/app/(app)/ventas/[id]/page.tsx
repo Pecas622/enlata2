@@ -1,22 +1,33 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge, Notice } from "@/components/ui";
+import { fiscalListo, loadFiscal } from "@/lib/arca-server";
 import { deviceShort } from "@/lib/catalog";
 import { fmtDateTime } from "@/lib/dates";
 import { requireSection } from "@/lib/guard";
 import { fmtCur, fmtUSD } from "@/lib/money";
 import { loadStoreConfig } from "@/lib/store";
 import { createClient } from "@/lib/supabase/server";
+import { hasModule } from "@/lib/modules";
 import { waLink } from "@/lib/whatsapp";
 import { loadSale } from "../receipt-data";
+import { InvoicePanel, type InvoiceView } from "./InvoicePanel";
 import { VoidForm } from "./VoidForm";
 
 export default async function SalePage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ nueva?: string }> }) {
   const [{ id }, { nueva }] = await Promise.all([params, searchParams]);
-  const { perms } = await requireSection("ventas");
+  const { user, perms } = await requireSection("ventas");
   const supabase = await createClient();
-  const [cfg, sale] = await Promise.all([loadStoreConfig(supabase), loadSale(supabase, id)]);
+  const facturacion = hasModule(user.modules, "facturacion");
+  const [cfg, sale, invoices, fiscal] = await Promise.all([
+    loadStoreConfig(supabase),
+    loadSale(supabase, id),
+    facturacion ? supabase.from("invoices").select("id, kind, letra, punto_venta, numero, status, cae, error, ambiente").eq("sale_id", id).then((r) => (r.data ?? []) as InvoiceView[]) : [],
+    facturacion ? loadFiscal(user.storeId) : null,
+  ]);
   if (!sale) notFound();
+  const emisor = fiscal && fiscalListo(fiscal.fiscal, fiscal.creds) ? fiscal.fiscal!.condicionIva : null;
+  const facturada = invoices.some((i) => i.kind === "Factura" && i.status === "Emitida");
   const toPay = sale.total_usd - sale.trade_in_usd;
   const message = `Hola ${sale.client_name}! Gracias por tu compra en ${cfg.name}. Comprobante ${sale.number} por ${fmtUSD(toPay)}.`;
 
@@ -51,12 +62,15 @@ export default async function SalePage({ params, searchParams }: { params: Promi
         {sale.status === "Anulada" && (
           <Notice tone="red">Anulada el {fmtDateTime(sale.voided_at)} por {sale.voider?.name ?? "-"}: {sale.void_reason}</Notice>
         )}
-        <p className="muted" style={{ fontSize: 12 }}>Comprobante sin validez fiscal.</p>
+        {!facturada && <p className="muted" style={{ fontSize: 12 }}>Comprobante sin validez fiscal.</p>}
         <div className="row" style={{ marginTop: 8 }}>
           <Link href={`/ventas/${sale.id}/comprobante`} target="_blank" className="btn btn-primary" data-testid="receipt-print">Imprimir</Link>
           {sale.client_phone && <a className="btn btn-secondary" href={waLink(sale.client_phone, message)} target="_blank" rel="noreferrer">Enviar por WhatsApp</a>}
           {nueva && <Link href="/ventas" className="btn btn-secondary" data-testid="new-sale">Nueva venta</Link>}
         </div>
+        {facturacion && (invoices.length > 0 || emisor) && (
+          <InvoicePanel saleId={sale.id} saleStatus={sale.status} invoices={invoices} emisor={emisor} canVoid={perms.voidSale} clientName={sale.client_name} />
+        )}
         {perms.voidSale && sale.status === "Cerrada" && <VoidForm saleId={sale.id} number={sale.number} hasTradeIn={sale.trade_in_usd > 0} />}
       </div>
     </>

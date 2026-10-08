@@ -74,7 +74,7 @@ const TRUST = [
 
 const FAQ = [
   ["¿Tengo que instalar algo?", "No. Entrás desde el navegador de la compu o del celular, con tu email. Para cambiar de usuario en el mostrador alcanza con un PIN de 4 números."],
-  ["¿Factura electrónica?", "No. Los comprobantes que imprime son sin validez fiscal."],
+  ["¿Factura electrónica?", "Sí, con el módulo de facturación: cada venta sale con su factura A, B o C con CAE de ARCA, y si anulás la venta se hace la nota de crédito. Usás tu CUIT, tu certificado digital y un punto de venta para web services; el sistema te arma el pedido del certificado. Sin el módulo, los comprobantes son sin validez fiscal."],
   ["¿Mis vendedores ven los costos?", "No. El vendedor ve el precio; vos y tu encargado ven costos y ganancia. El cajero cuenta la caja sin ver cuánto debería haber."],
   ["¿Cómo pago?", "Con Mercado Pago, todos los meses. Los módulos los sumás desde el sistema cuando los necesitás, y se activan apenas se confirma el pago."],
   ["¿Puedo dejar de usarlo?", "Sí, cancelás la suscripción cuando quieras. Si el plan se da de baja, el local queda suspendido y lo que cargaste sigue guardado por si volvés."],

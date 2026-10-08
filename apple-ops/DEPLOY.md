@@ -42,6 +42,7 @@ El proyecto `enlata2` que ya existe publica la web de la raíz del repo. APPLE O
    | `MP_WEBHOOK_SECRET` | opcional: clave secreta de las notificaciones de Mercado Pago (Sensitive) |
    | `NEXT_PUBLIC_SALES_WHATSAPP` | opcional: WhatsApp de ventas con código de país (por ejemplo `5492611234567`); muestra "Pedí una demo" en la landing |
    | `NEXT_PUBLIC_PRODUCT_NAME` | opcional: nombre del producto en la landing, si deja de ser APPLE OPS |
+   | `ARCA_KEY_SECRET` | para el módulo de facturación: texto al azar de 32 caracteres o más (Sensitive). Cifra las claves de los certificados de ARCA: si lo cambiás, cada local tiene que generar y cargar su certificado de nuevo |
 
 4. **Deploy**. Las funciones corren en São Paulo (`vercel.json`), al lado de la base.
 5. Si querés un dominio propio (por ejemplo `ops.enlata2.com`), agregalo en **Settings → Domains** y actualizá la Site URL de Supabase.
@@ -75,8 +76,15 @@ Para sumar otro local más adelante se corre el mismo comando con otro link y ot
 
 1. En [Mercado Pago Developers](https://www.mercadopago.com.ar/developers/panel/app) creá una aplicación (producto: suscripciones) y copiá el **Access Token de producción** en Vercel como `MP_ACCESS_TOKEN`.
 2. En la aplicación, **Webhooks → Configurar notificaciones**: URL `https://<tu-app>/api/mercadopago`, evento **Planes y suscripciones**. Copiá la clave secreta en Vercel como `MP_WEBHOOK_SECRET`.
-3. Redeploy. Los precios de lanzamiento ya vienen cargados. Para un precio puntual de clientes nuevos: `update plan_prices set price_ars = 34900 where item = 'base';` (ítems: `base`, `imei`, `reportes`, `catalogo`, `asistente`, `alertas`). Para el ajuste periódico, que también sube a los clientes actuales: `npm run ajustar-precios -- --porcentaje 15 --env .env.produccion` (agregá `MP_ACCESS_TOKEN` a ese archivo) y, si lo que muestra está bien, lo mismo con `--aplicar`.
+3. Redeploy. Los precios de lanzamiento ya vienen cargados. Para un precio puntual de clientes nuevos: `update plan_prices set price_ars = 34900 where item = 'base';` (ítems: `base`, `imei`, `reportes`, `catalogo`, `asistente`, `alertas`, `facturacion`). Para el ajuste periódico, que también sube a los clientes actuales: `npm run ajustar-precios -- --porcentaje 15 --env .env.produccion` (agregá `MP_ACCESS_TOKEN` a ese archivo) y, si lo que muestra está bien, lo mismo con `--aplicar`.
 4. Probá con un email distinto al de tu cuenta de Mercado Pago: `https://<tu-app>/alta`.
+
+## 6. Facturación electrónica con ARCA
+
+1. Cargá `ARCA_KEY_SECRET` en Vercel (por ejemplo, el resultado de `openssl rand -base64 32`) y hacé redeploy.
+2. El local con el módulo `facturacion` completa **Configuración → Facturación electrónica**. Conviene arrancar en homologación: en ARCA, con clave fiscal, el servicio "WSASS - Autogestión Certificados Homologación" firma el pedido y permite asociarlo a `wsfe`.
+3. Para producción: en ARCA, dar de alta un punto de venta "Factura electrónica - Web services", subir un pedido nuevo en "Administración de certificados digitales" y asociar el alias a "Facturación electrónica" en el "Administrador de relaciones de clave fiscal". En la app, cambiar el ambiente a producción, generar el pedido nuevo y cargar el certificado.
+4. "Probar conexión con ARCA" confirma el certificado y muestra el último número autorizado del punto de venta.
 
 ## Cambios futuros
 

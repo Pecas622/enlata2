@@ -1,14 +1,16 @@
 import { PageHeader } from "@/components/ui";
 import { requireSection } from "@/lib/guard";
 import { loadStoreConfig } from "@/lib/store";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { ConfigForm } from "./ConfigForm";
 import { DemoCard } from "./DemoCard";
+import { FiscalCard, type FiscalInitial } from "./FiscalCard";
 import { FxCard } from "./FxCard";
 import { PlanCard } from "./PlanCard";
 import { hasModule } from "@/lib/modules";
 import { loadPrices } from "@/lib/billing-server";
 import { mpConfigured } from "@/lib/mercadopago";
+import { cifradoConfigurado } from "@/lib/arca-cert";
 import type { FxSource } from "@/lib/fx";
 import { FX_SOURCE_LABEL } from "@/lib/fx";
 
@@ -33,6 +35,21 @@ export default async function ConfigPage({ searchParams }: { searchParams: Promi
   const canBuy = isAdmin && mpConfigured();
   const prices = canBuy ? await loadPrices() : null;
   const { data: subs } = isAdmin ? await supabase.from("subscriptions").select("item").eq("status", "pendiente") : { data: [] };
+  let fiscal: FiscalInitial | null = null;
+  if (isAdmin && hasModule(user.modules, "facturacion")) {
+    const [{ data: f }, { data: c }] = await Promise.all([
+      supabase.from("fiscal_settings").select("*").eq("store_id", user.storeId).maybeSingle(),
+      // Del certificado solo se mira si está cargado; la clave y el certificado no salen del servidor.
+      createServiceClient().from("fiscal_credentials").select("cert_pem, key_enc").eq("store_id", user.storeId).maybeSingle(),
+    ]);
+    const hasCert = !!c?.cert_pem && !!c.key_enc;
+    fiscal = {
+      razon_social: f?.razon_social ?? cfg.name, cuit: cfg.cuit, condicion_iva: f?.condicion_iva ?? "Monotributo", iibb: f?.iibb ?? "",
+      inicio_actividades: f?.inicio_actividades ?? "", punto_venta: f?.punto_venta ?? 1, alicuota_iva: Number(f?.alicuota_iva ?? 21),
+      ambiente: f?.ambiente ?? "homologacion", automatica: f?.automatica ?? true, certAlias: f?.cert_alias ?? "", certVence: f?.cert_vence ?? null,
+      csr: f?.csr_pem ?? "", hasCert, listo: !!f && hasCert && (!f.cert_vence || new Date(f.cert_vence) > new Date()),
+    };
+  }
   return (
     <>
       <PageHeader title="Configuración" subtitle="Datos del local, cotización y tabla de tasación" />
@@ -48,6 +65,7 @@ export default async function ConfigPage({ searchParams }: { searchParams: Promi
           base_values: [...cfg.baseValues].sort((a, b) => a.model.localeCompare(b.model, "es", { numeric: true }) || a.capacity - b.capacity),
         }}
       />
+      {fiscal && <div style={{ marginTop: 16 }}><FiscalCard initial={fiscal} secretOk={cifradoConfigurado()} /></div>}
       <div style={{ marginTop: 16 }}><PlanCard modules={user.modules} prices={prices} canBuy={canBuy} pending={(subs ?? []).map((s) => s.item as string)} paid={pago === "ok"} /></div>
       {demo && <div style={{ marginTop: 16 }}><DemoCard demoSince={demo.demoSince} hasData={demo.hasData} /></div>}
     </>

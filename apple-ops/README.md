@@ -29,6 +29,7 @@ MP_ACCESS_TOKEN=...             # opcional: cobro online del plan y los módulos
 MP_WEBHOOK_SECRET=...           # opcional: firma de las notificaciones de Mercado Pago (solo servidor)
 NEXT_PUBLIC_PRODUCT_NAME=...    # opcional: nombre del producto en la landing (por defecto APPLE OPS)
 NEXT_PUBLIC_SALES_WHATSAPP=...  # opcional: WhatsApp de ventas con código de país; muestra "Pedí una demo" en la landing
+ARCA_KEY_SECRET=...             # para facturación electrónica: cifra la clave privada del certificado de cada local (solo servidor, 32+ caracteres al azar)
 ```
 
 Sin `ANTHROPIC_API_KEY` el asistente responde con el motor de reglas, con los mismos datos.
@@ -57,11 +58,11 @@ En **Configuración → Dólar y alertas** el Administrador elige si la cotizaci
 
 ### Venta por módulos
 
-Todo local tiene la base: ventas, stock, ingresos, plan canje, accesorios, clientes, caja, usuarios y configuración. Encima se suman módulos: `imei` (stock con IMEI o serie obligatorio y sin repetidos; sin él el número es opcional), `reportes`, `catalogo` (catálogo online y cotizador web), `asistente` (chat con IA del catálogo, necesita `catalogo`) y `alertas` (alertas y dólar automático). Un local nuevo arranca con todos. Los cambia Enlata2 desde SQL Editor, con el link del catálogo del local:
+Todo local tiene la base: ventas, stock, ingresos, plan canje, accesorios, clientes, caja, usuarios y configuración. Encima se suman módulos: `imei` (stock con IMEI o serie obligatorio y sin repetidos; sin él el número es opcional), `reportes`, `catalogo` (catálogo online y cotizador web), `asistente` (chat con IA del catálogo, necesita `catalogo`), `alertas` (alertas y dólar automático) y `facturacion` (factura electrónica con ARCA). Un local nuevo arranca con todos. Los cambia Enlata2 desde SQL Editor, con el link del catálogo del local:
 
 ```sql
 select set_modulos('enlata2', array['imei', 'reportes']);  -- base + IMEI + reportes
-select set_modulos('enlata2', array['imei', 'reportes', 'catalogo', 'asistente', 'alertas']);  -- todo
+select set_modulos('enlata2', array['imei', 'reportes', 'catalogo', 'asistente', 'alertas', 'facturacion']);  -- todo
 ```
 
 Sin un módulo, sus secciones no aparecen en el menú (el Administrador las ve atenuadas en "Sumá a tu plan") y la base rechaza lo que el módulo cubre: dólar automático, catálogo público y asistente; sin `imei`, el ingreso y el canje aceptan equipos sin número. **Configuración → Tu plan** muestra qué incluye el plan del local. Cada cambio queda en el historial como "Enlata2".
@@ -69,6 +70,17 @@ Sin un módulo, sus secciones no aparecen en el menú (el Administrador las ve a
 ### Landing de venta
 
 `/` es la landing para quien no inició sesión (con sesión va directo al dashboard). Sigue la presentación comercial: problema, qué hace, stock, canje, caja, roles, dashboard, catálogo y asistente, confianza, precios y preguntas. Los precios salen de `plan_prices` en el momento y todos los botones llevan a `/alta`. El nombre del producto y el WhatsApp de ventas están en `src/lib/brand.ts` (o en las variables `NEXT_PUBLIC_PRODUCT_NAME` y `NEXT_PUBLIC_SALES_WHATSAPP`). Las capturas de `public/landing/` son de la demo. Para regenerarlas, sacalas con los datos del seed y convertilas a WebP de 1600 px de ancho (780 px las del celular). Solo dice lo que el sistema hace hoy: si cambia una función, revisá `src/app/_landing/Landing.tsx`.
+
+### Facturación electrónica (módulo `facturacion`)
+
+Con el módulo, el Administrador carga en **Configuración → Facturación electrónica** la razón social, el CUIT, la condición frente al IVA, el punto de venta (dado de alta en ARCA para web services) y el ambiente (homologación o producción). El sistema genera la clave privada y el pedido de certificado (CSR); el local lo sube en ARCA, baja el certificado y lo carga acá. La clave se guarda cifrada con `ARCA_KEY_SECRET` en `fiscal_credentials`, una tabla que ningún usuario lee: solo el servidor con la clave de servicio.
+
+- **Cada venta sale facturada** si "Facturar cada venta" está prendido: monotributo emite C; responsable inscripto emite A a inscriptos y monotributistas (con CUIT y razón social) y B al resto. El importe es el total de la venta en pesos (equipos a la cotización de la venta, con el descuento); el canje no resta, porque es una compra aparte con su boleto.
+- **Anular una venta facturada** emite la nota de crédito asociada.
+- **Si ARCA no responde**, la venta queda registrada y la factura "Pendiente", con el número que se pidió anotado. "Reintentar" consulta ese número en ARCA antes de pedir otro, así no se duplica.
+- La factura impresa (`/ventas/[id]/factura/[factura]`) lleva CAE, vencimiento y el QR de ARCA. En homologación dice "sin validez fiscal".
+- Código: reglas puras en `src/lib/factura.ts`, mensajes SOAP en `src/lib/arca-soap.ts`, certificado y firma en `src/lib/arca-cert.ts`, llamadas en `src/lib/arca-server.ts`. En la base, `factura_preparar`, `factura_intento` y `factura_resultado` solo los ejecuta el servidor y dejan registro.
+- Los e2e usan un ARCA de mentira (`tests/e2e/arca-mock.mjs`); `ARCA_WSAA_URL` y `ARCA_WSFE_URL` cambian las direcciones de ARCA solo para eso.
 
 ### Venta online del plan
 
@@ -78,7 +90,7 @@ Con `MP_ACCESS_TOKEN`, el plan y los módulos se venden solos con suscripciones 
 - Un local que no está `activo` no entra a la app: va a **`/plan`**, que es también la vuelta desde Mercado Pago. Ahí se consulta el estado de las suscripciones pendientes en el momento y, si el pago está confirmado, entra.
 - **Configuración → Tu plan**: el Administrador ve el precio de cada módulo que le falta y lo suma con "Sumar por $X/mes". El módulo se prende cuando Mercado Pago autoriza la suscripción.
 - **`/api/mercadopago`** recibe las notificaciones (`subscription_preapproval`) y vuelve a pedir el estado a la API, así que una notificación falsa no activa nada; con `MP_WEBHOOK_SECRET` además exige la firma. `aplicar_suscripcion` aplica el estado: plan base activa o suspende el local (`suspendido` si se cancela o se pausa; los datos quedan), módulo lo prende o lo apaga. Queda en el historial como "Mercado Pago".
-- Precios por mes en `plan_prices` (públicos). Arrancan con precios de lanzamiento (base $29.900; IMEI, reportes y alertas $4.900; catálogo $7.900; asistente $20.000). Cambiar `plan_prices` solo afecta a las suscripciones nuevas: para un aumento que llegue también a los clientes actuales, `npm run ajustar-precios -- --porcentaje 15 --env .env.produccion` muestra qué haría, y con `--aplicar` sube los precios de lista y el monto de cada suscripción en Mercado Pago (redondeado a $100). Avisá a los clientes antes del próximo cobro.
+- Precios por mes en `plan_prices` (públicos). Arrancan con precios de lanzamiento (base $29.900; IMEI, reportes y alertas $4.900; catálogo $7.900; asistente $20.000; facturación electrónica $9.900). Cambiar `plan_prices` solo afecta a las suscripciones nuevas: para un aumento que llegue también a los clientes actuales, `npm run ajustar-precios -- --porcentaje 15 --env .env.produccion` muestra qué haría, y con `--aplicar` sube los precios de lista y el monto de cada suscripción en Mercado Pago (redondeado a $100). Avisá a los clientes antes del próximo cobro.
 
 Sin `MP_ACCESS_TOKEN`, `/alta` avisa que el cobro online no está configurado y Tu plan sigue diciendo que los módulos se piden a Enlata2. Los locales creados con `crear-local` y los módulos de `set_modulos` no dependen de Mercado Pago. Los e2e usan un Mercado Pago de mentira (`tests/e2e/mp-mock.mjs`).
 
