@@ -25,6 +25,8 @@ NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 SUPABASE_SERVICE_ROLE_KEY=...   # solo servidor, nunca en el navegador
 ANTHROPIC_API_KEY=...           # opcional: el asistente del catálogo responde con IA (solo servidor)
+MP_ACCESS_TOKEN=...             # opcional: cobro online del plan y los módulos con Mercado Pago (solo servidor)
+MP_WEBHOOK_SECRET=...           # opcional: firma de las notificaciones de Mercado Pago (solo servidor)
 ```
 
 Sin `ANTHROPIC_API_KEY` el asistente responde con el motor de reglas, con los mismos datos.
@@ -61,6 +63,18 @@ select set_modulos('enlata2', array['imei', 'reportes', 'catalogo', 'asistente',
 ```
 
 Sin un módulo, sus secciones no aparecen en el menú (el Administrador las ve atenuadas en "Sumá a tu plan") y la base rechaza lo que el módulo cubre: dólar automático, catálogo público y asistente; sin `imei`, el ingreso y el canje aceptan equipos sin número. **Configuración → Tu plan** muestra qué incluye el plan del local. Cada cambio queda en el historial como "Enlata2".
+
+### Venta online del plan
+
+Con `MP_ACCESS_TOKEN`, el plan y los módulos se venden solos con suscripciones mensuales de Mercado Pago (preapproval):
+
+- **`/alta`** (pública, el link de la landing): muestra los precios y crea la cuenta del administrador y el local (`crear_local_pendiente`: sin módulos y con `billing_status = 'pendiente'`). Después manda a pagar el plan base a Mercado Pago.
+- Un local que no está `activo` no entra a la app: va a **`/plan`**, que es también la vuelta desde Mercado Pago. Ahí se consulta el estado de las suscripciones pendientes en el momento y, si el pago está confirmado, entra.
+- **Configuración → Tu plan**: el Administrador ve el precio de cada módulo que le falta y lo suma con "Sumar por $X/mes". El módulo se prende cuando Mercado Pago autoriza la suscripción.
+- **`/api/mercadopago`** recibe las notificaciones (`subscription_preapproval`) y vuelve a pedir el estado a la API, así que una notificación falsa no activa nada; con `MP_WEBHOOK_SECRET` además exige la firma. `aplicar_suscripcion` aplica el estado: plan base activa o suspende el local (`suspendido` si se cancela o se pausa; los datos quedan), módulo lo prende o lo apaga. Queda en el historial como "Mercado Pago".
+- Precios por mes en `plan_prices` (públicos, se cambian desde SQL Editor): `update plan_prices set price_ars = 60000 where item = 'base';`.
+
+Sin `MP_ACCESS_TOKEN`, `/alta` avisa que el cobro online no está configurado y Tu plan sigue diciendo que los módulos se piden a Enlata2. Los locales creados con `crear-local` y los módulos de `set_modulos` no dependen de Mercado Pago. Los e2e usan un Mercado Pago de mentira (`tests/e2e/mp-mock.mjs`).
 
 ## Tests
 

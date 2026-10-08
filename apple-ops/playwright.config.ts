@@ -1,6 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const PORT = Number(process.env.PORT ?? 3000);
+// Mercado Pago de mentira (tests/e2e/mp-mock.mjs): la app le pega a este en vez de a la API real.
+const MP_MOCK_PORT = 3999;
 
 export default defineConfig({
   testDir: "tests/e2e",
@@ -16,10 +18,19 @@ export default defineConfig({
     { name: "desktop", use: { ...devices["Desktop Chrome"] }, testIgnore: /menu-mobile/ },
     { name: "mobile", use: { ...devices["Pixel 7"] }, testMatch: /menu-mobile/ },
   ],
-  webServer: {
-    command: `npm run start -- -p ${PORT}`,
-    url: `http://localhost:${PORT}/login`,
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
-  },
+  webServer: [
+    {
+      command: `node tests/e2e/mp-mock.mjs`,
+      url: `http://localhost:${MP_MOCK_PORT}/health`,
+      env: { MP_MOCK_PORT: String(MP_MOCK_PORT) },
+      reuseExistingServer: !process.env.CI,
+    },
+    {
+      command: `npm run start -- -p ${PORT}`,
+      url: `http://localhost:${PORT}/login`,
+      env: { MP_API_URL: `http://localhost:${MP_MOCK_PORT}`, MP_ACCESS_TOKEN: "TEST-e2e" },
+      reuseExistingServer: !process.env.CI,
+      timeout: 120_000,
+    },
+  ],
 });
