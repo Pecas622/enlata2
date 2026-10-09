@@ -3,6 +3,8 @@ import { defineConfig, devices } from "@playwright/test";
 const PORT = Number(process.env.PORT ?? 3000);
 // Mercado Pago de mentira (tests/e2e/mp-mock.mjs): la app le pega a este en vez de a la API real.
 const MP_MOCK_PORT = 3999;
+// ARCA de mentira (tests/e2e/arca-mock.mjs) para la facturación electrónica.
+const ARCA_MOCK_PORT = 3998;
 
 export default defineConfig({
   testDir: "tests/e2e",
@@ -26,9 +28,18 @@ export default defineConfig({
       reuseExistingServer: !process.env.CI,
     },
     {
+      command: `node tests/e2e/arca-mock.mjs`,
+      url: `http://localhost:${ARCA_MOCK_PORT}/health`,
+      env: { ARCA_MOCK_PORT: String(ARCA_MOCK_PORT) },
+      reuseExistingServer: !process.env.CI,
+    },
+    {
       command: `npm run start -- -p ${PORT}`,
       url: `http://localhost:${PORT}/login`,
-      env: { MP_API_URL: `http://localhost:${MP_MOCK_PORT}`, MP_ACCESS_TOKEN: "TEST-e2e" },
+      env: {
+        MP_API_URL: `http://localhost:${MP_MOCK_PORT}`, MP_ACCESS_TOKEN: "TEST-e2e",
+        ARCA_WSAA_URL: `http://localhost:${ARCA_MOCK_PORT}/wsaa`, ARCA_WSFE_URL: `http://localhost:${ARCA_MOCK_PORT}/wsfe`, ARCA_KEY_SECRET: "clave-de-prueba-para-e2e",
+      },
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
     },

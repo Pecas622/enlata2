@@ -9,6 +9,7 @@ import { AppraisalBox, DeviceEvalForm, newDraft, type DeviceDraft } from "@/comp
 import { Notice } from "@/components/ui";
 import { suggestedResale } from "@/lib/appraise";
 import { METHODS, deviceTitle, methodOf } from "@/lib/catalog";
+import { CONDICIONES_RECEPTOR, letraFor, receptorError, type CondicionEmisor, type CondicionReceptor } from "@/lib/factura";
 import { fmtARS, fmtCur, fmtUSD } from "@/lib/money";
 import type { Perms } from "@/lib/roles";
 import { paymentsUSD, restFor, saleProblems, saleTotals, tradeInState, type CartLine, type Payment } from "@/lib/sale";
@@ -29,11 +30,13 @@ type Props = {
   canTradeIn: boolean;
   startWithTradeIn?: boolean;
   requireImei?: boolean;
+  // Con facturación automática, la venta pide los datos del cliente para la factura.
+  invoicing?: { emisor: CondicionEmisor } | null;
 };
 
 const firstPayment = (): Payment[] => [{ method: "Efectivo USD", amount: "" }];
 
-export function SaleBuilder({ cfg, devices, accessories, clients, sellers, shiftOpen, perms, userId, canTradeIn, startWithTradeIn = false, requireImei = true }: Props) {
+export function SaleBuilder({ cfg, devices, accessories, clients, sellers, shiftOpen, perms, userId, canTradeIn, startWithTradeIn = false, requireImei = true, invoicing = null }: Props) {
   const router = useRouter();
   const fx = cfg.fx;
   const [tab, setTab] = useState<"equipos" | "accesorios" | "libre">("equipos");
@@ -53,6 +56,9 @@ export function SaleBuilder({ cfg, devices, accessories, clients, sellers, shift
   const [freeDesc, setFreeDesc] = useState("");
   const [freePrice, setFreePrice] = useState("");
   const [serverError, setServerError] = useState<string | null>(null);
+  const [recCond, setRecCond] = useState<CondicionReceptor>(5);
+  const [recDoc, setRecDoc] = useState("");
+  const [recName, setRecName] = useState("");
   const [pending, startTransition] = useTransition();
 
   useEffect(() => {
@@ -71,6 +77,10 @@ export function SaleBuilder({ cfg, devices, accessories, clients, sellers, shift
   const due = totals.revenue - tiUSD;
   const paid = paymentsUSD(payments, fx);
   const problems = saleProblems({ shiftOpen, lines, discountPct, maxDiscount: cfg.maxDiscountSeller, editPrice: perms.editPrice, tradeIn: ti, due, paid, seller });
+  const selectedClient = clients.find((c) => c.id === clientId);
+  const receptor = { condicion: recCond, doc: recDoc, nombre: recName || (recCond === 5 ? "" : selectedClient?.name ?? clientName) };
+  const invoiceProblem = invoicing ? receptorError(invoicing.emisor, receptor) : null;
+  if (invoiceProblem) problems.push(invoiceProblem);
   const canConfirm = problems.length === 0 && !pending;
 
   const inCart = (id: string) => lines.find((l) => l.refId === id);
@@ -115,6 +125,7 @@ export function SaleBuilder({ cfg, devices, accessories, clients, sellers, shift
         clientName: clientId ? "" : clientName, clientPhone: clientId ? "" : clientPhone, notes,
         payments: payments.map((p) => ({ method: p.method, amount: Number(p.amount) || 0 })),
         tradeIn: useTI ? { ...draft, valueStr: tiValue } : null,
+        receptor: invoicing ? { ...receptor, nombre: receptor.nombre || (selectedClient?.name ?? clientName) } : null,
       });
       if (res.error) return setServerError(res.error);
       router.push(`/ventas/${res.saleId}?nueva=1`);
@@ -211,6 +222,23 @@ export function SaleBuilder({ cfg, devices, accessories, clients, sellers, shift
             <div className="row" style={{ marginTop: 10 }}>
               <label className="field">Nombre<input className="input" value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder="Opcional" data-testid="pos-client-name" /></label>
               <label className="field">WhatsApp<input className="input" value={clientPhone} onChange={(e) => setClientPhone(e.target.value)} placeholder="Opcional" /></label>
+            </div>
+          )}
+          {invoicing && (
+            <div className="row" style={{ marginTop: 10 }} data-testid="pos-invoice">
+              <label className="field">
+                Factura {letraFor(invoicing.emisor, recCond)}
+                <select className="input" value={recCond} onChange={(e) => setRecCond(Number(e.target.value) as CondicionReceptor)} data-testid="pos-inv-cond">
+                  {CONDICIONES_RECEPTOR.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+                </select>
+              </label>
+              <label className="field">
+                {recCond === 5 ? "DNI o CUIT" : "CUIT"}
+                <input className="input" value={recDoc} onChange={(e) => setRecDoc(e.target.value)} inputMode="numeric" placeholder={recCond === 5 ? "Opcional" : ""} data-testid="pos-inv-doc" />
+              </label>
+              {recCond !== 5 && (
+                <label className="field">Razón social<input className="input" value={recName} onChange={(e) => setRecName(e.target.value)} placeholder={selectedClient?.name ?? clientName} data-testid="pos-inv-name" /></label>
+              )}
             </div>
           )}
           <div className="row" style={{ marginTop: 10, alignItems: "flex-end" }}>

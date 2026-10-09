@@ -2,6 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import type { DeviceDraft } from "@/components/DeviceEvalForm";
+import { facturarVenta, fiscalListo, loadFiscal, notaDeCredito } from "@/lib/arca-server";
+import type { Receptor } from "@/lib/factura";
+import { hasModule } from "@/lib/modules";
+import { getCurrentUser } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
 import type { CartLine } from "@/lib/sale";
 
@@ -15,6 +19,8 @@ export type SaleInput = {
   notes: string;
   payments: { method: string; amount: number }[];
   tradeIn: (DeviceDraft & { valueStr: string }) | null;
+  // Datos para la factura; null = consumidor final sin identificar.
+  receptor?: Receptor | null;
 };
 
 export type SaleResult = { error?: string; saleId?: string; number?: string };
@@ -48,14 +54,51 @@ export async function registrarVenta(input: SaleInput): Promise<SaleResult> {
     },
   });
   if (error) return { error: error.message };
+  // Con facturación automática, la venta sale con su factura. Si ARCA no responde, la venta queda
+  // registrada igual y la factura se reintenta desde el detalle.
+  const user = await getCurrentUser();
+  if (hasModule(user.modules, "facturacion")) {
+    const { fiscal, creds } = await loadFiscal(user.storeId);
+    if (fiscalListo(fiscal, creds) && fiscal.automatica) {
+      await facturarVenta({ storeId: user.storeId, saleId: data.sale_id, userId: user.id, receptor: input.receptor ?? null });
+    }
+  }
   refresh();
   return { saleId: data.sale_id, number: data.number };
+}
+
+// Factura una venta desde su detalle: la primera vez si la facturación no es automática, o para
+// reintentar si ARCA no respondió o rechazó la factura.
+export async function facturar(saleId: string, receptor: Receptor | null): Promise<{ error?: string }> {
+  const user = await getCurrentUser();
+  if (!hasModule(user.modules, "facturacion")) return { error: "El local no tiene el módulo de facturación." };
+  // La venta se lee con los permisos del usuario: si no la ve, no la factura.
+  const { data: sale } = await (await createClient()).from("sales").select("id").eq("id", saleId).maybeSingle();
+  if (!sale) return { error: "No existe la venta." };
+  const res = await facturarVenta({ storeId: user.storeId, saleId, userId: user.id, receptor });
+  revalidatePath(`/ventas/${saleId}`);
+  return res.ok ? {} : { error: res.error };
+}
+
+// Reintenta la nota de crédito de una venta anulada.
+export async function reintentarNotaDeCredito(saleId: string): Promise<{ error?: string }> {
+  const user = await getCurrentUser();
+  if (!hasModule(user.modules, "facturacion")) return { error: "El local no tiene el módulo de facturación." };
+  if (user.role !== "Administrador" && user.role !== "Encargado") return { error: "Tu rol no puede anular ventas." };
+  const { data: sale } = await (await createClient()).from("sales").select("id, status").eq("id", saleId).maybeSingle();
+  if (!sale || sale.status !== "Anulada") return { error: "La venta no está anulada." };
+  const res = await notaDeCredito({ storeId: user.storeId, saleId, userId: user.id });
+  revalidatePath(`/ventas/${saleId}`);
+  return !res || res.ok ? {} : { error: res.error };
 }
 
 export async function anularVenta(saleId: string, reason: string): Promise<{ error?: string }> {
   const supabase = await createClient();
   const { error } = await supabase.rpc("anular_venta", { p_sale: saleId, p_reason: reason });
   if (error) return { error: error.message };
+  // Si la venta estaba facturada, la anulación lleva su nota de crédito.
+  const user = await getCurrentUser();
+  if (hasModule(user.modules, "facturacion")) await notaDeCredito({ storeId: user.storeId, saleId, userId: user.id });
   refresh();
   revalidatePath(`/ventas/${saleId}`);
   return {};

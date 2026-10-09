@@ -5,7 +5,7 @@ import { login } from "./helpers";
 
 loadEnvConfig(process.cwd());
 const service = () => createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, { auth: { persistSession: false } });
-const ALL = ["imei", "reportes", "catalogo", "asistente", "alertas"];
+const ALL = ["imei", "reportes", "catalogo", "asistente", "alertas", "facturacion"];
 const setModules = (mods: string[]) => service().rpc("set_modulos", { p_slug: "demo", p_modules: mods });
 
 test.beforeAll(async () => {
