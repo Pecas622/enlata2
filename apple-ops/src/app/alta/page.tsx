@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Logo } from "@/components/icons";
 import { loadPrices } from "@/lib/billing-server";
 import { mpConfigured } from "@/lib/mercadopago";
-import { BASE_INCLUDES, MODULE_INFO, MODULES } from "@/lib/modules";
+import { BASE_INCLUDES, EXTRA_MODULES, MODULE_INFO } from "@/lib/modules";
 import { fmtARS } from "@/lib/money";
 import { AltaForm } from "./AltaForm";
 
@@ -25,7 +25,7 @@ export default async function AltaPage() {
             <div><b>Plan base</b><div className="muted">{BASE_INCLUDES}</div></div>
             <b>{fmtARS(prices.base)}/mes</b>
           </div>
-          {MODULES.map((m) => (
+          {EXTRA_MODULES.map((m) => (
             <div className="plan-row" key={m}>
               <div><b>{MODULE_INFO[m].label}</b><div className="muted">{MODULE_INFO[m].desc}</div></div>
               <span>+{fmtARS(prices[m])}/mes</span>

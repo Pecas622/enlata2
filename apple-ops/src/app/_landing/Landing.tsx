@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Logo } from "@/components/icons";
 import type { Prices } from "@/lib/billing";
 import { BRAND, splitProduct } from "@/lib/brand";
-import { BASE_INCLUDES, MODULE_INFO, MODULES } from "@/lib/modules";
+import { BASE_INCLUDES, EXTRA_MODULES, MODULE_INFO } from "@/lib/modules";
 import { fmtARS } from "@/lib/money";
 import { waLink } from "@/lib/whatsapp";
 import s from "./landing.module.css";
@@ -224,7 +224,7 @@ export function Landing({ prices }: { prices: Prices }) {
             </div>
             <div className={s.modules}>
               <h3 className={s.h3}>Módulos que se suman</h3>
-              {MODULES.map((m) => (
+              {EXTRA_MODULES.map((m) => (
                 <div className={s.moduleRow} key={m} data-testid={`landing-mod-${m}`}>
                   <div><b>{MODULE_INFO[m].label}</b><p className={s.small}>{MODULE_INFO[m].desc}</p></div>
                   <span className={s.modPrice}>{prices[m] ? `+${fmtARS(prices[m])}` : ""}</span>

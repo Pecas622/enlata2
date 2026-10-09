@@ -33,7 +33,7 @@ test("un local nuevo se da de alta, paga el plan base y después suma un módulo
 
   // Mercado Pago: sin pagar, el local no entra a la app.
   await expect(page).toHaveURL(new RegExp(`^${MOCK}/checkout/`));
-  await expect(page.getByTestId("mp-monto")).toHaveText("$ 29900");
+  await expect(page.getByTestId("mp-monto")).toHaveText("$ 45900");
   await page.goto("/dashboard");
   await expect(page).toHaveURL(/\/plan$/);
   await expect(page.getByTestId("plan-pendiente")).toContainText("Falta activar Local E2E");
@@ -43,7 +43,8 @@ test("un local nuevo se da de alta, paga el plan base y después suma un módulo
   await page.getByTestId("mp-pagar").click();
   await expect(page).toHaveURL(/\/dashboard$/);
 
-  // Nace solo con la base: suma Reportes desde Tu plan.
+  // Nace con la base, que trae IMEI y alertas: suma Reportes desde Tu plan.
+  await expect(page.getByTestId("nav-alertas")).toBeVisible();
   await expect(page.getByTestId("nav-reportes")).toHaveCount(0);
   await page.goto("/config#plan");
   await expect(page.getByTestId("plan-asistente")).toContainText("No incluido");

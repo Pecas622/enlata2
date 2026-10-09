@@ -41,11 +41,11 @@ describe("suscripciones", () => {
     }
   });
 
-  it("el alta crea el local sin módulos y pendiente de pago", async () => {
+  it("el alta crea el local con IMEI y alertas (vienen en la base) y pendiente de pago", async () => {
     const { data, error } = await service().rpc("crear_local_pendiente", { p_name: "Local Alta", p_slug: slug, p_admin: userId, p_admin_name: "Ana", p_pin: "1234" });
     expect(error).toBeNull();
     storeId = data as string;
-    expect(await store()).toMatchObject({ modules: [], billing_status: "pendiente" });
+    expect(await store()).toMatchObject({ modules: ["imei", "alertas"], billing_status: "pendiente" });
   });
 
   it("el plan base activa el local y, si se cancela, lo suspende", async () => {
@@ -67,14 +67,14 @@ describe("suscripciones", () => {
     await registrar("pre-asistente", "asistente");
     await aplicar("pre-alertas", "activa");
     await aplicar("pre-asistente", "activa");
-    expect((await store()).modules).toEqual(["alertas"]);
+    expect((await store()).modules).toEqual(["imei", "alertas"]);
     await aplicar("pre-catalogo", "activa");
-    expect((await store()).modules).toEqual(["catalogo", "asistente", "alertas"]);
+    expect((await store()).modules).toEqual(["imei", "catalogo", "asistente", "alertas"]);
     await service().from("stores").update({ fx_source: "blue" }).eq("id", storeId);
     await aplicar("pre-alertas", "pausada");
-    expect(await store()).toMatchObject({ modules: ["catalogo", "asistente"], fx_source: "manual" });
+    expect(await store()).toMatchObject({ modules: ["imei", "catalogo", "asistente"], fx_source: "manual" });
     await aplicar("pre-catalogo", "cancelada");
-    expect((await store()).modules).toEqual([]);
+    expect((await store()).modules).toEqual(["imei"]);
     const { data: log } = await service().from("audit_log").select("user_name, detail").eq("store_id", storeId).eq("user_name", "Mercado Pago").order("at", { ascending: false }).limit(1);
     expect(log?.[0].detail).toBe("catálogo online: suscripción cancelada");
   });
