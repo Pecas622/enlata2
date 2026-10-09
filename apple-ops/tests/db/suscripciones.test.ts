@@ -2,7 +2,7 @@
 // Solo el servidor (clave de servicio) registra y aplica suscripciones.
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { MODULES } from "@/lib/modules";
+import { EXTRA_MODULES } from "@/lib/modules";
 import { STORE, fresh, service, signInAll, type Who } from "./helpers";
 
 let c: Record<Who, SupabaseClient>;
@@ -28,7 +28,7 @@ afterAll(async () => {
 describe("suscripciones", () => {
   it("los precios son públicos pero nadie los cambia desde la app", async () => {
     const { data } = await fresh().from("plan_prices").select("item, price_ars");
-    expect(data?.map((r) => r.item).sort()).toEqual(["base", ...MODULES].sort());
+    expect(data?.map((r) => r.item).sort()).toEqual(["base", ...EXTRA_MODULES].sort());
     expect((await c.admin.from("plan_prices").update({ price_ars: 1 }).eq("item", "base").select()).data ?? []).toHaveLength(0);
     expect((await fresh().from("plan_prices").insert({ item: "base", price_ars: 1 })).error).not.toBeNull();
   });
