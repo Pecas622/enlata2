@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/ui";
 import { Tabs } from "@/components/Tabs";
+import { facturacionDisponible } from "@/lib/arca-server";
 import { deviceShort } from "@/lib/catalog";
 import { fmtDate, localDay } from "@/lib/dates";
 import { requireSection } from "@/lib/guard";
@@ -23,8 +24,9 @@ export default async function CanjePage({ searchParams }: { searchParams: Promis
   const { user, perms } = await requireSection("canje");
   const withImei = hasModule(user.modules, "imei");
   const supabase = await createClient();
-  const [pos, { data }] = await Promise.all([
+  const [pos, invoicing, { data }] = await Promise.all([
     loadPosData(),
+    tab === "nuevo" && hasModule(user.modules, "facturacion") ? facturacionDisponible(user.storeId) : null,
     supabase
       .from("sales")
       .select("id, number, at, client_name, total_usd, trade_in_usd, trade_ins(devices(model, capacity, condition, imei))")
@@ -46,7 +48,7 @@ export default async function CanjePage({ searchParams }: { searchParams: Promis
         <div className="stat"><span>Diferencia promedio cobrada</span><b>{fmtUSD(avgDiff)}</b></div>
       </div>
       {tab === "cotizar" && <QuotePanel cfg={pos.cfg} devices={pos.devices} overTradeIn={perms.overTradeIn} requireImei={withImei} />}
-      {tab === "nuevo" && <SaleBuilder {...pos} perms={perms} userId={user.id} canTradeIn startWithTradeIn requireImei={withImei} />}
+      {tab === "nuevo" && <SaleBuilder {...pos} perms={perms} userId={user.id} canTradeIn startWithTradeIn requireImei={withImei} invoicing={invoicing} />}
       {tab === "historial" && (
         <div className="card">
           {sales.length === 0 ? (

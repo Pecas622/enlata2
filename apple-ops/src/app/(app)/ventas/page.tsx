@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui";
 import { PageHeader } from "@/components/ui";
 import { Tabs } from "@/components/Tabs";
-import { facturacionAutomatica } from "@/lib/arca-server";
+import { facturacionDisponible } from "@/lib/arca-server";
 import { fmtDateTime } from "@/lib/dates";
 import { requireSection } from "@/lib/guard";
 import { hasModule } from "@/lib/modules";
@@ -31,7 +31,7 @@ export default async function VentasPage({ searchParams }: { searchParams: Promi
 async function Nueva({ userId, storeId, perms, canTradeIn, requireImei, facturacion }: {
   userId: string; storeId: string; perms: Parameters<typeof SaleBuilder>[0]["perms"]; canTradeIn: boolean; requireImei: boolean; facturacion: boolean;
 }) {
-  const [pos, invoicing] = await Promise.all([loadPosData(), facturacion ? facturacionAutomatica(storeId) : null]);
+  const [pos, invoicing] = await Promise.all([loadPosData(), facturacion ? facturacionDisponible(storeId) : null]);
   return <SaleBuilder {...pos} perms={perms} userId={userId} canTradeIn={canTradeIn} requireImei={requireImei} invoicing={invoicing} />;
 }
 
