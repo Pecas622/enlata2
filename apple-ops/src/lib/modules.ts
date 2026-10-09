@@ -12,7 +12,12 @@ export const MODULE_INFO: Record<ModuleId, { label: string; desc: string }> = {
   facturacion: { label: "Facturación electrónica", desc: "Factura A, B o C con CAE de ARCA en cada venta, y nota de crédito si la anulás. Con tu certificado y punto de venta." },
 };
 
-export const BASE_INCLUDES = "Ventas, stock, ingresos, plan canje, accesorios, clientes, caja, usuarios y configuración.";
+// Módulos que vienen con la base: el local los tiene desde el alta y no se cobran aparte.
+export const BASE_MODULES: readonly ModuleId[] = ["imei", "alertas"];
+// Los que se suman pagando aparte.
+export const EXTRA_MODULES = MODULES.filter((m) => !BASE_MODULES.includes(m));
+
+export const BASE_INCLUDES = "Ventas, stock con IMEI, ingresos, plan canje, accesorios, clientes, caja, alertas y dólar automático, usuarios y configuración.";
 
 export function parseModules(raw: unknown): ModuleId[] {
   const list = Array.isArray(raw) ? raw : [];

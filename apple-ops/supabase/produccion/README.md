@@ -12,3 +12,4 @@ Cada migración nueva trae su archivo `actualizacion-*.sql` para pegar en **SQL 
 - `actualizacion-modulos-imei.sql`: canje y accesorios pasan a la base y se suma el módulo de stock con IMEI. Va después de `actualizacion-modulos.sql` (ya incluido en `base-parte-2.sql`).
 - `actualizacion-suscripciones.sql`: venta online del plan y de los módulos con Mercado Pago (precios, alta pendiente de pago y suscripciones). Va después de `actualizacion-modulos-imei.sql` (ya incluido en `base-parte-2.sql`).
 - `actualizacion-facturacion.sql`: módulo de facturación electrónica con ARCA (datos fiscales, certificado y facturas). Va después de `actualizacion-suscripciones.sql` (ya incluido en `base-parte-2.sql`).
+- `actualizacion-precios-base.sql`: base a $45.900 con stock con IMEI y alertas incluidos, reportes a $6.900; los locales nuevos nacen con IMEI y alertas. Va después de `actualizacion-facturacion.sql` (ya incluido en `base-parte-2.sql`).
