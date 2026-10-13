@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Enlata2 Marketing — Tu marketing con tu marca, sin empezar de cero cada semana</title>
+<meta name="description" content="Cargás tu marca una vez y sacás posts, Reels, historias, anuncios, WhatsApp y emails con tu tono. Los aprobás, quedan en el calendario y armás campañas con brief para Meta Ads." />
+<meta property="og:title" content="Enlata2 Marketing" />
+<meta property="og:description" content="Piezas para cada red con tu tono, aprobación, calendario y campañas con brief para Meta Ads." />
+<meta property="og:image" content="/productos/marketing-campana.jpg" />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root{
+    --carbon:#0B0B0D; --card:#131316; --card2:#18181B; --border:#232327;
+    --off-white:#F5F5F0; --green:#B8FF3D; --gray:#8A8A8A;
+    --indigo:#8B89FF; --indigo-bg:rgba(94,92,230,0.16);
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+  body{ background:var(--carbon); color:var(--off-white); font-family:'Inter', sans-serif; line-height:1.55; overflow-x:hidden; }
+  h1,h2,h3{ font-family:'Space Grotesk', sans-serif; font-weight:700; letter-spacing:-0.01em; }
+  a{ color:inherit; text-decoration:none; }
+  .container{ max-width:1160px; margin:0 auto; padding:0 24px; }
+  .green{ color:var(--green); }
+  :focus-visible{ outline:2px solid var(--green); outline-offset:2px; }
+  @media (prefers-reduced-motion: reduce){ html{ scroll-behavior:auto; } }
+
+  header{ position:sticky; top:0; z-index:50; background:rgba(11,11,13,0.86); backdrop-filter:blur(10px); border-bottom:1px solid var(--border); }
+  nav{ display:flex; align-items:center; justify-content:space-between; padding:16px 24px; max-width:1160px; margin:0 auto; gap:16px; }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .isotipo{ width:28px; height:28px; }
+  .brand-name{ font-family:'Space Grotesk'; font-weight:800; font-size:17px; }
+  .brand-name span{ color:var(--green); }
+  .brand-name small{ font-weight:700; color:var(--indigo); font-size:15px; margin-left:6px; }
+  .nav-links{ display:flex; gap:28px; font-size:14px; font-weight:500; color:var(--gray); }
+  .nav-links a:hover{ color:var(--off-white); }
+  @media (max-width:760px){ .nav-links{ display:none; } }
+
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:6px; font-family:'Inter'; font-weight:700; font-size:14px; cursor:pointer; border-radius:8px; padding:11px 20px; border:none; transition:opacity .15s; }
+  .btn:hover{ opacity:.85; }
+  .btn-primary{ background:var(--green); color:var(--carbon); }
+  .btn-secondary{ background:transparent; color:var(--off-white); border:1px solid var(--border); }
+  .btn-lg{ padding:15px 26px; font-size:15px; }
+  .btn-sm{ padding:8px 14px; font-size:12.5px; }
+
+  section{ padding:88px 0; border-top:1px solid var(--border); scroll-margin-top:76px; }
+  .eyebrow{ font-size:11px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; color:var(--indigo); margin-bottom:12px; }
+  .section-title{ font-size:32px; margin-bottom:14px; max-width:680px; }
+  .section-sub{ color:var(--gray); font-size:15px; max-width:580px; margin-bottom:44px; }
+
+  .hero{ padding:92px 0 72px; text-align:center; border-top:none; }
+  .hero .eyebrow{ display:inline-block; background:var(--indigo-bg); padding:5px 12px; border-radius:999px; }
+  .hero h1{ font-size:50px; line-height:1.1; max-width:800px; margin:8px auto 20px; }
+  .hero p.sub{ font-size:17px; color:var(--gray); max-width:600px; margin:0 auto 32px; }
+  .ctas{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+  .hero-note{ font-size:13px; color:var(--gray); margin-top:18px; }
+  .hero-shot{ margin:52px auto 0; max-width:980px; }
+
+  .shot{ border-radius:12px; overflow:hidden; border:1px solid var(--border); background:#F4F4F6; box-shadow:0 30px 60px -30px rgba(94,92,230,0.45); }
+  .shot img{ display:block; width:100%; height:auto; }
+
+  .grid4{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+  .grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  .card{ background:var(--card); border:1px solid var(--border); border-radius:14px; padding:22px; }
+  .card h3{ font-size:16px; margin-bottom:8px; }
+  .card p{ font-size:13.5px; color:var(--gray); }
+  @media (max-width:960px){ .grid4{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:760px){ .grid3{ grid-template-columns:1fr; } }
+  @media (max-width:560px){ .grid4{ grid-template-columns:1fr; } }
+
+  .feature{ display:grid; grid-template-columns:1fr 1.25fr; gap:44px; align-items:center; padding:40px 0; }
+  .feature + .feature{ border-top:1px solid var(--border); }
+  .feature.flip .feature-text{ order:2; }
+  .feature h3{ font-size:24px; line-height:1.2; margin-bottom:14px; }
+  .points{ list-style:none; display:flex; flex-direction:column; gap:10px; }
+  .points li{ font-size:14px; color:#D8D8D2; display:flex; gap:10px; align-items:baseline; }
+  .points li::before{ content:"✓"; color:var(--green); font-weight:700; flex:none; }
+  @media (max-width:860px){
+    .feature{ grid-template-columns:1fr; gap:24px; }
+    .feature.flip .feature-text{ order:0; }
+  }
+
+  .roles{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:28px; }
+  .role{ background:var(--card2); border:1px solid var(--border); border-radius:12px; padding:18px; }
+  .role b{ font-family:'Space Grotesk'; display:block; margin-bottom:4px; }
+  .role span{ font-size:13px; color:var(--gray); }
+  @media (max-width:760px){ .roles{ grid-template-columns:1fr; } }
+
+  .soon .card{ border-style:dashed; }
+  .tag{ display:inline-block; font-size:10px; font-weight:800; letter-spacing:0.04em; text-transform:uppercase; color:var(--indigo); background:var(--indigo-bg); padding:3px 8px; border-radius:999px; margin-bottom:10px; }
+
+  .price-box{ background:var(--card2); border:2px solid var(--green); border-radius:18px; padding:36px; max-width:620px; margin:0 auto; text-align:center; }
+  .price-box h3{ font-size:26px; margin-bottom:10px; }
+  .price-box p{ color:var(--gray); font-size:14.5px; margin-bottom:22px; }
+
+  .faq-item{ border-bottom:1px solid var(--border); padding:20px 0; }
+  .faq-item summary{ cursor:pointer; list-style:none; display:flex; justify-content:space-between; gap:16px; font-family:'Space Grotesk'; font-weight:700; font-size:15px; }
+  .faq-item summary::-webkit-details-marker{ display:none; }
+  .faq-item summary::after{ content:"+"; color:var(--green); font-size:18px; transition:transform .2s; }
+  .faq-item[open] summary::after{ transform:rotate(45deg); }
+  .faq-item p{ font-size:14px; color:var(--gray); margin-top:12px; max-width:700px; }
+
+  footer{ border-top:1px solid var(--border); padding:40px 0; font-size:13px; color:var(--gray); }
+  .footer-row{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; }
+  .footer-row a:hover{ color:var(--off-white); }
+
+  @media (max-width:640px){
+    section{ padding:56px 0; }
+    .hero{ padding:56px 0 44px; }
+    .hero h1{ font-size:31px; }
+    .hero p.sub{ font-size:15.5px; }
+    .section-title{ font-size:25px; }
+    .feature h3{ font-size:20px; }
+    .price-box{ padding:26px 20px; }
+  }
+  @media (max-width:480px){ .container{ padding:0 18px; } nav{ padding:14px 16px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <a class="brand" href="/" aria-label="Enlata2, volver al inicio">
+      <svg class="isotipo" viewBox="0 0 100 100" fill="none">
+        <rect x="18" y="10" width="64" height="80" rx="20" stroke="#B8FF3D" stroke-width="6"/>
+        <rect x="34" y="34" width="32" height="6" rx="3" fill="#B8FF3D"/>
+        <rect x="34" y="47" width="32" height="6" rx="3" fill="#B8FF3D"/>
+        <rect x="34" y="60" width="32" height="6" rx="3" fill="#B8FF3D"/>
+      </svg>
+      <div class="brand-name">ENLATA<span>2</span><small>Marketing</small></div>
+    </a>
+    <div class="nav-links">
+      <a href="#que-hace">Qué hace</a>
+      <a href="#para-quien">Para quién</a>
+      <a href="#precio">Precio</a>
+      <a href="#preguntas">Preguntas</a>
+    </div>
+    <a class="btn btn-primary btn-sm" data-contacto href="#precio">Quiero probarlo</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <div class="eyebrow">Para empresas, emprendimientos y agencias</div>
+    <h1>Tu marketing con tu marca, <span class="green">sin empezar de cero cada semana.</span></h1>
+    <p class="sub">Cargás tu marca una vez. Sacás posts, Reels, historias, anuncios, mensajes de WhatsApp y emails con tu tono, los aprobás y quedan en el calendario listos para publicar.</p>
+    <div class="ctas">
+      <a class="btn btn-primary btn-lg" data-contacto href="#precio">Quiero probarlo</a>
+      <a class="btn btn-secondary btn-lg" href="#que-hace">Ver cómo funciona</a>
+    </div>
+    <p class="hero-note">Funciona en el navegador, en la compu o en el celular. Nada que instalar.</p>
+    <div class="hero-shot shot"><img src="/productos/marketing-generar.jpg" alt="Generador de contenido: elegís marca, red, formato y objetivo y te da 3 versiones para elegir" width="1100" height="918" /></div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="eyebrow">El problema</div>
+    <h2 class="section-title">Publicar todas las semanas cansa, y se nota.</h2>
+    <div class="grid4">
+      <div class="card"><h3>"¿Qué subo hoy?"</h3><p>Cada semana se arranca de cero y las redes quedan paradas justo cuando hay más trabajo.</p></div>
+      <div class="card"><h3>Cada pieza suena distinta</h3><p>Según quién la escriba, cambia el tono, falta el llamado a la acción o se cuela una palabra que la marca no usa.</p></div>
+      <div class="card"><h3>Aprobaciones perdidas</h3><p>El dueño o el cliente aprueba por WhatsApp, entre audios y capturas, y nadie sabe cuál es la versión final.</p></div>
+      <div class="card"><h3>Pauta sin plan</h3><p>Se pone plata en Meta sin objetivo claro, sin público definido y con el texto que salió en el momento.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="que-hace">
+  <div class="container">
+    <div class="eyebrow">Qué hace</div>
+    <h2 class="section-title">Del brief a la pieza aprobada, en un solo lugar.</h2>
+    <p class="section-sub">Las capturas son del sistema real, con dos marcas de demo: una panadería y una bicicletería.</p>
+
+    <div class="feature">
+      <div class="feature-text">
+        <div class="eyebrow">Tu marca y el generador</div>
+        <h3>Tres versiones con tu tono, para cada red</h3>
+        <ul class="points">
+          <li>Cargás una vez qué vendés, a quién le hablás, por qué te eligen, cómo hablás, las palabras que evitás y tus hashtags.</li>
+          <li>Elegís red, formato y objetivo: post, carrusel, guion de Reel o TikTok, historia, anuncio de Meta, WhatsApp o email.</li>
+          <li>Te da 3 versiones con ángulos distintos, chequeadas contra el largo y los hashtags de cada red.</li>
+          <li>Nunca inventa precios ni descuentos: usa solo lo que escribiste.</li>
+        </ul>
+      </div>
+      <div class="shot"><img src="/productos/marketing-marca.jpg" alt="Ficha de marca de una panadería: rubro, zona, qué hace, productos, público y por qué la eligen" loading="lazy" width="1100" height="917" /></div>
+    </div>
+
+    <div class="feature flip">
+      <div class="feature-text">
+        <div class="eyebrow">Aprobación</div>
+        <h3>Nada sale sin el ok del dueño o del cliente</h3>
+        <ul class="points">
+          <li>Cada pieza pasa por Idea, Borrador, En revisión, Aprobado y Publicado.</li>
+          <li>Quien revisa aprueba o pide cambios, con la vista previa como se va a ver en el celular.</li>
+          <li>Queda el historial de quién hizo qué y cuándo. Si alguien edita una pieza aprobada, vuelve a borrador y tiene que aprobarse de nuevo.</li>
+        </ul>
+      </div>
+      <div class="shot"><img src="/productos/marketing-aprobacion.jpg" alt="Carrusel en revisión con botones Aprobar y Pedir cambios, vista previa e historial" loading="lazy" width="1100" height="892" /></div>
+    </div>
+
+    <div class="feature">
+      <div class="feature-text">
+        <div class="eyebrow">Calendario</div>
+        <h3>El mes armado, con las fechas que venden</h3>
+        <ul class="points">
+          <li>Todas las piezas por día, marca, red y estado. Arrastrás para cambiar de día y lo aprobado sigue aprobado.</li>
+          <li>Fechas comerciales de Argentina: Día de la Madre, del Padre, de las Infancias, Black Friday y más.</li>
+          <li>"Armar el plan del mes" sugiere ideas con fecha en los días libres y las semanas flojas quedan marcadas.</li>
+          <li>En el celular se ve como agenda.</li>
+        </ul>
+      </div>
+      <div class="shot"><img src="/productos/marketing-calendario.jpg" alt="Calendario de noviembre con las ideas del plan del mes y Black Friday marcado" loading="lazy" width="1100" height="891" /></div>
+    </div>
+
+    <div class="feature flip">
+      <div class="feature-text">
+        <div class="eyebrow">Campañas</div>
+        <h3>El brief para Meta Ads, listo para copiar</h3>
+        <ul class="points">
+          <li>Objetivo, fechas, presupuesto en pesos y público de cada campaña, con sus piezas y su avance.</li>
+          <li>El brief sugiere el objetivo de Meta según vendas por web o por WhatsApp, el presupuesto por día, la segmentación y las ubicaciones.</li>
+          <li>Trae los textos de los anuncios de la campaña. Lo que es sugerido se marca para que lo revises antes de publicar.</li>
+        </ul>
+      </div>
+      <div class="shot"><img src="/productos/marketing-campana.jpg" alt="Campaña Día de la Madre con sus piezas y el brief para Meta Ads" loading="lazy" width="1100" height="821" /></div>
+    </div>
+  </div>
+</section>
+
+<section id="para-quien">
+  <div class="container">
+    <div class="eyebrow">Para quién</div>
+    <h2 class="section-title">Para el que hace su propio marketing y para el que se lo hace a otros.</h2>
+    <div class="grid3">
+      <div class="card"><h3>Emprendimientos</h3><p>Publicás seguido sin tener un community manager, y siempre con el mismo tono.</p></div>
+      <div class="card"><h3>Empresas</h3><p>El equipo escribe y el dueño aprueba. Todo queda registrado y en el calendario.</p></div>
+      <div class="card"><h3>Agencias</h3><p>Varias marcas en un mismo espacio, cada una con su tono. El cliente entra como revisor y aprueba ahí, no por WhatsApp.</p></div>
+    </div>
+    <div class="roles">
+      <div class="role"><b>Administrador</b><span>Configura las marcas y hace todo.</span></div>
+      <div class="role"><b>Creador</b><span>Genera, edita, manda a revisión y marca como publicado lo aprobado.</span></div>
+      <div class="role"><b>Revisor</b><span>El dueño o el cliente: aprueba o pide cambios, sin editar.</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="soon">
+  <div class="container">
+    <div class="eyebrow">En camino</div>
+    <h2 class="section-title">Lo que se suma en las próximas etapas.</h2>
+    <div class="grid3">
+      <div class="card"><div class="tag">Próximamente</div><h3>Métricas</h3><p>Alcance, interacciones, consultas y costo por consulta, para ver qué piezas funcionaron mejor.</p></div>
+      <div class="card"><div class="tag">Próximamente</div><h3>Publicar desde la app</h3><p>Mandar lo aprobado a Instagram y Facebook sin copiar y pegar.</p></div>
+      <div class="card"><div class="tag">Próximamente</div><h3>Portal del cliente</h3><p>Para agencias: cada cliente con su acceso y sus usuarios.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="precio">
+  <div class="container">
+    <div class="price-box">
+      <div class="eyebrow">Precio</div>
+      <h3>En lanzamiento</h3>
+      <p>Estamos sumando los primeros negocios y agencias. El precio y el alta online salen muy pronto.</p>
+      <a class="btn btn-primary btn-lg" data-contacto id="precioCta" href="#precio">Quiero probarlo</a>
+    </div>
+  </div>
+</section>
+
+<section id="preguntas">
+  <div class="container">
+    <h2 class="section-title">Preguntas frecuentes.</h2>
+    <details class="faq-item" open>
+      <summary>¿Inventa precios o promociones?</summary>
+      <p>No. Usa los datos de tu marca y lo que escribiste en el pedido. Si en un texto aparece un precio o un porcentaje que vos no pusiste, el sistema lo marca para que lo revises.</p>
+    </details>
+    <details class="faq-item">
+      <summary>¿Escribe con inteligencia artificial?</summary>
+      <p>Sí, cuando está activada escribe con IA a partir de tu marca. Si no está activada o la IA falla, escribe con plantillas armadas con los datos de tu marca y te avisa en pantalla.</p>
+    </details>
+    <details class="faq-item">
+      <summary>¿Publica solo en mis redes?</summary>
+      <p>Todavía no. Hoy deja cada pieza aprobada, con fecha y lista para copiar. Publicar en Instagram y Facebook desde la app es una de las próximas etapas.</p>
+    </details>
+    <details class="faq-item">
+      <summary>¿Sirve si tengo una agencia con varios clientes?</summary>
+      <p>Sí. Cargás varias marcas en el mismo espacio, cada una con su tono, y tu cliente entra como revisor para aprobar o pedir cambios.</p>
+    </details>
+    <details class="faq-item">
+      <summary>¿Tengo que instalar algo?</summary>
+      <p>No. Entrás desde el navegador de la compu o del celular.</p>
+    </details>
+  </div>
+</section>
+
+<footer>
+  <div class="container footer-row">
+    <div>Enlata2 Marketing es un producto de <a href="/"><b>Enlata2</b></a>. Software que ya viene listo.</div>
+    <div><a href="/">Ver todos los productos</a></div>
+  </div>
+</footer>
+
+<script>
+  // Contacto de ventas. Con número (con código de país, por ejemplo 5492611234567) los botones
+  // "Quiero probarlo" abren WhatsApp con el mensaje cargado; sin número, llevan al precio y el botón del precio no se muestra.
+  var CONTACTO_WHATSAPP = '';
+  if (CONTACTO_WHATSAPP) {
+    var msg = encodeURIComponent('Hola, quiero probar Enlata2 Marketing.');
+    document.querySelectorAll('[data-contacto]').forEach(function(a){
+      a.href = 'https://wa.me/' + CONTACTO_WHATSAPP + '?text=' + msg;
+      a.target = '_blank';
+      a.rel = 'noopener';
+    });
+  } else {
+    var precioCta = document.getElementById('precioCta');
+    if (precioCta) precioCta.style.display = 'none';
+  }
+</script>
+
+</body>
+</html>

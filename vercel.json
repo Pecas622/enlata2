@@ -1,5 +1,9 @@
 {
+  "redirects": [
+    { "source": "/iphone", "destination": "https://enlata2-rni3.vercel.app/", "permanent": false }
+  ],
   "rewrites": [
+    { "source": "/marketing", "destination": "/marketing.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
