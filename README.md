@@ -2,12 +2,13 @@
 
 "Software que ya viene listo": sistemas de gestión 80% hechos y 20% a medida, uno por rubro. Cada producto se llama "OPS lata" (APPLE OPS, INMO OPS, CLUB OPS, etc.).
 
-Este repo tiene dos cosas separadas:
+Este repo tiene tres cosas separadas:
 
 | Carpeta | Qué es | Stack | Deploy |
 | --- | --- | --- | --- |
 | raíz (`src/`, `public/`, `index.html`) | Sitio comercial y demos de todas las verticales | React + Vite, sin backend (datos en `localStorage`) | Proyecto de Vercel `enlata2` |
 | [`apple-ops/`](apple-ops/) | APPLE OPS, la primera app real: gestión para locales que venden productos Apple | Next.js + TypeScript + Supabase + Vercel | Proyecto de Vercel aparte, con Root Directory `apple-ops` |
+| [`marketing-ops/`](marketing-ops/) | MARKETING OPS: marca, generación de contenidos y aprobación para empresas, emprendimientos y agencias | Next.js + TypeScript + Supabase + Vercel | Proyecto de Vercel aparte, con Root Directory `marketing-ops` |
 
 ## Sitio y demos (raíz)
 
@@ -50,3 +51,7 @@ Se construyó en 9 etapas, una PR por etapa: base y login, stock e ingresos, ven
 ## Para agentes de IA
 
 Ver [AGENTS.md](AGENTS.md).
+
+## MARKETING OPS (`marketing-ops/`)
+
+Cada negocio carga su marca (qué vende, a quién le habla, cómo habla) y genera posts, carruseles, guiones de Reel, historias, anuncios, mensajes de WhatsApp y emails, con IA o con plantillas, y los pasa por un circuito de aprobación. Módulos, etapas y cómo correrla: [marketing-ops/README.md](marketing-ops/README.md).
