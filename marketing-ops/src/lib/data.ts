@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import type { Channel, Format, Goal } from "@/lib/channels";
 import type { BrandCtx } from "@/lib/generator";
 import type { Status } from "@/lib/workflow";
+import { localDay } from "@/lib/dates";
+import type { PieceResult, Results } from "@/lib/metrics";
 
 export type BrandRow = BrandCtx & { id: string; color: string; updated_at: string };
 
@@ -82,4 +84,27 @@ export async function getCampaign(id: string): Promise<CampaignRow | null> {
   const supabase = await createClient();
   const { data } = await supabase.from("campaigns").select(CAMPAIGN_COLS).eq("id", id).maybeSingle();
   return data ? asCampaign(data) : null;
+}
+
+export type ResultRow = Results & { content_id: string; notes: string; updated_at: string };
+
+export async function listResults(): Promise<Map<string, ResultRow>> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("content_results").select("content_id, reach, interactions, clicks, inquiries, sales, spend, notes, updated_at");
+  return new Map((data ?? []).map((r) => [r.content_id as string, { ...r, spend: Number(r.spend) } as ResultRow]));
+}
+
+// Las piezas publicadas con sus resultados (o null si faltan cargar), listas para las métricas.
+export function publishedPieces(contents: ContentRow[], results: Map<string, ResultRow>): (PieceResult & { brand_id: string })[] {
+  return contents
+    .filter((c) => c.status === "Publicado")
+    .map((c) => {
+      const r = results.get(c.id);
+      return {
+        id: c.id, title: c.title || c.topic || "Sin título", brand: c.brands?.name ?? "", channel: c.channel, format: c.format, goal: c.goal,
+        day: c.publish_on ?? localDay(c.updated_at), campaign_id: c.campaign_id,
+        results: r ? { reach: r.reach, interactions: r.interactions, clicks: r.clicks, inquiries: r.inquiries, sales: r.sales, spend: r.spend } : null,
+        brand_id: c.brand_id,
+      };
+    });
 }

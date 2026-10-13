@@ -121,3 +121,71 @@ insert into campaign_events (workspace_id, campaign_id, action, by_profile, at) 
 insert into content_events (workspace_id, content_id, action, note, by_profile, at) values
   ('00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000c8', 'Creada con plantilla', '', '00000000-0000-4000-8000-0000000000a2', now() - interval '4 hours'),
   ('00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000c8', 'Mandó a revisión', '', '00000000-0000-4000-8000-0000000000a2', now() - interval '3 hours');
+
+-- Métricas (etapa 4): piezas publicadas en los últimos dos meses con sus resultados, y una campaña que ya terminó.
+insert into campaigns (id, workspace_id, brand_id, name, goal, starts_on, ends_on, budget, offer, audience, locations, age_min, age_max, interests, notes, created_by, updated_by, created_at) values
+  ('00000000-0000-4000-8000-0000000000d3', '00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000b2', 'Vuelta a la montaña', 'Conseguir consultas',
+   current_date - 30, current_date - 10, 60000, '', 'Ciclistas de fin de semana que vuelven a salir a la montaña', 'Ciudad de Mendoza y Godoy Cruz', 20, 50, 'Mountain bike, Ciclismo',
+   '', '00000000-0000-4000-8000-0000000000a1', '00000000-0000-4000-8000-0000000000a1', now() - interval '32 days');
+
+insert into contents (id, workspace_id, brand_id, channel, format, goal, topic, title, body, hashtags, cta, status, publish_on, campaign_id, source, created_by, updated_by, created_at, updated_at)
+select v.id::uuid, '00000000-0000-4000-8000-000000000001', v.brand::uuid, v.channel::content_channel, v.format::content_format, v.goal::content_goal, v.title, v.title, v.body, v.tags,
+  v.cta, 'Publicado', current_date - v.ago, v.camp::uuid, v.source::content_source, '00000000-0000-4000-8000-0000000000a2', '00000000-0000-4000-8000-0000000000a2',
+  now() - make_interval(days => v.ago + 3), now() - make_interval(days => v.ago)
+from (values
+  ('00000000-0000-4000-8000-0000000000c9', '00000000-0000-4000-8000-0000000000b1', 'Instagram', 'Reel', 'Comunidad', 'Así se hace la masa madre', 6, null, 'ia',
+   E'0-3 s · Gancho: manos hundiéndose en la masa. Texto: "Esto lleva 24 horas".\n3-15 s · El frasco de masa madre, el amasado y el pan entrando al horno.\n15-25 s · Cierre: el pan cortado. "Pedí por WhatsApp y retirá sin hacer fila".', '#laespiga #masamadre', 'Pedí por WhatsApp y retirá sin hacer fila'),
+  ('00000000-0000-4000-8000-000000000c10', '00000000-0000-4000-8000-0000000000b1', 'Instagram', 'Historia', 'Promoción', 'Últimas facturas del día', 9, null, 'plantilla',
+   E'Texto: Quedan las últimas facturas de hoy\nSticker: encuesta "¿Medialuna o vigilante?"\nCierre: Pedí por WhatsApp y retirá sin hacer fila', '', 'Pedí por WhatsApp y retirá sin hacer fila'),
+  ('00000000-0000-4000-8000-000000000c11', '00000000-0000-4000-8000-0000000000b1', 'WhatsApp', 'Mensaje', 'Promoción', 'Encargos para el Día de la Madre', 4, '00000000-0000-4000-8000-0000000000d1', 'plantilla',
+   E'Hola! Te escribimos de La Espiga. Ya estamos tomando encargos de tortas para el Día de la Madre, con 48 h de anticipación.\n\nRespondé este mensaje y te pasamos los sabores.', '', 'Respondé este mensaje'),
+  ('00000000-0000-4000-8000-000000000c12', '00000000-0000-4000-8000-0000000000b1', 'Instagram', 'Anuncio', 'Promoción', 'Anuncio tortas para mamá (primera tanda)', 2, '00000000-0000-4000-8000-0000000000d1', 'plantilla',
+   E'Texto principal: Que mamá tenga su torta casera este domingo. Encargala con 48 h de anticipación.\nTítulo: Tortas por encargo para mamá\nDescripción: La Espiga · Godoy Cruz\nBotón: Enviar mensaje', '', 'Enviar mensaje'),
+  ('00000000-0000-4000-8000-000000000c13', '00000000-0000-4000-8000-0000000000b2', 'Instagram', 'Reel', 'Educar', 'Cómo emparchar una cámara', 12, '00000000-0000-4000-8000-0000000000d3', 'ia',
+   E'0-3 s · Gancho: cubierta pinchada en plena subida. Texto: "¿Te pasó?".\n3-20 s · Paso a paso: sacar la rueda, encontrar el pinchazo y emparchar.\n20-25 s · Cierre: "Sacá turno por WhatsApp si preferís que lo hagamos nosotros".', '#rodarbikes #mtb', 'Sacá turno por WhatsApp'),
+  ('00000000-0000-4000-8000-000000000c14', '00000000-0000-4000-8000-0000000000b2', 'Instagram', 'Post', 'Vender', 'Llegaron las urbanas', 15, null, 'plantilla',
+   E'Llegaron las bicis urbanas: con canasto, luces y guardabarros.\n\nPasá a probarlas o sacá turno por WhatsApp.', '#rodarbikes #ciclismomendoza', 'Sacá turno por WhatsApp'),
+  ('00000000-0000-4000-8000-000000000c15', '00000000-0000-4000-8000-0000000000b2', 'Facebook', 'Post', 'Conseguir consultas', 'Turnos de service', 20, '00000000-0000-4000-8000-0000000000d3', 'plantilla',
+   E'Antes de volver a la montaña, hacele el service a tu bici. Lo tenemos listo en 48 h y con garantía escrita.\n\nSacá turno por WhatsApp.', '', 'Sacá turno por WhatsApp'),
+  ('00000000-0000-4000-8000-000000000c16', '00000000-0000-4000-8000-0000000000b2', 'Instagram', 'Anuncio', 'Conseguir consultas', 'Anuncio service en 48 h', 25, '00000000-0000-4000-8000-0000000000d3', 'plantilla',
+   E'Texto principal: Tu bici lista en 48 h, con garantía escrita en cada arreglo.\nTítulo: Service en 48 h\nDescripción: Rodar Bikes · Mendoza\nBotón: Enviar mensaje', '', 'Enviar mensaje'),
+  ('00000000-0000-4000-8000-000000000c17', '00000000-0000-4000-8000-0000000000b1', 'Instagram', 'Post', 'Educar', 'Por qué usamos masa madre', 40, null, 'plantilla',
+   E'¿Por qué masa madre? Porque el pan dura más, es más liviano y tiene otro sabor.\n\nPedí por WhatsApp y retirá sin hacer fila.', '#laespiga #masamadre', 'Pedí por WhatsApp y retirá sin hacer fila'),
+  ('00000000-0000-4000-8000-000000000c18', '00000000-0000-4000-8000-0000000000b2', 'Instagram', 'Carrusel', 'Educar', 'Qué llevar para salir a la montaña', 45, null, 'plantilla',
+   E'Placa 1: Qué llevar para salir a la montaña.\nPlaca 2: Cámara de repuesto y parches.\nPlaca 3: Inflador chico.\nPlaca 4: Agua de sobra.\nPlaca 5: Sacá turno por WhatsApp y salí con la bici a punto.', '#rodarbikes #mtb', 'Sacá turno por WhatsApp'),
+  ('00000000-0000-4000-8000-000000000c19', '00000000-0000-4000-8000-0000000000b1', 'Facebook', 'Post', 'Comunidad', 'Nuevo horario de los domingos', 1, null, 'manual',
+   E'Desde este domingo abrimos de 8 a 13. Pedí por WhatsApp y retirá sin hacer fila.', '', 'Pedí por WhatsApp y retirá sin hacer fila')
+) as v(id, brand, channel, format, goal, title, ago, camp, source, body, tags, cta);
+
+-- La última (nuevo horario) queda sin resultados, para mostrar el aviso de que faltan cargar.
+insert into content_results (content_id, workspace_id, reach, interactions, clicks, inquiries, sales, spend, updated_by, updated_at)
+select v.id::uuid, '00000000-0000-4000-8000-000000000001', v.reach, v.inter, v.clicks, v.inq, v.sales, v.spend, '00000000-0000-4000-8000-0000000000a2', now() - interval '1 day'
+from (values
+  ('00000000-0000-4000-8000-0000000000c1', 1450, 62, 8, 4, 2, 0),
+  ('00000000-0000-4000-8000-0000000000c9', 5200, 410, 35, 9, 0, 0),
+  ('00000000-0000-4000-8000-000000000c10', 900, 38, 0, 6, 4, 0),
+  ('00000000-0000-4000-8000-000000000c11', 320, 0, 0, 21, 9, 0),
+  ('00000000-0000-4000-8000-000000000c12', 8400, 190, 140, 17, 6, 22000),
+  ('00000000-0000-4000-8000-000000000c13', 6100, 520, 48, 11, 1, 0),
+  ('00000000-0000-4000-8000-000000000c14', 1300, 41, 12, 3, 1, 0),
+  ('00000000-0000-4000-8000-000000000c15', 700, 15, 9, 5, 0, 0),
+  ('00000000-0000-4000-8000-000000000c16', 9800, 160, 210, 24, 0, 35000),
+  ('00000000-0000-4000-8000-000000000c17', 1100, 48, 4, 1, 0, 0),
+  ('00000000-0000-4000-8000-000000000c18', 2400, 180, 20, 4, 0, 0)
+) as v(id, reach, inter, clicks, inq, sales, spend);
+
+insert into content_events (workspace_id, content_id, action, note, by_profile, at)
+select '00000000-0000-4000-8000-000000000001', c.id, e.action, '', e.who::uuid, c.updated_at - e.back
+from contents c
+cross join (values
+  ('Creada con plantilla', '00000000-0000-4000-8000-0000000000a2', interval '3 days'),
+  ('Mandó a revisión', '00000000-0000-4000-8000-0000000000a2', interval '2 days'),
+  ('Aprobó', '00000000-0000-4000-8000-0000000000a3', interval '1 day'),
+  ('Marcó como publicada', '00000000-0000-4000-8000-0000000000a2', interval '0 days')
+) as e(action, who, back)
+where c.status = 'Publicado' and c.id <> '00000000-0000-4000-8000-0000000000c1';
+insert into content_events (workspace_id, content_id, action, note, by_profile, at)
+select r.workspace_id, r.content_id, 'Cargó los resultados', format('Alcance %s · %s interacciones · %s consultas', r.reach, r.interactions, r.inquiries), r.updated_by, r.updated_at
+from content_results r;
+insert into campaign_events (workspace_id, campaign_id, action, by_profile, at) values
+  ('00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000d3', 'Creó la campaña', '00000000-0000-4000-8000-0000000000a1', now() - interval '32 days');
