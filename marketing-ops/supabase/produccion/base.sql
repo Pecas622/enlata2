@@ -7,6 +7,15 @@
 -- Al final las registra, así que un `npx supabase db push` posterior no las repite. No trae datos demo.
 -- Generada desde las migraciones: si agregás una, regenerá este archivo (ver README.md de esta carpeta).
 
+-- Freno: solo corre en una base vacía. Si el proyecto ya tiene tablas (por ejemplo, el de APPLE OPS), corta acá
+-- y no toca nada: varios nombres se pisan (profiles, user_role, is_admin, dia_ar) y cambiarían sus permisos.
+do $$
+begin
+  if exists (select 1 from pg_tables where schemaname = 'public') or exists (select 1 from pg_type t join pg_namespace n on n.oid = t.typnamespace where n.nspname = 'public' and t.typname = 'user_role') then
+    raise exception 'Esta base ya tiene tablas: base.sql va en un proyecto de Supabase nuevo y vacío. No se aplicó nada.';
+  end if;
+end $$;
+
 -- ======================================================================
 -- 20261013000000_esquema_base.sql
 -- ======================================================================

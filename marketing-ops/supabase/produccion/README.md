@@ -14,7 +14,7 @@ Todo lo que necesitás para tener la base de MARKETING OPS en un proyecto de Sup
 ## Base nueva, paso a paso
 
 1. En [supabase.com](https://supabase.com) creá un proyecto. La región más cercana para Argentina es São Paulo.
-2. **SQL Editor > New query**: pegá todo `base.sql` y tocá **Run**.
+2. **SQL Editor > New query**: pegá todo `base.sql` y tocá **Run**. Tiene que ser un proyecto **nuevo y vacío**, nunca el de APPLE OPS: comparten nombres (`profiles`, `user_role`, `is_admin`, `dia_ar`) y le cambiaría los permisos. Por eso `base.sql` arranca con un freno: si la base ya tiene tablas, corta con un error y no aplica nada.
 3. **Authentication > Users > Add user > Create new user**: cargá tu email y una contraseña, y tildá **Auto Confirm User**.
 4. **SQL Editor**: abrí `primer-usuario.sql`, cambiá el email, tu nombre y el nombre de la empresa o agencia, y corrélo.
 5. **Authentication > URL Configuration**: en **Site URL** poné la dirección de la app en Vercel.
