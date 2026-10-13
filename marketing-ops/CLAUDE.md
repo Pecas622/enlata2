@@ -1,6 +1,6 @@
 # MARKETING OPS — producción (Enlata2)
 
-Segundo producto de Enlata2: la herramienta para que empresas, emprendimientos y agencias hagan su marketing. Marca y tono de cada negocio, generación de piezas (posts, carruseles, guiones de Reel, historias, anuncios, mensajes de WhatsApp y emails), circuito de aprobación y, en las próximas etapas, calendario, campañas y métricas. Marca: Enlata2, "Software que ya viene listo". Nombre de trabajo: MARKETING OPS (se cambia con `NEXT_PUBLIC_PRODUCT_NAME`).
+Segundo producto de Enlata2: la herramienta para que empresas, emprendimientos y agencias hagan su marketing. Marca y tono de cada negocio, generación de piezas (posts, carruseles, guiones de Reel, historias, anuncios, mensajes de WhatsApp y emails), circuito de aprobación, calendario con plan del mes y, en las próximas etapas, campañas y métricas. Marca: Enlata2, "Software que ya viene listo". Nombre de trabajo: MARKETING OPS (se cambia con `NEXT_PUBLIC_PRODUCT_NAME`).
 
 Es independiente de APPLE OPS (`../apple-ops`): mismo stack y mismo estilo, otra base, otro proyecto de Vercel.
 
@@ -10,9 +10,9 @@ Next.js (App Router) + TypeScript + Postgres vía Supabase (Auth + RLS) + Vercel
 ## Reglas (no negociables)
 - Interfaz en español rioplatense, con voseo.
 - Todo vive dentro de un espacio de trabajo (`workspace_id`) y se lee con RLS: nadie ve marcas ni piezas de otro.
-- Las tablas no se escriben directo: marcas y contenidos pasan por `save_brand`, `save_content` y `set_content_status`, que validan el rol y dejan registro en `content_events` con usuario y hora.
+- Las tablas no se escriben directo: marcas y contenidos pasan por `save_brand`, `save_content`, `set_content_status`, `schedule_content` y `add_plan_ideas`, que validan el rol y dejan registro en `content_events` con usuario y hora.
 - Roles: Administrador (todo), Creador (genera, edita, manda a revisión y marca como publicada lo aprobado), Revisor (el dueño o el cliente: aprueba o pide cambios, no edita). La regla del circuito está dos veces, en `can_move` (SQL) y en `src/lib/workflow.ts`: si cambia una, cambiá la otra y sus tests.
-- Una pieza aprobada que se edita vuelve a Borrador. Una publicada no se edita ni se mueve.
+- Una pieza aprobada que se edita vuelve a Borrador; si solo cambia de día (`schedule_content`) sigue aprobada. Una publicada no se edita ni se mueve.
 - El generador nunca inventa precios, descuentos, plazos ni datos: usa la marca y lo que escribió la persona. Con `ANTHROPIC_API_KEY` escribe Claude (`src/lib/generator-ai.ts`, salida JSON con esquema); sin clave, o si la IA falla, escriben las plantillas (`src/lib/generator.ts`). Mantené los dos caminos. Toda variante pasa por `checkCopy` (largo por red, hashtags, palabras prohibidas, llamado a la acción, números que no estaban en el pedido).
 - Fechas en el día local de Argentina (`src/lib/dates.ts`), nunca UTC pelado.
 - Hooks de React antes de cualquier `return` condicional.

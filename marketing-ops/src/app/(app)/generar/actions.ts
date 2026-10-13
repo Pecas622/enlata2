@@ -8,7 +8,7 @@ import { AiUnavailable, generateWithClaude } from "@/lib/generator-ai";
 import { requireSection } from "@/lib/guard";
 import { createClient } from "@/lib/supabase/server";
 
-export type GenInput = { brandId: string; channel: string; format: string; goal: string; topic: string; offer: string; extra: string; seed: number };
+export type GenInput = { brandId: string; channel: string; format: string; goal: string; topic: string; offer: string; extra: string; seed: number; ideaId?: string };
 export type GenVariant = Variant & { warnings: string[] };
 export type GenResult = { error?: string; source?: "ia" | "plantilla"; notice?: string; variants?: GenVariant[] };
 
@@ -52,6 +52,15 @@ export async function saveVariant(input: GenInput, v: Variant, source: "ia" | "p
   const req = parse(input);
   if (typeof req === "string") return { error: req };
   const supabase = await createClient();
+  if (input.ideaId) {
+    // Completa la idea del calendario: misma pieza, misma fecha. save_content la pasa de Idea a Borrador.
+    const { error } = await supabase.rpc("save_content", {
+      p_id: input.ideaId,
+      p: { topic: req.topic, title: v.title.slice(0, 120), body: v.body.slice(0, 4000), hashtags: v.hashtags.slice(0, 400), cta: v.cta.slice(0, 200) },
+    });
+    if (error) return { error: error.message };
+    redirect(`/contenidos/${input.ideaId}?nueva=1`);
+  }
   const { data, error } = await supabase.rpc("save_content", {
     p_id: null,
     p: {

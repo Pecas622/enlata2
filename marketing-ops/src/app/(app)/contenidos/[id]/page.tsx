@@ -71,6 +71,13 @@ export default async function ContenidoPage({ params, searchParams }: { params: 
           )}
         </div>
         <div className="stack">
+          {c.status === "Idea" && editable && (
+            <div className="card stack">
+              <h2 className="card-title">Escribila</h2>
+              <p className="muted" style={{ margin: 0 }}>Es una idea{c.publish_on ? ` para el ${fmtDate(c.publish_on)}` : ""}. El generador te da 3 versiones con los datos de la marca y la que elijas queda en esta pieza.</p>
+              <div><Link className="btn btn-primary" href={`/generar?idea=${c.id}`} data-testid="idea-generate">Escribir con el generador</Link></div>
+            </div>
+          )}
           {actions.length > 0 && (
             <div className="card stack">
               <h2 className="card-title">Siguiente paso</h2>

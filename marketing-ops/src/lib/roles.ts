@@ -24,12 +24,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { id: "inicio", label: "Inicio", icon: "inicio", roles: ROLES },
   { id: "generar", label: "Generar contenido", icon: "generar", roles: ["Administrador", "Creador"] },
   { id: "contenidos", label: "Contenidos", icon: "contenidos", roles: ROLES },
+  { id: "calendario", label: "Calendario", icon: "calendario", roles: ROLES },
   { id: "marca", label: "Marcas", icon: "marca", roles: ROLES },
 ];
 
 // Lo que viene en las próximas etapas. Se muestra atenuado para que el cliente vea hacia dónde va.
 export const NEXT_ITEMS: readonly { label: string; icon: string }[] = [
-  { label: "Calendario", icon: "calendario" },
   { label: "Campañas", icon: "campanas" },
   { label: "Métricas", icon: "metricas" },
 ];

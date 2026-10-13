@@ -7,17 +7,22 @@ import { generate, saveVariant, type GenInput, type GenResult } from "./actions"
 
 type BrandOpt = { id: string; name: string; color: string };
 
-export function GenerateForm({ brands, initialBrand, aiEnabled }: { brands: BrandOpt[]; initialBrand?: string; aiEnabled: boolean }) {
+export type IdeaInit = { id: string; title: string; brandId: string; channel: Channel; format: Format; goal: string; topic: string };
+
+export function GenerateForm({ brands, initialBrand, idea, aiEnabled }: { brands: BrandOpt[]; initialBrand?: string; idea?: IdeaInit; aiEnabled: boolean }) {
   const [input, setInput] = useState<GenInput>({
-    brandId: initialBrand && brands.some((b) => b.id === initialBrand) ? initialBrand : brands[0]?.id ?? "",
-    channel: "Instagram",
-    format: "Post",
-    goal: "Vender",
-    topic: "",
+    brandId: idea?.brandId ?? (initialBrand && brands.some((b) => b.id === initialBrand) ? initialBrand : brands[0]?.id ?? ""),
+    channel: idea?.channel ?? "Instagram",
+    format: idea?.format ?? "Post",
+    goal: idea?.goal ?? "Vender",
+    topic: idea?.topic ?? "",
     offer: "",
     extra: "",
     seed: 0,
+    ideaId: idea?.id,
   });
+  // Si se escribe una idea del calendario, la marca, la red y el formato quedan fijos: son los de la idea.
+  const locked = Boolean(idea);
   const [result, setResult] = useState<GenResult | null>(null);
   const [saving, setSaving] = useState<number | null>(null);
   const [saveError, setSaveError] = useState("");
@@ -49,10 +54,11 @@ export function GenerateForm({ brands, initialBrand, aiEnabled }: { brands: Bran
   return (
     <div className="stack" style={{ gap: 18 }}>
       <form className="card stack" onSubmit={(e) => { e.preventDefault(); run(0); }} data-testid="gen-form">
+        {idea && <Notice tone="blue">Escribiendo la idea “{idea.title}” del calendario. La variante que guardes queda en esa misma pieza, con su fecha.</Notice>}
         <div className="row">
           <label className="field">
             Marca
-            <select className="input" value={input.brandId} onChange={(e) => set({ brandId: e.target.value })} data-testid="gen-brand">
+            <select className="input" value={input.brandId} onChange={(e) => set({ brandId: e.target.value })} disabled={locked} data-testid="gen-brand">
               {brands.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
             </select>
           </label>
@@ -67,7 +73,7 @@ export function GenerateForm({ brands, initialBrand, aiEnabled }: { brands: Bran
           Canal
           <div className="chips">
             {CHANNELS.map((c) => (
-              <button type="button" key={c} className={`chip pick${input.channel === c ? " on" : ""}`} onClick={() => pickChannel(c)} data-testid={`gen-channel-${c}`}>{c}</button>
+              <button type="button" key={c} className={`chip pick${input.channel === c ? " on" : ""}`} onClick={() => pickChannel(c)} disabled={locked && input.channel !== c} data-testid={`gen-channel-${c}`}>{c}</button>
             ))}
           </div>
         </div>
@@ -75,7 +81,7 @@ export function GenerateForm({ brands, initialBrand, aiEnabled }: { brands: Bran
           Formato
           <div className="chips">
             {formatsFor(input.channel as Channel).map((f) => (
-              <button type="button" key={f} className={`chip pick${input.format === f ? " on" : ""}`} onClick={() => set({ format: f })} data-testid={`gen-format-${f}`}>{formatLabel(f, input.channel as Channel)}</button>
+              <button type="button" key={f} className={`chip pick${input.format === f ? " on" : ""}`} onClick={() => set({ format: f })} disabled={locked && input.format !== f} data-testid={`gen-format-${f}`}>{formatLabel(f, input.channel as Channel)}</button>
             ))}
           </div>
         </div>

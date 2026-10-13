@@ -67,7 +67,15 @@ insert into contents (id, workspace_id, brand_id, channel, format, goal, topic, 
    '00000000-0000-4000-8000-0000000000a1', '00000000-0000-4000-8000-0000000000a1', now() - interval '5 hours', now() - interval '5 hours'),
   ('00000000-0000-4000-8000-0000000000c5', '00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000b1', 'Facebook', 'Post', 'Lanzamiento',
    'Tortas por encargo para el Día de la Madre', 'Tortas para el Día de la Madre', '', '', '', 'Idea', null, 'manual',
-   '00000000-0000-4000-8000-0000000000a2', '00000000-0000-4000-8000-0000000000a2', now() - interval '2 hours', now() - interval '2 hours');
+   '00000000-0000-4000-8000-0000000000a2', '00000000-0000-4000-8000-0000000000a2', now() - interval '2 hours', now() - interval '2 hours'),
+  ('00000000-0000-4000-8000-0000000000c6', '00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000b2', 'Instagram', 'Reel', 'Vender',
+   'Bicis urbanas para ir al trabajo', 'Al trabajo en bici',
+   E'0-3 s · Gancho: semáforo en rojo, autos parados y una bici que pasa por la ciclovía. Texto: "¿Otra vez tarde?".\n3-12 s · Recorrido por el centro de Mendoza en bici urbana.\n12-20 s · Las urbanas del local, con canasto y luces.\n20-25 s · Cierre: "Sacá turno por WhatsApp y probala".',
+   '#rodarbikes #ciclismomendoza', 'Sacá turno por WhatsApp', 'Borrador', current_date + 8, 'plantilla',
+   '00000000-0000-4000-8000-0000000000a2', '00000000-0000-4000-8000-0000000000a2', now() - interval '3 hours', now() - interval '3 hours'),
+  ('00000000-0000-4000-8000-0000000000c7', '00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000b1', 'Instagram', 'Historia', 'Comunidad',
+   'Así arranca el día en el horno', 'Así arranca el día en el horno', '', '', '', 'Idea', current_date + 1, 'manual',
+   '00000000-0000-4000-8000-0000000000a1', '00000000-0000-4000-8000-0000000000a1', now() - interval '1 hour', now() - interval '1 hour');
 
 insert into content_events (workspace_id, content_id, action, note, by_profile, at) values
   ('00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000c1', 'Creada con plantilla', '', '00000000-0000-4000-8000-0000000000a2', now() - interval '6 days'),
@@ -80,4 +88,6 @@ insert into content_events (workspace_id, content_id, action, note, by_profile, 
   ('00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000c3', 'Creada con plantilla', '', '00000000-0000-4000-8000-0000000000a2', now() - interval '1 day'),
   ('00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000c3', 'Mandó a revisión', '', '00000000-0000-4000-8000-0000000000a2', now() - interval '20 hours'),
   ('00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000c4', 'Creada', '', '00000000-0000-4000-8000-0000000000a1', now() - interval '5 hours'),
-  ('00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000c5', 'Creada', '', '00000000-0000-4000-8000-0000000000a2', now() - interval '2 hours');
+  ('00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000c5', 'Creada', '', '00000000-0000-4000-8000-0000000000a2', now() - interval '2 hours'),
+  ('00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000c6', 'Creada con plantilla', '', '00000000-0000-4000-8000-0000000000a2', now() - interval '3 hours'),
+  ('00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000c7', 'Creada', '', '00000000-0000-4000-8000-0000000000a1', now() - interval '1 hour');
