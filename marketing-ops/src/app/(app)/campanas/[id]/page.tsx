@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge, Notice } from "@/components/ui";
-import { briefText, buildBrief, campaignStatus, progress, statusTone } from "@/lib/campaigns";
-import { getBrand, getCampaign, listContents } from "@/lib/data";
+import { briefText, buildBrief, campaignStatus, fmtARS, progress, statusTone } from "@/lib/campaigns";
+import { getBrand, getCampaign, listContents, listResults } from "@/lib/data";
+import { fmtInt, fmtPct, rates, sum } from "@/lib/metrics";
 import { fmtDate, fmtDateTime, localDay } from "@/lib/dates";
 import { requireSection } from "@/lib/guard";
 import { createClient } from "@/lib/supabase/server";
@@ -19,10 +20,11 @@ export default async function CampanaPage({ params, searchParams }: { params: Pr
   const c = await getCampaign(id);
   if (!c) notFound();
   const supabase = await createClient();
-  const [brand, contents, { data: events }] = await Promise.all([
+  const [brand, contents, { data: events }, results] = await Promise.all([
     getBrand(c.brand_id),
     listContents(),
     supabase.from("campaign_events").select("id, action, at, profiles(name)").eq("campaign_id", id).order("at", { ascending: false }).limit(20),
+    listResults(),
   ]);
   if (!brand) notFound();
   const today = localDay();
@@ -32,6 +34,10 @@ export default async function CampanaPage({ params, searchParams }: { params: Pr
   const brief = buildBrief(c, brand, pieces);
   const pr = progress(pieces);
   const generateHref = `/generar?campana=${c.id}`;
+  const published = pieces.filter((p) => p.status === "Publicado");
+  const withResults = published.filter((p) => results.has(p.id));
+  const totals = sum(withResults.map((p) => results.get(p.id)!));
+  const tr = rates(totals);
 
   return (
     <>
@@ -63,6 +69,25 @@ export default async function CampanaPage({ params, searchParams }: { params: Pr
             pieces={pieces.map((p) => ({ id: p.id, title: p.title || p.topic || "Sin título", channel: p.channel, format: p.format, status: p.status, publish_on: p.publish_on }))}
             candidates={candidates.map((p) => ({ id: p.id, title: p.title || p.topic || "Sin título", status: p.status, other: Boolean(p.campaign_id) }))}
           />
+          {published.length > 0 && (
+            <div className="card" data-testid="camp-results">
+              <h2 className="card-title">Resultados</h2>
+              {!withResults.length ? <p className="muted" style={{ margin: 0 }}>Hay {published.length} {published.length === 1 ? "pieza publicada" : "piezas publicadas"} sin resultados. Cargalos desde cada pieza.</p> : (
+                <>
+                  <div className="facts" style={{ margin: 0 }}>
+                    <span>Personas alcanzadas</span><b>{fmtInt(totals.reach)}</b>
+                    <span>Interacción</span><b>{fmtPct(tr.engagement)}</b>
+                    <span>Consultas</span><b data-testid="camp-inquiries">{fmtInt(totals.inquiries)}</b>
+                    <span>Ventas</span><b>{fmtInt(totals.sales)}</b>
+                    <span>Invertido en pauta</span><b>{fmtARS(totals.spend)}{c.budget > 0 ? ` de ${fmtARS(c.budget)}` : ""}</b>
+                    <span>Por consulta</span><b>{tr.cpi ? fmtARS(tr.cpi) : "-"}</b>
+                  </div>
+                  {c.budget > 0 && <div className="bar" style={{ marginTop: 12 }} title="Presupuesto usado"><i style={{ width: `${Math.min(100, Math.round((totals.spend / c.budget) * 100))}%` }} /></div>}
+                  <p className="hint" style={{ margin: "8px 0 0" }}>{withResults.length} de {published.length} piezas publicadas con resultados. <Link href={`/metricas?marca=${c.brand_id}`} style={{ color: "var(--accent)" }}>Ver métricas</Link></p>
+                </>
+              )}
+            </div>
+          )}
           <CampaignForm campaign={c} brands={[]} canEdit={perms.create} today={today} />
           <div className="card">
             <h2 className="card-title">Historial</h2>

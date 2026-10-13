@@ -26,13 +26,12 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { id: "contenidos", label: "Contenidos", icon: "contenidos", roles: ROLES },
   { id: "calendario", label: "Calendario", icon: "calendario", roles: ROLES },
   { id: "campanas", label: "Campañas", icon: "campanas", roles: ROLES },
+  { id: "metricas", label: "Métricas", icon: "metricas", roles: ROLES },
   { id: "marca", label: "Marcas", icon: "marca", roles: ROLES },
 ];
 
 // Lo que viene en las próximas etapas. Se muestra atenuado para que el cliente vea hacia dónde va.
-export const NEXT_ITEMS: readonly { label: string; icon: string }[] = [
-  { label: "Métricas", icon: "metricas" },
-];
+export const NEXT_ITEMS: readonly { label: string; icon: string }[] = [];
 
 export function navFor(role: Role): NavItem[] {
   return NAV_ITEMS.filter((item) => item.roles.includes(role));

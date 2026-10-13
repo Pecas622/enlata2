@@ -10,6 +10,7 @@ import { STATUSES, actionsFor, canEdit, statusTone } from "@/lib/workflow";
 import { CampaignPicker } from "./CampaignPicker";
 import { ContentEditor } from "./ContentEditor";
 import { Preview } from "./Preview";
+import { ResultsForm } from "./ResultsForm";
 import { StatusActions } from "./StatusActions";
 
 type Event = { id: string; action: string; note: string; at: string; profiles: { name: string } | null };
@@ -19,10 +20,11 @@ export default async function ContenidoPage({ params, searchParams }: { params: 
   const { nueva } = await searchParams;
   const { user } = await requireSection("contenidos");
   const supabase = await createClient();
-  const [{ data }, { data: events }, campaigns] = await Promise.all([
+  const [{ data }, { data: events }, campaigns, { data: res }] = await Promise.all([
     supabase.from("contents").select(CONTENT_COLS + ", brand:brands(words_avoid, instagram)").eq("id", id).maybeSingle(),
     supabase.from("content_events").select("id, action, note, at, profiles(name)").eq("content_id", id).order("at", { ascending: false }),
     listCampaigns(),
+    supabase.from("content_results").select("reach, interactions, clicks, inquiries, sales, spend, notes").eq("content_id", id).maybeSingle(),
   ]);
   if (!data) notFound();
   const c = data as unknown as ContentRow & { brand: { words_avoid: string; instagram: string } | null };
@@ -79,6 +81,14 @@ export default async function ContenidoPage({ params, searchParams }: { params: 
               <p className="muted" style={{ margin: 0 }}>Es una idea{c.publish_on ? ` para el ${fmtDate(c.publish_on)}` : ""}. El generador te da 3 versiones con los datos de la marca y la que elijas queda en esta pieza.</p>
               <div><Link className="btn btn-primary" href={`/generar?idea=${c.id}`} data-testid="idea-generate">Escribir con el generador</Link></div>
             </div>
+          )}
+          {c.status === "Publicado" && (
+            <ResultsForm
+              contentId={c.id}
+              initial={res ? { reach: res.reach, interactions: res.interactions, clicks: res.clicks, inquiries: res.inquiries, sales: res.sales, spend: Number(res.spend) } : null}
+              notes={res?.notes ?? ""}
+              canEdit={user.role !== "Revisor"}
+            />
           )}
           {actions.length > 0 && (
             <div className="card stack">

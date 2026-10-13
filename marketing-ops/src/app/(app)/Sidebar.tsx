@@ -42,7 +42,7 @@ export function Shell({ nav, workspaceName, footer, children }: { nav: NavItem[]
             {item.label}
           </Link>
         ))}
-        <div className="nav-group">Próximas etapas</div>
+        {NEXT_ITEMS.length > 0 && <div className="nav-group">Próximas etapas</div>}
         {NEXT_ITEMS.map((item) => (
           <div key={item.label} className="nav-next" aria-disabled>
             <NavIcon name={item.icon} />

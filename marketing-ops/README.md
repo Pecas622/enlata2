@@ -16,7 +16,7 @@ Stack: Next.js (App Router) + TypeScript, Supabase (Postgres, Auth, RLS), Vercel
 | 1 | Contenidos y aprobación | Biblioteca con filtros, edición, vista previa tipo celular, circuito Idea → Borrador → En revisión → Aprobado → Publicado con historial y pedido de cambios | Hecho |
 | 2 | Calendario | Mes con las piezas por día, marca, red y estado; arrastrar para reprogramar (una aprobada sigue aprobada); semanas flojas marcadas; fechas comerciales de Argentina; plan del mes que sugiere ideas con fecha y se escriben con el generador en la misma pieza. En el celular se ve como agenda | Hecho |
 | 3 | Campañas | Objetivo, fechas, presupuesto en pesos y público; agrupa piezas de la marca (sumar existentes o generar desde la campaña) con su avance; brief para Meta Ads con objetivo sugerido según vendas por web o por WhatsApp, presupuesto por día, segmentación, ubicaciones según los formatos y los textos de los anuncios, para copiar | Hecho |
-| 4 | Métricas | Carga (o conexión con Meta) de alcance, interacciones, consultas y costo por consulta; qué piezas funcionaron mejor | |
+| 4 | Métricas | Carga de resultados en cada pieza publicada (alcance, interacciones, clics, consultas, ventas e inversión); tablero por período y marca con la comparación contra el período anterior, desglose por formato y por red, resultados por campaña con costo por consulta; análisis de qué funcionó, qué no y qué repetir el mes que viene, por reglas o con IA (que no puede usar números que no estén en los datos) | Hecho |
 | 5 | Publicación y equipo | Publicar en Instagram y Facebook desde la app, usuarios por espacio de trabajo, portal del cliente para agencias | |
 
 ## Correr en tu máquina
