@@ -35,6 +35,9 @@
   .brand-name small{ font-weight:700; color:var(--indigo); font-size:15px; margin-left:6px; }
   .nav-links{ display:flex; gap:28px; font-size:14px; font-weight:500; color:var(--gray); }
   .nav-links a:hover{ color:var(--off-white); }
+  .nav-cta{ display:flex; align-items:center; gap:16px; }
+  .nav-login{ font-size:14px; font-weight:600; color:var(--gray); }
+  .nav-login:hover{ color:var(--off-white); }
   @media (max-width:760px){ .nav-links{ display:none; } }
 
   .btn{ display:inline-flex; align-items:center; justify-content:center; gap:6px; font-family:'Inter'; font-weight:700; font-size:14px; cursor:pointer; border-radius:8px; padding:11px 20px; border:none; transition:opacity .15s; }
@@ -138,7 +141,10 @@
       <a href="#precio">Precio</a>
       <a href="#preguntas">Preguntas</a>
     </div>
-    <a class="btn btn-primary btn-sm" data-contacto href="#precio">Quiero probarlo</a>
+    <div class="nav-cta">
+      <a class="nav-login" href="https://marketing-ops-seven.vercel.app/login">Ingresar</a>
+      <a class="btn btn-primary btn-sm" data-contacto href="#precio">Quiero probarlo</a>
+    </div>
   </nav>
 </header>
 
@@ -313,7 +319,7 @@
 <footer>
   <div class="container footer-row">
     <div>Enlata2 Marketing es un producto de <a href="/"><b>Enlata2</b></a>. Software que ya viene listo.</div>
-    <div><a href="/">Ver todos los productos</a></div>
+    <div><a href="https://marketing-ops-seven.vercel.app/login">Ingresar</a> · <a href="/">Ver todos los productos</a></div>
   </div>
 </footer>
 
