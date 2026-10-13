@@ -57,8 +57,14 @@ test("la encargada oculta un equipo y pausa el catálogo", async ({ page, contex
   const visible = await page.getByTestId("cat-visible").innerText();
   const first = page.getByTestId("cat-device-row").first();
   const name = (await first.locator("b").innerText()).trim();
-  await first.locator('[data-testid^="vis-"]').click();
-  await expect(first.locator('[data-testid^="vis-"]')).toHaveAttribute("aria-checked", "false");
+  const vis = first.locator('[data-testid^="vis-"]');
+  // Si el clic llega antes de que la página hidrate, no hace nada: se reintenta hasta que el switch cambie.
+  await expect(async () => {
+    await vis.click();
+    await expect(vis).toHaveAttribute("aria-checked", "false", { timeout: 1000 });
+  }).toPass();
+  // El switch queda deshabilitado mientras se guarda: recargar antes cortaría el guardado.
+  await expect(vis).toBeEnabled();
   await page.reload();
   await expect(page.getByTestId("cat-visible")).not.toHaveText(visible);
 
@@ -69,6 +75,7 @@ test("la encargada oculta un equipo y pausa el catálogo", async ({ page, contex
 
   await page.getByTestId("cat-device-row").first().locator('[data-testid^="vis-"]').click();
   await expect(page.getByTestId("cat-device-row").first().locator('[data-testid^="vis-"]')).toHaveAttribute("aria-checked", "true");
+  await expect(page.getByTestId("cat-device-row").first().locator('[data-testid^="vis-"]')).toBeEnabled();
 
   await page.getByTestId("cat-published").uncheck();
   await page.getByTestId("cat-save").click();
