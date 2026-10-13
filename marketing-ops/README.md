@@ -1,0 +1,81 @@
+# MARKETING OPS
+
+Vive en la carpeta `marketing-ops/` del repo enlata2, separada del sitio de demos y de APPLE OPS.
+
+Herramienta de marketing para empresas, emprendimientos y agencias: cada negocio carga su marca una vez (qué vende, a quién le habla, por qué lo eligen, cómo habla) y desde ahí genera piezas para cada red, las pasa por aprobación y las deja listas para publicar. Las reglas del proyecto están en `CLAUDE.md`.
+
+Stack: Next.js (App Router) + TypeScript, Supabase (Postgres, Auth, RLS), Vercel. Tests con Vitest y Playwright.
+
+## Módulos y etapas
+
+| Etapa | Módulo | Qué hace | Estado |
+| --- | --- | --- | --- |
+| 1 | Base | Login, espacio de trabajo con varias marcas, roles Administrador, Creador y Revisor | Hecho |
+| 1 | Marca y negocio | Rubro, ciudad, qué hace, productos, público, por qué la eligen, tono, palabras prohibidas, llamado a la acción, hashtags, redes, color | Hecho |
+| 1 | Generador de piezas | Post, carrusel, guion de Reel o TikTok, historia, anuncio de Meta, mensaje de WhatsApp y email. 3 variantes con ángulos distintos, con IA o con plantillas, chequeadas contra los límites de cada red | Hecho |
+| 1 | Contenidos y aprobación | Biblioteca con filtros, edición, vista previa tipo celular, circuito Idea → Borrador → En revisión → Aprobado → Publicado con historial y pedido de cambios | Hecho |
+| 2 | Calendario | Mes y semana con las piezas por fecha y red, arrastrar para reprogramar, huecos sin contenido, plan mensual generado a partir de la marca y fechas comerciales argentinas | Próxima |
+| 3 | Campañas | Objetivo, presupuesto, fechas y público; agrupa piezas y anuncios; brief para Meta Ads con textos y segmentación sugerida | |
+| 4 | Métricas | Carga (o conexión con Meta) de alcance, interacciones, consultas y costo por consulta; qué piezas funcionaron mejor | |
+| 5 | Publicación y equipo | Publicar en Instagram y Facebook desde la app, usuarios por espacio de trabajo, portal del cliente para agencias | |
+
+## Correr en tu máquina
+
+Necesitás Node 22 y Docker (para Supabase local). Los puertos no chocan con APPLE OPS: la API local está en 55321 y la app en 3100.
+
+```bash
+cd marketing-ops
+npm install
+npx supabase start          # Postgres, Auth y API con migraciones y datos demo
+npx supabase status -o env  # copiá API_URL, ANON_KEY y SERVICE_ROLE_KEY a .env.local
+npm run dev                 # http://localhost:3100
+```
+
+`.env.local`:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:55321
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...   # solo para los tests de base; la app no la usa
+ANTHROPIC_API_KEY=...           # opcional: el generador escribe con Claude (solo servidor)
+NEXT_PUBLIC_PRODUCT_NAME=...    # opcional: nombre del producto (por defecto MARKETING OPS)
+```
+
+### Usuarios demo
+
+Contraseña `demo1234` para todos. El espacio "Estudio Demo" tiene dos marcas (La Espiga, panadería, y Rodar Bikes, bicicletería) y piezas en todos los estados.
+
+| Usuario | Email | Rol |
+| --- | --- | --- |
+| Santiago | santiago@demo.marketing-ops.test | Administrador |
+| Lucía | lucia@demo.marketing-ops.test | Creador |
+| Mati | mati@demo.marketing-ops.test | Revisor |
+
+Para volver a los datos demo: `npm run db:reset`.
+
+## Cómo está armado
+
+- `src/app/(app)/`: pantallas con login. `inicio` (lo que espera aprobación, lo listo para publicar, borradores), `generar`, `contenidos` y `contenidos/[id]` (editor, vista previa, circuito e historial), `marca`.
+- `src/lib/channels.ts`: canales, formatos por canal, límites de cada red y `checkCopy`, que avisa largo, hashtags de más, palabras que la marca evita, falta de llamado a la acción y precios o porcentajes que no estaban en el pedido.
+- `src/lib/generator.ts`: generador por plantillas. Tres ángulos por objetivo y una estructura por formato (placas del carrusel, escenas del Reel con tiempos, campos del anuncio, asunto del email). Emojis solo si el tono es Cercano o Divertido.
+- `src/lib/generator-ai.ts`: el mismo pedido a Claude con salida JSON con esquema. Si falla o tarda más de 40 s, la acción usa las plantillas y lo avisa en pantalla.
+- `src/lib/workflow.ts` y `src/lib/roles.ts`: circuito de aprobación y permisos para la interfaz.
+- `supabase/migrations/`: esquema, RLS y funciones `save_brand`, `save_content`, `set_content_status` y `can_move`.
+
+### Generador con IA
+
+Con `ANTHROPIC_API_KEY` cada "Generar" es una llamada a Claude (`claude-opus-5-5` con esfuerzo bajo), que tiene costo por uso. El modelo recibe la marca y el pedido, y tiene prohibido inventar ofertas; igual, `checkCopy` marca cualquier precio o porcentaje que no esté en lo que escribió la persona.
+
+## Tests
+
+```bash
+npm run lint
+npm run typecheck
+npm test            # lógica pura (src/lib/*.test.ts) y permisos en la base (tests/db/), con Supabase levantado
+npm run build
+npm run test:e2e    # Playwright: generar, guardar, revisión, pedir cambios, aprobar y publicar
+```
+
+## Deploy
+
+Igual que APPLE OPS (ver `../apple-ops/DEPLOY.md`), con otro proyecto de Supabase y otro proyecto de Vercel con Root Directory `marketing-ops`. Variables: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` y, si querés IA, `ANTHROPIC_API_KEY`. El esquema se aplica con `npx supabase db push` desde esta carpeta (nunca el seed).
