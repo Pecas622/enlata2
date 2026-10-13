@@ -90,7 +90,7 @@ export function FiscalCard({ initial, secretOk }: { initial: FiscalInitial; secr
         </label>
         <label className="field" style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
           <input type="checkbox" checked={f.automatica} onChange={(e) => set("automatica", e.target.checked)} data-testid="fiscal-auto" />
-          Facturar cada venta al confirmarla
+          Marcar &quot;Emitir factura&quot; en cada venta nueva
         </label>
       </div>
       <div className="row">

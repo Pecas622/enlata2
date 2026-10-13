@@ -19,6 +19,8 @@ export type SaleInput = {
   notes: string;
   payments: { method: string; amount: number }[];
   tradeIn: (DeviceDraft & { valueStr: string }) | null;
+  // Si quien vende eligió emitir la factura electrónica con esta venta.
+  facturar?: boolean;
   // Datos para la factura; null = consumidor final sin identificar.
   receptor?: Receptor | null;
 };
@@ -54,12 +56,12 @@ export async function registrarVenta(input: SaleInput): Promise<SaleResult> {
     },
   });
   if (error) return { error: error.message };
-  // Con facturación automática, la venta sale con su factura. Si ARCA no responde, la venta queda
+  // Si se eligió emitir factura, la venta sale con ella. Si ARCA no responde, la venta queda
   // registrada igual y la factura se reintenta desde el detalle.
   const user = await getCurrentUser();
-  if (hasModule(user.modules, "facturacion")) {
+  if (input.facturar && hasModule(user.modules, "facturacion")) {
     const { fiscal, creds } = await loadFiscal(user.storeId);
-    if (fiscalListo(fiscal, creds) && fiscal.automatica) {
+    if (fiscalListo(fiscal, creds)) {
       await facturarVenta({ storeId: user.storeId, saleId: data.sale_id, userId: user.id, receptor: input.receptor ?? null });
     }
   }
@@ -67,8 +69,8 @@ export async function registrarVenta(input: SaleInput): Promise<SaleResult> {
   return { saleId: data.sale_id, number: data.number };
 }
 
-// Factura una venta desde su detalle: la primera vez si la facturación no es automática, o para
-// reintentar si ARCA no respondió o rechazó la factura.
+// Factura una venta desde su detalle: si no se facturó al venderla, o para reintentar si ARCA no
+// respondió o rechazó la factura.
 export async function facturar(saleId: string, receptor: Receptor | null): Promise<{ error?: string }> {
   const user = await getCurrentUser();
   if (!hasModule(user.modules, "facturacion")) return { error: "El local no tiene el módulo de facturación." };

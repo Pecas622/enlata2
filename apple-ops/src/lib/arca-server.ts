@@ -245,8 +245,9 @@ export async function notaDeCredito(p: { storeId: string; saleId: string; userId
   return emitir({ ...fiscal, puntoVenta: factura.punto_venta, ambiente: factura.ambiente }, creds!, inv, p.userId, factura);
 }
 
-// Para la pantalla de venta: si cada venta sale facturada, con qué condición factura el local.
-export async function facturacionAutomatica(storeId: string): Promise<{ emisor: CondicionEmisor } | null> {
+// Para la pantalla de venta: si el local puede facturar, con qué condición factura y si la opción
+// "Emitir factura" arranca marcada.
+export async function facturacionDisponible(storeId: string): Promise<{ emisor: CondicionEmisor; porDefecto: boolean } | null> {
   const { fiscal, creds } = await loadFiscal(storeId);
-  return fiscalListo(fiscal, creds) && fiscal.automatica ? { emisor: fiscal.condicionIva } : null;
+  return fiscalListo(fiscal, creds) ? { emisor: fiscal.condicionIva, porDefecto: fiscal.automatica } : null;
 }

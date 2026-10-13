@@ -30,8 +30,9 @@ type Props = {
   canTradeIn: boolean;
   startWithTradeIn?: boolean;
   requireImei?: boolean;
-  // Con facturación automática, la venta pide los datos del cliente para la factura.
-  invoicing?: { emisor: CondicionEmisor } | null;
+  // Si el local puede facturar: se elige en cada venta si sale con factura electrónica, y en ese
+  // caso se piden los datos del cliente para la factura. porDefecto viene de Configuración.
+  invoicing?: { emisor: CondicionEmisor; porDefecto: boolean } | null;
 };
 
 const firstPayment = (): Payment[] => [{ method: "Efectivo USD", amount: "" }];
@@ -56,6 +57,7 @@ export function SaleBuilder({ cfg, devices, accessories, clients, sellers, shift
   const [freeDesc, setFreeDesc] = useState("");
   const [freePrice, setFreePrice] = useState("");
   const [serverError, setServerError] = useState<string | null>(null);
+  const [invoice, setInvoice] = useState(invoicing?.porDefecto ?? false);
   const [recCond, setRecCond] = useState<CondicionReceptor>(5);
   const [recDoc, setRecDoc] = useState("");
   const [recName, setRecName] = useState("");
@@ -79,7 +81,8 @@ export function SaleBuilder({ cfg, devices, accessories, clients, sellers, shift
   const problems = saleProblems({ shiftOpen, lines, discountPct, maxDiscount: cfg.maxDiscountSeller, editPrice: perms.editPrice, tradeIn: ti, due, paid, seller });
   const selectedClient = clients.find((c) => c.id === clientId);
   const receptor = { condicion: recCond, doc: recDoc, nombre: recName || (recCond === 5 ? "" : selectedClient?.name ?? clientName) };
-  const invoiceProblem = invoicing ? receptorError(invoicing.emisor, receptor) : null;
+  const withInvoice = Boolean(invoicing && invoice);
+  const invoiceProblem = invoicing && withInvoice ? receptorError(invoicing.emisor, receptor) : null;
   if (invoiceProblem) problems.push(invoiceProblem);
   const canConfirm = problems.length === 0 && !pending;
 
@@ -125,7 +128,8 @@ export function SaleBuilder({ cfg, devices, accessories, clients, sellers, shift
         clientName: clientId ? "" : clientName, clientPhone: clientId ? "" : clientPhone, notes,
         payments: payments.map((p) => ({ method: p.method, amount: Number(p.amount) || 0 })),
         tradeIn: useTI ? { ...draft, valueStr: tiValue } : null,
-        receptor: invoicing ? { ...receptor, nombre: receptor.nombre || (selectedClient?.name ?? clientName) } : null,
+        facturar: withInvoice,
+        receptor: withInvoice ? { ...receptor, nombre: receptor.nombre || (selectedClient?.name ?? clientName) } : null,
       });
       if (res.error) return setServerError(res.error);
       router.push(`/ventas/${res.saleId}?nueva=1`);
@@ -225,6 +229,11 @@ export function SaleBuilder({ cfg, devices, accessories, clients, sellers, shift
             </div>
           )}
           {invoicing && (
+            <label className="check" style={{ marginTop: 12, fontWeight: 600, color: invoice ? "var(--accent)" : undefined }}>
+              <input type="checkbox" checked={invoice} onChange={(e) => setInvoice(e.target.checked)} data-testid="pos-emit-invoice" />Emitir factura electrónica (ARCA)
+            </label>
+          )}
+          {invoicing && invoice && (
             <div className="row" style={{ marginTop: 10 }} data-testid="pos-invoice">
               <label className="field">
                 Factura {letraFor(invoicing.emisor, recCond)}

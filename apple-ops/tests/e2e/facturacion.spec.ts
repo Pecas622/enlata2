@@ -135,3 +135,19 @@ test("si ARCA no responde, la venta queda registrada y el reintento confirma la 
   const comps = await (await fetch(`${ARCA}/comprobantes`)).json() as { pv: string; tipo: string }[];
   expect(comps.filter((c) => c.pv === String(PV) && c.tipo === "6")).toHaveLength(2);
 });
+
+test("se puede vender sin factura y facturarla después desde el detalle", async ({ page }) => {
+  await login(page, "Santiago");
+  await venderAccesorio(page);
+  await expect(page.getByTestId("pos-emit-invoice")).toBeChecked();
+  await page.getByTestId("pos-emit-invoice").uncheck();
+  await expect(page.getByTestId("pos-invoice")).toHaveCount(0);
+  await page.getByTestId("pos-confirm").click();
+  await expect(page).toHaveURL(/\/ventas\/[0-9a-f-]+\?nueva=1$/);
+  await expect(page.getByTestId("invoice-row")).toHaveCount(0);
+  await expect(page.getByTestId("receipt")).toContainText("sin validez fiscal");
+
+  await page.getByTestId("invoice-create").click();
+  await expect(page.getByTestId("invoice-row")).toContainText("Emitida");
+  await expect(page.getByTestId("invoice-row")).toContainText(`Factura B ${String(PV).padStart(5, "0")}-00000003`);
+});
