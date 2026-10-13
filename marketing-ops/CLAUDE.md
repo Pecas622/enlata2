@@ -24,4 +24,4 @@ El de APPLE OPS (fondo claro, fuente del sistema, tarjetas redondeadas) con acen
 ## Forma de trabajar
 - Por etapas; cada etapa se prueba antes de seguir. Las PRs se nombran `marketing-ops/etapa-N-...`.
 - Lógica en funciones puras con su `*.test.ts` al lado; permisos probados contra la base en `tests/db/`.
-- Migración nueva por cambio, con fecha en el nombre; nunca edites una aplicada.
+- Migración nueva por cambio, con fecha en el nombre; nunca edites una aplicada. Después regenerá `supabase/produccion/base.sql` con `npm run db:produccion` y sumala a la tabla de `supabase/produccion/README.md`.

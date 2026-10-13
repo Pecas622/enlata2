@@ -64,6 +64,10 @@ Para volver a los datos demo: `npm run db:reset`.
 - `src/lib/workflow.ts` y `src/lib/roles.ts`: circuito de aprobación y permisos para la interfaz.
 - `supabase/migrations/`: esquema, RLS y funciones `save_brand`, `save_content`, `set_content_status`, `can_move`, `schedule_content` (reprogramar sin tocar el estado) `add_plan_ideas` (todas las ideas del plan en una transacción), `save_campaign` y `set_content_campaign`.
 
+### Base de datos
+
+Tablas, funciones, permisos y cómo armar la base en un Supabase nuevo (SQL para pegar y primer usuario): [supabase/produccion/README.md](supabase/produccion/README.md).
+
 ### Generador con IA
 
 Con `ANTHROPIC_API_KEY` cada "Generar" es una llamada a Claude (`claude-opus-5-5` con esfuerzo bajo), que tiene costo por uso. El modelo recibe la marca y el pedido, y tiene prohibido inventar ofertas; igual, `checkCopy` marca cualquier precio o porcentaje que no esté en lo que escribió la persona.
