@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/ui";
-import { listBrands } from "@/lib/data";
+import { getCampaign, listBrands } from "@/lib/data";
 import { createClient } from "@/lib/supabase/server";
 import { requireSection } from "@/lib/guard";
-import { GenerateForm, type IdeaInit } from "./GenerateForm";
+import { FORMATS, type Format } from "@/lib/channels";
+import { GenerateForm, type CampaignInit, type IdeaInit } from "./GenerateForm";
 
-export default async function GenerarPage({ searchParams }: { searchParams: Promise<{ marca?: string; idea?: string }> }) {
+export default async function GenerarPage({ searchParams }: { searchParams: Promise<{ marca?: string; idea?: string; campana?: string; formato?: string }> }) {
   const { perms } = await requireSection("generar");
-  const { marca, idea: ideaId } = await searchParams;
+  const { marca, idea: ideaId, campana, formato } = await searchParams;
   const brands = await listBrands();
   let idea: IdeaInit | undefined;
   if (ideaId) {
@@ -17,6 +18,12 @@ export default async function GenerarPage({ searchParams }: { searchParams: Prom
       idea = { id: data.id, title: data.title || data.topic, brandId: data.brand_id, channel: data.channel, format: data.format, goal: data.goal, topic: data.topic };
     }
   }
+  let campaign: CampaignInit | undefined;
+  if (campana && !idea) {
+    const c = await getCampaign(campana);
+    if (c) campaign = { id: c.id, name: c.name, brandId: c.brand_id, goal: c.goal, offer: c.offer };
+  }
+  const initialFormat = (FORMATS as readonly string[]).includes(formato ?? "") ? (formato as Format) : undefined;
   return (
     <>
       <PageHeader title="Generar contenido" subtitle="Elegí la marca, la red y qué querés lograr. Te damos 3 versiones para elegir y editar." />
@@ -26,7 +33,7 @@ export default async function GenerarPage({ searchParams }: { searchParams: Prom
           {perms.editBrand && <div style={{ marginTop: 12 }}><Link className="btn btn-primary" href="/marca/nueva">Cargar marca</Link></div>}
         </div>
       ) : (
-        <GenerateForm brands={brands.map((b) => ({ id: b.id, name: b.name, color: b.color }))} initialBrand={marca} idea={idea} aiEnabled={Boolean(process.env.ANTHROPIC_API_KEY)} />
+        <GenerateForm brands={brands.map((b) => ({ id: b.id, name: b.name, color: b.color }))} initialBrand={marca} idea={idea} campaign={campaign} initialFormat={initialFormat} aiEnabled={Boolean(process.env.ANTHROPIC_API_KEY)} />
       )}
     </>
   );

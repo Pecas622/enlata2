@@ -2,11 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge, Notice } from "@/components/ui";
 import { formatLabel } from "@/lib/channels";
-import { CONTENT_COLS, type ContentRow } from "@/lib/data";
+import { CONTENT_COLS, listCampaigns, type ContentRow } from "@/lib/data";
 import { fmtDate, fmtDateTime } from "@/lib/dates";
 import { requireSection } from "@/lib/guard";
 import { createClient } from "@/lib/supabase/server";
 import { STATUSES, actionsFor, canEdit, statusTone } from "@/lib/workflow";
+import { CampaignPicker } from "./CampaignPicker";
 import { ContentEditor } from "./ContentEditor";
 import { Preview } from "./Preview";
 import { StatusActions } from "./StatusActions";
@@ -18,9 +19,10 @@ export default async function ContenidoPage({ params, searchParams }: { params: 
   const { nueva } = await searchParams;
   const { user } = await requireSection("contenidos");
   const supabase = await createClient();
-  const [{ data }, { data: events }] = await Promise.all([
+  const [{ data }, { data: events }, campaigns] = await Promise.all([
     supabase.from("contents").select(CONTENT_COLS + ", brand:brands(words_avoid, instagram)").eq("id", id).maybeSingle(),
     supabase.from("content_events").select("id, action, note, at, profiles(name)").eq("content_id", id).order("at", { ascending: false }),
+    listCampaigns(),
   ]);
   if (!data) notFound();
   const c = data as unknown as ContentRow & { brand: { words_avoid: string; instagram: string } | null };
@@ -82,6 +84,17 @@ export default async function ContenidoPage({ params, searchParams }: { params: 
             <div className="card stack">
               <h2 className="card-title">Siguiente paso</h2>
               <StatusActions id={c.id} actions={actions} />
+            </div>
+          )}
+          {(campaigns.some((x) => x.brand_id === c.brand_id) || c.campaign_id) && (
+            <div className="card">
+              <h2 className="card-title">Campaña</h2>
+              <CampaignPicker
+                contentId={c.id}
+                current={c.campaign_id}
+                options={campaigns.filter((x) => x.brand_id === c.brand_id).map((x) => ({ id: x.id, name: x.name }))}
+                canEdit={user.role !== "Revisor"}
+              />
             </div>
           )}
           <div className="card stack">

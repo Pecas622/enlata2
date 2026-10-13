@@ -227,3 +227,24 @@ a { color: inherit; text-decoration: none; }
 }
 .cal-legend span { display: inline-flex; align-items: center; gap: 5px; }
 .legend-swatch.idea { display: inline-block; width: 14px; height: 10px; border-radius: 3px; background: repeating-linear-gradient(135deg, #E5E5EA, #E5E5EA 3px, #F5F5F7 3px, #F5F5F7 6px); }
+
+/* Campañas */
+.camp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+.camp-card { display: flex; flex-direction: column; gap: 10px; transition: box-shadow .15s; }
+.camp-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.07); }
+.camp-card h3 { margin: 0; font-size: 18px; }
+.bar { height: 6px; border-radius: 6px; background: #E8E8ED; overflow: hidden; margin-bottom: 4px; }
+.bar i { display: block; height: 100%; background: var(--accent); border-radius: 6px; }
+.camp-piece { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 10px; background: var(--bg); }
+.camp-piece a { display: flex; flex-direction: column; min-width: 0; font-size: 13px; }
+.camp-piece b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.camp-piece small { color: var(--gray); font-size: 11.5px; }
+.brief-block { border-top: 1px solid #EDEDF0; padding-top: 12px; }
+.brief-block h3 { margin: 0 0 8px; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; color: var(--gray); }
+.ad-mock { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; background: #fff; }
+.ad-mock p { margin: 0; padding: 10px 12px; font-size: 13px; line-height: 1.45; }
+.ad-mock .warn { padding: 0 12px 10px 28px; }
+.ad-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg); border-top: 1px solid #EDEDF0; }
+.ad-foot div { display: flex; flex-direction: column; min-width: 0; font-size: 13px; }
+.ad-foot small { color: var(--gray); font-size: 11.5px; }
+.ad-btn { flex: none; padding: 6px 12px; border-radius: 8px; background: #E4E6EB; font-size: 12.5px; font-weight: 600; }

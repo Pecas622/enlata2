@@ -15,7 +15,7 @@ Stack: Next.js (App Router) + TypeScript, Supabase (Postgres, Auth, RLS), Vercel
 | 1 | Generador de piezas | Post, carrusel, guion de Reel o TikTok, historia, anuncio de Meta, mensaje de WhatsApp y email. 3 variantes con ángulos distintos, con IA o con plantillas, chequeadas contra los límites de cada red | Hecho |
 | 1 | Contenidos y aprobación | Biblioteca con filtros, edición, vista previa tipo celular, circuito Idea → Borrador → En revisión → Aprobado → Publicado con historial y pedido de cambios | Hecho |
 | 2 | Calendario | Mes con las piezas por día, marca, red y estado; arrastrar para reprogramar (una aprobada sigue aprobada); semanas flojas marcadas; fechas comerciales de Argentina; plan del mes que sugiere ideas con fecha y se escriben con el generador en la misma pieza. En el celular se ve como agenda | Hecho |
-| 3 | Campañas | Objetivo, presupuesto, fechas y público; agrupa piezas y anuncios; brief para Meta Ads con textos y segmentación sugerida | |
+| 3 | Campañas | Objetivo, fechas, presupuesto en pesos y público; agrupa piezas de la marca (sumar existentes o generar desde la campaña) con su avance; brief para Meta Ads con objetivo sugerido según vendas por web o por WhatsApp, presupuesto por día, segmentación, ubicaciones según los formatos y los textos de los anuncios, para copiar | Hecho |
 | 4 | Métricas | Carga (o conexión con Meta) de alcance, interacciones, consultas y costo por consulta; qué piezas funcionaron mejor | |
 | 5 | Publicación y equipo | Publicar en Instagram y Facebook desde la app, usuarios por espacio de trabajo, portal del cliente para agencias | |
 
@@ -55,13 +55,14 @@ Para volver a los datos demo: `npm run db:reset`.
 
 ## Cómo está armado
 
-- `src/app/(app)/`: pantallas con login. `inicio` (lo que espera aprobación, lo listo para publicar, borradores), `generar`, `contenidos` y `contenidos/[id]` (editor, vista previa, circuito e historial), `calendario` y `calendario/plan`, `marca`.
+- `src/app/(app)/`: pantallas con login. `inicio` (lo que espera aprobación, lo listo para publicar, borradores), `generar`, `contenidos` y `contenidos/[id]` (editor, vista previa, circuito e historial), `calendario` y `calendario/plan`, `campanas` (lista, alta y detalle con piezas y brief), `marca`.
 - `src/lib/channels.ts`: canales, formatos por canal, límites de cada red y `checkCopy`, que avisa largo, hashtags de más, palabras que la marca evita, falta de llamado a la acción y precios o porcentajes que no estaban en el pedido.
 - `src/lib/generator.ts`: generador por plantillas. Tres ángulos por objetivo y una estructura por formato (placas del carrusel, escenas del Reel con tiempos, campos del anuncio, asunto del email). Emojis solo si el tono es Cercano o Divertido.
 - `src/lib/generator-ai.ts`: el mismo pedido a Claude con salida JSON con esquema. Si falla o tarda más de 40 s, la acción usa las plantillas y lo avisa en pantalla.
 - `src/lib/calendar.ts`: grilla del mes, fechas comerciales argentinas (las móviles calculadas: Día de la Madre, del Padre, de las Infancias, Pascuas, Carnaval, Black Friday), semanas flojas y `suggestPlan`, que arma el plan del mes sin pisar días ocupados ni repetir una fecha que ya tiene pieza.
+- `src/lib/campaigns.ts`: estado por fechas, presupuesto por día, avance y `buildBrief`, que arma el brief para Meta Ads. Usa los anuncios escritos de la campaña y, si no hay, propone textos con las plantillas; lo que sale de la marca y no de la campaña (ubicación, intereses) se marca como sugerido.
 - `src/lib/workflow.ts` y `src/lib/roles.ts`: circuito de aprobación y permisos para la interfaz.
-- `supabase/migrations/`: esquema, RLS y funciones `save_brand`, `save_content`, `set_content_status`, `can_move`, `schedule_content` (reprogramar sin tocar el estado) y `add_plan_ideas` (todas las ideas del plan en una transacción).
+- `supabase/migrations/`: esquema, RLS y funciones `save_brand`, `save_content`, `set_content_status`, `can_move`, `schedule_content` (reprogramar sin tocar el estado) `add_plan_ideas` (todas las ideas del plan en una transacción), `save_campaign` y `set_content_campaign`.
 
 ### Generador con IA
 

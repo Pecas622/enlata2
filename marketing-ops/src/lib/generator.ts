@@ -222,7 +222,9 @@ function buildBody(brand: BrandCtx, req: GenRequest, hook: Hook, i: number): { t
       };
     }
     case "Anuncio": {
-      const primary = trimTo([hookLine, mid[0]].filter(Boolean).join(" "), AD_PRIMARY_MAX);
+      // El texto principal es corto: si hay una oferta, va ella antes que la propuesta de valor (en Promoción ya está en el gancho).
+      const second = c.offer && req.goal !== "Promoción" ? sentence(c.offer) : mid[0];
+      const primary = trimTo([hookLine, second].filter(Boolean).join(" "), AD_PRIMARY_MAX);
       const adTitle = trimTo(c.offer && req.goal === "Promoción" ? cap(c.offer) : c.topic, AD_TITLE_MAX);
       return {
         title,

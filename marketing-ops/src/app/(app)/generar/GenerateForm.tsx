@@ -9,20 +9,27 @@ type BrandOpt = { id: string; name: string; color: string };
 
 export type IdeaInit = { id: string; title: string; brandId: string; channel: Channel; format: Format; goal: string; topic: string };
 
-export function GenerateForm({ brands, initialBrand, idea, aiEnabled }: { brands: BrandOpt[]; initialBrand?: string; idea?: IdeaInit; aiEnabled: boolean }) {
+export type CampaignInit = { id: string; name: string; brandId: string; goal: string; offer: string };
+
+export function GenerateForm({ brands, initialBrand, initialFormat, idea, campaign, aiEnabled }: {
+  brands: BrandOpt[]; initialBrand?: string; initialFormat?: Format; idea?: IdeaInit; campaign?: CampaignInit; aiEnabled: boolean;
+}) {
   const [input, setInput] = useState<GenInput>({
-    brandId: idea?.brandId ?? (initialBrand && brands.some((b) => b.id === initialBrand) ? initialBrand : brands[0]?.id ?? ""),
+    brandId: idea?.brandId ?? campaign?.brandId ?? (initialBrand && brands.some((b) => b.id === initialBrand) ? initialBrand : brands[0]?.id ?? ""),
     channel: idea?.channel ?? "Instagram",
-    format: idea?.format ?? "Post",
-    goal: idea?.goal ?? "Vender",
-    topic: idea?.topic ?? "",
-    offer: "",
+    format: idea?.format ?? initialFormat ?? "Post",
+    goal: idea?.goal ?? campaign?.goal ?? "Vender",
+    topic: idea?.topic ?? campaign?.name ?? "",
+    offer: campaign?.offer ?? "",
     extra: "",
     seed: 0,
     ideaId: idea?.id,
+    campaignId: campaign?.id,
   });
   // Si se escribe una idea del calendario, la marca, la red y el formato quedan fijos: son los de la idea.
   const locked = Boolean(idea);
+  // En una campaña, la marca es la de la campaña.
+  const brandLocked = locked || Boolean(campaign);
   const [result, setResult] = useState<GenResult | null>(null);
   const [saving, setSaving] = useState<number | null>(null);
   const [saveError, setSaveError] = useState("");
@@ -54,11 +61,12 @@ export function GenerateForm({ brands, initialBrand, idea, aiEnabled }: { brands
   return (
     <div className="stack" style={{ gap: 18 }}>
       <form className="card stack" onSubmit={(e) => { e.preventDefault(); run(0); }} data-testid="gen-form">
+        {campaign && <Notice tone="blue">Pieza para la campaña “{campaign.name}”. La que guardes queda sumada a la campaña.</Notice>}
         {idea && <Notice tone="blue">Escribiendo la idea “{idea.title}” del calendario. La variante que guardes queda en esa misma pieza, con su fecha.</Notice>}
         <div className="row">
           <label className="field">
             Marca
-            <select className="input" value={input.brandId} onChange={(e) => set({ brandId: e.target.value })} disabled={locked} data-testid="gen-brand">
+            <select className="input" value={input.brandId} onChange={(e) => set({ brandId: e.target.value })} disabled={brandLocked} data-testid="gen-brand">
               {brands.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
             </select>
           </label>
