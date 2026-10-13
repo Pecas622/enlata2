@@ -11,15 +11,15 @@ export type IdeaInit = { id: string; title: string; brandId: string; channel: Ch
 
 export type CampaignInit = { id: string; name: string; brandId: string; goal: string; offer: string };
 
-export function GenerateForm({ brands, initialBrand, initialFormat, idea, campaign, aiEnabled }: {
-  brands: BrandOpt[]; initialBrand?: string; initialFormat?: Format; idea?: IdeaInit; campaign?: CampaignInit; aiEnabled: boolean;
+export function GenerateForm({ brands, initialBrand, initialFormat, initialChannel, initialGoal, initialTopic, idea, campaign, aiEnabled }: {
+  brands: BrandOpt[]; initialBrand?: string; initialFormat?: Format; initialChannel?: Channel; initialGoal?: string; initialTopic?: string; idea?: IdeaInit; campaign?: CampaignInit; aiEnabled: boolean;
 }) {
   const [input, setInput] = useState<GenInput>({
     brandId: idea?.brandId ?? campaign?.brandId ?? (initialBrand && brands.some((b) => b.id === initialBrand) ? initialBrand : brands[0]?.id ?? ""),
-    channel: idea?.channel ?? "Instagram",
+    channel: idea?.channel ?? initialChannel ?? "Instagram",
     format: idea?.format ?? initialFormat ?? "Post",
-    goal: idea?.goal ?? campaign?.goal ?? "Vender",
-    topic: idea?.topic ?? campaign?.name ?? "",
+    goal: idea?.goal ?? campaign?.goal ?? initialGoal ?? "Vender",
+    topic: idea?.topic ?? campaign?.name ?? initialTopic ?? "",
     offer: campaign?.offer ?? "",
     extra: "",
     seed: 0,

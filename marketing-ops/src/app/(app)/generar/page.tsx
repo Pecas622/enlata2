@@ -3,12 +3,12 @@ import { PageHeader } from "@/components/ui";
 import { getCampaign, listBrands } from "@/lib/data";
 import { createClient } from "@/lib/supabase/server";
 import { requireSection } from "@/lib/guard";
-import { FORMATS, type Format } from "@/lib/channels";
+import { CHANNELS, FORMATS, GOALS, isValidCombo, type Channel, type Format } from "@/lib/channels";
 import { GenerateForm, type CampaignInit, type IdeaInit } from "./GenerateForm";
 
-export default async function GenerarPage({ searchParams }: { searchParams: Promise<{ marca?: string; idea?: string; campana?: string; formato?: string }> }) {
+export default async function GenerarPage({ searchParams }: { searchParams: Promise<{ marca?: string; idea?: string; campana?: string; formato?: string; red?: string; objetivo?: string; tema?: string }> }) {
   const { perms } = await requireSection("generar");
-  const { marca, idea: ideaId, campana, formato } = await searchParams;
+  const { marca, idea: ideaId, campana, formato, red, objetivo, tema } = await searchParams;
   const brands = await listBrands();
   let idea: IdeaInit | undefined;
   if (ideaId) {
@@ -24,6 +24,10 @@ export default async function GenerarPage({ searchParams }: { searchParams: Prom
     if (c) campaign = { id: c.id, name: c.name, brandId: c.brand_id, goal: c.goal, offer: c.offer };
   }
   const initialFormat = (FORMATS as readonly string[]).includes(formato ?? "") ? (formato as Format) : undefined;
+  // Una idea de la investigación llega con red, objetivo y tema en la URL.
+  const initialChannel = (CHANNELS as readonly string[]).includes(red ?? "") ? (red as Channel) : undefined;
+  const initialGoal = (GOALS as readonly string[]).includes(objetivo ?? "") ? objetivo : undefined;
+  const initialTopic = tema?.slice(0, 300);
   return (
     <>
       <PageHeader title="Generar contenido" subtitle="Elegí la marca, la red y qué querés lograr. Te damos 3 versiones para elegir y editar." />
@@ -33,7 +37,7 @@ export default async function GenerarPage({ searchParams }: { searchParams: Prom
           {perms.editBrand && <div style={{ marginTop: 12 }}><Link className="btn btn-primary" href="/marca/nueva">Cargar marca</Link></div>}
         </div>
       ) : (
-        <GenerateForm brands={brands.map((b) => ({ id: b.id, name: b.name, color: b.color }))} initialBrand={marca} idea={idea} campaign={campaign} initialFormat={initialFormat} aiEnabled={Boolean(process.env.ANTHROPIC_API_KEY)} />
+        <GenerateForm brands={brands.map((b) => ({ id: b.id, name: b.name, color: b.color }))} initialBrand={marca} idea={idea} campaign={campaign} initialFormat={initialChannel && initialFormat && !isValidCombo(initialChannel, initialFormat) ? undefined : initialFormat} initialChannel={initialChannel} initialGoal={initialGoal} initialTopic={initialTopic} aiEnabled={Boolean(process.env.ANTHROPIC_API_KEY)} />
       )}
     </>
   );

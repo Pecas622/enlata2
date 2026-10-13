@@ -22,6 +22,7 @@ export type NavItem = { id: string; label: string; icon: string; roles: readonly
 
 export const NAV_ITEMS: readonly NavItem[] = [
   { id: "inicio", label: "Inicio", icon: "inicio", roles: ROLES },
+  { id: "investigar", label: "Investigar", icon: "investigar", roles: ["Administrador", "Creador"] },
   { id: "generar", label: "Generar contenido", icon: "generar", roles: ["Administrador", "Creador"] },
   { id: "contenidos", label: "Contenidos", icon: "contenidos", roles: ROLES },
   { id: "calendario", label: "Calendario", icon: "calendario", roles: ROLES },
