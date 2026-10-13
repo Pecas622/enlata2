@@ -91,3 +91,33 @@ insert into content_events (workspace_id, content_id, action, note, by_profile, 
   ('00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000c5', 'Creada', '', '00000000-0000-4000-8000-0000000000a2', now() - interval '2 hours'),
   ('00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000c6', 'Creada con plantilla', '', '00000000-0000-4000-8000-0000000000a2', now() - interval '3 hours'),
   ('00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000c7', 'Creada', '', '00000000-0000-4000-8000-0000000000a1', now() - interval '1 hour');
+
+-- Campañas (etapa 3): una en curso para La Espiga y una planificada para Rodar Bikes.
+insert into campaigns (id, workspace_id, brand_id, name, goal, starts_on, ends_on, budget, offer, audience, locations, age_min, age_max, interests, notes, created_by, updated_by, created_at) values
+  ('00000000-0000-4000-8000-0000000000d1', '00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000b1', 'Día de la Madre', 'Promoción',
+   current_date - 5, current_date + 5, 55000, 'Tortas por encargo para mamá, encargando con 48 h de anticipación',
+   'Hijos e hijas de la zona que buscan un regalo rico para mamá', 'Godoy Cruz y Luján de Cuyo', 25, 60, 'Repostería, Regalos, Día de la Madre',
+   'Fotos de las tortas de frutilla y de chocolate, que son las más pedidas.', '00000000-0000-4000-8000-0000000000a1', '00000000-0000-4000-8000-0000000000a1', now() - interval '5 days'),
+  ('00000000-0000-4000-8000-0000000000d2', '00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000b2', 'Service de primavera', 'Conseguir consultas',
+   current_date + 3, current_date + 30, 120000, '', '', 'Ciudad de Mendoza, Godoy Cruz y Las Heras', 20, 50, '',
+   '', '00000000-0000-4000-8000-0000000000a2', '00000000-0000-4000-8000-0000000000a2', now() - interval '1 day');
+
+insert into contents (id, workspace_id, brand_id, channel, format, goal, topic, title, body, hashtags, cta, status, publish_on, source, created_by, updated_by, created_at, updated_at) values
+  ('00000000-0000-4000-8000-0000000000c8', '00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000b1', 'Instagram', 'Anuncio', 'Promoción',
+   'Tortas para el Día de la Madre', 'Anuncio tortas para mamá',
+   E'Texto principal: Este domingo, que mamá tenga su torta casera. Encargala con 48 h de anticipación y retirala sin hacer fila 🎂\nTítulo: Tortas por encargo para mamá\nDescripción: La Espiga · Godoy Cruz\nBotón: Enviar mensaje',
+   '', 'Pedí por WhatsApp y retirá sin hacer fila', 'En revisión', current_date + 1, 'plantilla',
+   '00000000-0000-4000-8000-0000000000a2', '00000000-0000-4000-8000-0000000000a2', now() - interval '4 hours', now() - interval '3 hours');
+
+update contents set campaign_id = '00000000-0000-4000-8000-0000000000d1'
+where id in ('00000000-0000-4000-8000-0000000000c5', '00000000-0000-4000-8000-0000000000c8');
+update contents set campaign_id = '00000000-0000-4000-8000-0000000000d2'
+where id in ('00000000-0000-4000-8000-0000000000c3', '00000000-0000-4000-8000-0000000000c4', '00000000-0000-4000-8000-0000000000c6');
+
+insert into campaign_events (workspace_id, campaign_id, action, by_profile, at) values
+  ('00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000d1', 'Creó la campaña', '00000000-0000-4000-8000-0000000000a1', now() - interval '5 days'),
+  ('00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000d1', 'Sumó una pieza', '00000000-0000-4000-8000-0000000000a2', now() - interval '3 hours'),
+  ('00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000d2', 'Creó la campaña', '00000000-0000-4000-8000-0000000000a2', now() - interval '1 day');
+insert into content_events (workspace_id, content_id, action, note, by_profile, at) values
+  ('00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000c8', 'Creada con plantilla', '', '00000000-0000-4000-8000-0000000000a2', now() - interval '4 hours'),
+  ('00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000c8', 'Mandó a revisión', '', '00000000-0000-4000-8000-0000000000a2', now() - interval '3 hours');

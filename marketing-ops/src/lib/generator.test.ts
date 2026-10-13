@@ -21,6 +21,12 @@ const espiga: BrandCtx = {
 const req = (r: Partial<GenRequest> = {}): GenRequest => ({ channel: "Instagram", format: "Post", goal: "Vender", topic: "medialunas de manteca", ...r });
 
 describe("generateVariants", () => {
+  it("en un anuncio, la oferta entra en el texto principal aunque el objetivo no sea promoción", () => {
+    for (const v of generateVariants(espiga, req({ format: "Anuncio", goal: "Vender", offer: "Budín de limón con glaseado" }))) {
+      expect(v.body.match(/Texto principal: (.*)/)![1]).toContain("Budín de limón con glaseado");
+    }
+  });
+
   it("arma tres variantes con ángulos distintos", () => {
     const v = generateVariants(espiga, req());
     expect(v).toHaveLength(3);

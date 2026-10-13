@@ -8,7 +8,7 @@ import { AiUnavailable, generateWithClaude } from "@/lib/generator-ai";
 import { requireSection } from "@/lib/guard";
 import { createClient } from "@/lib/supabase/server";
 
-export type GenInput = { brandId: string; channel: string; format: string; goal: string; topic: string; offer: string; extra: string; seed: number; ideaId?: string };
+export type GenInput = { brandId: string; channel: string; format: string; goal: string; topic: string; offer: string; extra: string; seed: number; ideaId?: string; campaignId?: string };
 export type GenVariant = Variant & { warnings: string[] };
 export type GenResult = { error?: string; source?: "ia" | "plantilla"; notice?: string; variants?: GenVariant[] };
 
@@ -69,5 +69,10 @@ export async function saveVariant(input: GenInput, v: Variant, source: "ia" | "p
     },
   });
   if (error) return { error: error.message };
+  if (input.campaignId) {
+    // La pieza ya quedó guardada; si no se puede sumar a la campaña, se avisa en la pieza y se suma a mano.
+    const link = await supabase.rpc("set_content_campaign", { p_content_id: data, p_campaign_id: input.campaignId });
+    if (link.error) console.error("No se pudo sumar a la campaña:", link.error.message);
+  }
   redirect(`/contenidos/${data}?nueva=1`);
 }
