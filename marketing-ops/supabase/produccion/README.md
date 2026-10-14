@@ -9,6 +9,8 @@ Todo lo que necesitás para tener la base de MARKETING OPS en un proyecto de Sup
 | `base.sql` | La base completa (tablas, permisos y funciones) en un solo archivo, para pegar en **SQL Editor** de un Supabase nuevo. Son las migraciones de `supabase/migrations` en orden, y al final quedan registradas, así que un `npx supabase db push` posterior no las repite. No trae datos demo. |
 | `primer-usuario.sql` | Crea el espacio de trabajo y deja a un usuario como Administrador. |
 | `../migrations/*.sql` | Las migraciones una por una: es lo que aplica `npx supabase db push`. |
+| `datos-demo.sql` | Carga las marcas de ejemplo (La Espiga y Rodar Bikes) con piezas, campañas, resultados e investigación en el espacio de trabajo de producción, a nombre de su Administrador, para ver la app funcionando. No crea usuarios. Sale del seed con `npm run db:demo`. |
+| `borrar-datos-demo.sql` | Saca lo que cargó `datos-demo.sql` (las dos marcas demo y todo lo que cuelga de ellas) sin tocar lo tuyo. |
 | `../seed.sql` | Datos demo (Estudio Demo, La Espiga, Rodar Bikes y tres usuarios con contraseña `demo1234`). Solo para la base local: **no lo corras en producción**. |
 
 ## Base nueva, paso a paso
@@ -24,7 +26,7 @@ Todo lo que necesitás para tener la base de MARKETING OPS en un proyecto de Sup
    | --- | --- |
    | `NEXT_PUBLIC_SUPABASE_URL` | Supabase > Project Settings > API > Project URL |
    | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase > Project Settings > API > clave `anon` / publishable |
-   | `ANTHROPIC_API_KEY` | Opcional. Con ella el generador escribe con Claude; sin ella, con plantillas. Solo servidor. |
+   | `ANTHROPIC_API_KEY` | Opcional. Con ella el generador escribe con Claude, el análisis de métricas usa IA y se puede investigar en internet; sin ella, plantillas y reglas. Solo servidor. |
    | `NEXT_PUBLIC_PRODUCT_NAME` | Opcional. El nombre que se muestra (por defecto MARKETING OPS). |
 
    La app no usa `SUPABASE_SERVICE_ROLE_KEY`: esa clave queda solo para los tests locales.
@@ -59,6 +61,7 @@ Todo cuelga de un **espacio de trabajo**: la empresa, el emprendimiento o la age
 | `content_events` | El historial de cada pieza: quién la creó, editó, mandó a revisión, aprobó, pidió cambios, publicó, reprogramó, sumó a una campaña o le cargó resultados. |
 | `campaigns` | Las campañas: marca, nombre, objetivo, fechas, presupuesto en pesos, oferta, público, zona, edades, intereses y notas. |
 | `campaign_events` | El historial de cada campaña. |
+| `brand_research` | Las investigaciones con IA de cada marca: qué se pidió mirar, resumen, tendencias del rubro, competencia, ideas (con la pieza creada si se pasó al calendario), fuentes, quién y cuándo. |
 | `content_results` | Los resultados de cada pieza publicada: personas alcanzadas, interacciones, clics, consultas, ventas, inversión en pesos y una nota. Una fila por pieza. |
 
 Valores fijos (enums): roles `Administrador`, `Creador` y `Revisor`; estados `Idea`, `Borrador`, `En revisión`, `Aprobado` y `Publicado`; redes Instagram, Facebook, TikTok, LinkedIn, WhatsApp y Email; formatos Post, Carrusel, Reel, Historia, Anuncio y Mensaje; objetivos Vender, Conseguir consultas, Lanzamiento, Promoción, Comunidad y Educar.
@@ -75,6 +78,8 @@ Valores fijos (enums): roles `Administrador`, `Creador` y `Revisor`; estados `Id
 | `save_campaign(id, datos)` | Crea o edita una campaña. Valida fechas y presupuesto. La marca no se cambia después. | Administrador y Creador |
 | `set_content_campaign(pieza, campaña)` | Suma o saca una pieza de una campaña. Tienen que ser de la misma marca. | Administrador y Creador |
 | `save_results(pieza, datos)` | Carga o corrige los resultados de una pieza publicada. Valida que sean números enteros y no negativos. | Administrador y Creador |
+| `save_research(marca, datos)` | Guarda una investigación ya validada en el servidor. | Administrador y Creador |
+| `add_research_idea(investigación, n, día)` | Pasa la idea n de una investigación al calendario como Idea, una sola vez, y deja registro de que salió de la investigación. | Administrador y Creador |
 
 Funciones de apoyo: `current_workspace_id()`, `current_app_role()`, `is_admin()`, `can_create()`, `can_review()`, `can_move(desde, hasta, rol)` y `dia_ar(fecha)`, que da el día local de Argentina.
 
@@ -93,3 +98,4 @@ Funciones de apoyo: `current_workspace_id()`, `current_app_role()`, `is_admin()`
 | `20261014000000_calendario.sql` | 2 | `schedule_content` y `add_plan_ideas`. |
 | `20261015000000_campanas.sql` | 3 | Campañas, su historial, `contents.campaign_id`, `save_campaign` y `set_content_campaign`. |
 | `20261016000000_metricas.sql` | 4 | `content_results`, `save_results`, y una pieza que se publica sin fecha queda con el día de hoy. |
+| `20261017000000_investigacion.sql` | 5 | `brand_research`, `save_research` y `add_research_idea`: las investigaciones con IA y el paso de sus ideas al calendario. |

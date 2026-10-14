@@ -5,6 +5,7 @@ import type { BrandCtx } from "@/lib/generator";
 import type { Status } from "@/lib/workflow";
 import { localDay } from "@/lib/dates";
 import type { PieceResult, Results } from "@/lib/metrics";
+import type { Research } from "@/lib/research";
 
 export type BrandRow = BrandCtx & { id: string; color: string; updated_at: string };
 
@@ -107,4 +108,14 @@ export function publishedPieces(contents: ContentRow[], results: Map<string, Res
         brand_id: c.brand_id,
       };
     });
+}
+
+export type ResearchRow = Research & { id: string; brand_id: string; focus: string; created_at: string; author: { name: string } | null };
+export const RESEARCH_COLS = "id, brand_id, focus, summary, trends, competitors, ideas, sources, created_at, author:profiles!brand_research_created_by_fkey(name)";
+
+// Las últimas investigaciones de una marca, la más nueva primero.
+export async function listResearch(brandId: string, limit = 8): Promise<ResearchRow[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("brand_research").select(RESEARCH_COLS).eq("brand_id", brandId).order("created_at", { ascending: false }).limit(limit);
+  return (data ?? []) as unknown as ResearchRow[];
 }

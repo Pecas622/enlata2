@@ -189,3 +189,22 @@ select r.workspace_id, r.content_id, 'Cargó los resultados', format('Alcance %s
 from content_results r;
 insert into campaign_events (workspace_id, campaign_id, action, by_profile, at) values
   ('00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000d3', 'Creó la campaña', '00000000-0000-4000-8000-0000000000a1', now() - interval '32 days');
+
+-- Una investigación de ejemplo para La Espiga (competidores y fuentes ficticios, en example.com).
+insert into brand_research (id, workspace_id, brand_id, focus, summary, trends, competitors, ideas, sources, created_by, created_at) values (
+  '00000000-0000-4000-8000-0000000000e1', '00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000b1',
+  'Panaderías de Godoy Cruz y el Día de la Madre',
+  'Las panaderías de la zona muestran el horno y el proceso en Reels, y en octubre todas empujan tortas por encargo para el Día de la Madre. La masa madre sigue siendo tema: la gente pregunta cómo se hace y cuánto dura el pan.',
+  '[{"title": "Pan de masa madre", "detail": "Se habla de fermentación lenta y de pan que dura más. Es justo lo que hace La Espiga.", "sources": ["https://example.com/tendencias-panaderia-2026"]},
+    {"title": "Tortas por encargo para el Día de la Madre", "detail": "Las búsquedas de tortas por encargo crecen las dos semanas antes de la fecha.", "sources": ["https://example.com/dia-de-la-madre-regalos"]}]',
+  '[{"name": "Panadería El Molino (ejemplo)", "detail": "Reels cortos del horno a la mañana y encuestas en historias para elegir el sabor de la semana.", "sources": ["https://example.com/el-molino"]},
+    {"name": "Dulce Barrio (ejemplo)", "detail": "Carruseles con el paso a paso de sus tortas y un aviso de fecha límite para encargar.", "sources": ["https://example.com/dulce-barrio"]}]',
+  '[{"topic": "Un día con la masa madre de La Espiga, del horno a tu mesa", "why": "La masa madre es tema y la competencia engancha mostrando el horno.", "channel": "Instagram", "format": "Reel", "goal": "Comunidad", "sources": ["https://example.com/tendencias-panaderia-2026", "https://example.com/el-molino"]},
+    {"topic": "Hasta cuándo podés encargar la torta del Día de la Madre", "why": "Las búsquedas crecen antes de la fecha y Dulce Barrio ya avisa su fecha límite.", "channel": "WhatsApp", "format": "Mensaje", "goal": "Conseguir consultas", "sources": ["https://example.com/dia-de-la-madre-regalos", "https://example.com/dulce-barrio"]},
+    {"topic": "Elegí el sabor del budín de la semana", "why": "Las encuestas en historias le funcionan a El Molino para que la gente participe.", "channel": "Instagram", "format": "Historia", "goal": "Comunidad", "sources": ["https://example.com/el-molino"]},
+    {"topic": "Cuánto dura el pan de masa madre y cómo guardarlo", "why": "Es una pregunta que se repite en lo que se habla del rubro.", "channel": "Instagram", "format": "Carrusel", "goal": "Educar", "sources": ["https://example.com/tendencias-panaderia-2026"]}]',
+  '[{"url": "https://example.com/tendencias-panaderia-2026", "title": "Qué se come en 2026: el regreso del pan de verdad"},
+    {"url": "https://example.com/dia-de-la-madre-regalos", "title": "Día de la Madre: qué se regala este año"},
+    {"url": "https://example.com/el-molino", "title": "Panadería El Molino en Instagram"},
+    {"url": "https://example.com/dulce-barrio", "title": "Dulce Barrio: tortas por encargo"}]',
+  '00000000-0000-4000-8000-0000000000a2', now() - interval '2 days');
