@@ -9,6 +9,8 @@ Todo lo que necesitás para tener la base de MARKETING OPS en un proyecto de Sup
 | `base.sql` | La base completa (tablas, permisos y funciones) en un solo archivo, para pegar en **SQL Editor** de un Supabase nuevo. Son las migraciones de `supabase/migrations` en orden, y al final quedan registradas, así que un `npx supabase db push` posterior no las repite. No trae datos demo. |
 | `primer-usuario.sql` | Crea el espacio de trabajo y deja a un usuario como Administrador. |
 | `../migrations/*.sql` | Las migraciones una por una: es lo que aplica `npx supabase db push`. |
+| `datos-demo.sql` | Carga las marcas de ejemplo (La Espiga y Rodar Bikes) con piezas, campañas, resultados e investigación en el espacio de trabajo de producción, a nombre de su Administrador, para ver la app funcionando. No crea usuarios. Sale del seed con `npm run db:demo`. |
+| `borrar-datos-demo.sql` | Saca lo que cargó `datos-demo.sql` (las dos marcas demo y todo lo que cuelga de ellas) sin tocar lo tuyo. |
 | `../seed.sql` | Datos demo (Estudio Demo, La Espiga, Rodar Bikes y tres usuarios con contraseña `demo1234`). Solo para la base local: **no lo corras en producción**. |
 
 ## Base nueva, paso a paso
