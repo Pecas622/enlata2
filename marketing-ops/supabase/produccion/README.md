@@ -28,11 +28,28 @@ Todo lo que necesitás para tener la base de MARKETING OPS en un proyecto de Sup
    | `NEXT_PUBLIC_SUPABASE_URL` | Supabase > Project Settings > API > Project URL |
    | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase > Project Settings > API > clave `anon` / publishable |
    | `ANTHROPIC_API_KEY` | Opcional. Con ella el generador escribe con Claude, el análisis de métricas usa IA y se puede investigar en internet; sin ella, plantillas y reglas. Solo servidor. |
+   | `INSTAGRAM_APP_ID` y `INSTAGRAM_APP_SECRET` | Opcionales. Los de la app de Meta, para que cada marca conecte su Instagram (ver "Conectar Instagram" abajo). Sin ellos, el panel Redes avisa que falta configurar y no deja conectar. Solo servidor. |
+   | `TOKENS_KEY` | Con Instagram, obligatoria. La clave con la que se cifran los permisos de las redes antes de guardarlos: 32 bytes en base64, sacala con `openssl rand -base64 32`. Si la cambiás, hay que reconectar las cuentas. Solo servidor. |
+   | `APP_URL` | Opcional. La dirección pública de la app (por ejemplo `https://marketing-ops-seven.vercel.app`), para armar la vuelta del inicio de sesión de Instagram. Sin ella se usa la del pedido. |
    | `NEXT_PUBLIC_PRODUCT_NAME` | Opcional. El nombre que se muestra (por defecto MARKETING OPS). |
 
    La app no usa `SUPABASE_SERVICE_ROLE_KEY`: esa clave queda solo para los tests locales.
 
 Para sumar a otra persona, invitala desde **Equipo** en la app: te da un link para mandarle, y con él crea su contraseña y entra con el rol que elegiste. Cada espacio nuevo arranca en el plan Prueba; para cambiarlo: `update workspaces set plan_id = 'emprendedor' where name = '<negocio>';` (planes: `prueba`, `emprendedor`, `agencia`).
+
+## Conectar Instagram
+
+Cada marca conecta su cuenta profesional de Instagram (Empresa o Creador) con el inicio de sesión oficial de Instagram ("Instagram API with Instagram Login" de Meta). La app nunca ve la contraseña: Instagram le da un permiso por 60 días, que se renueva solo al probar la conexión cuando falta poco para que venza. El permiso se guarda cifrado con `TOKENS_KEY`.
+
+Para habilitarlo, una sola vez:
+
+1. En [developers.facebook.com](https://developers.facebook.com/apps) creá una app de tipo **Empresa** (Business).
+2. Sumale el producto **Instagram** y elegí **API setup with Instagram login**.
+3. En **Business login settings**, en **OAuth redirect URIs**, cargá `https://<tu-app>/api/redes/instagram/vuelta` (tiene que coincidir exacto con `APP_URL`).
+4. Copiá el **Instagram app ID** y el **Instagram app secret** a `INSTAGRAM_APP_ID` e `INSTAGRAM_APP_SECRET` en Vercel, sumá `TOKENS_KEY` y `APP_URL`, y hacé un redeploy.
+5. Mientras la app está en modo desarrollo, solo conectan las cuentas que sumes como testers en **App roles > Roles > Instagram Testers** (cada una acepta la invitación desde Instagram, en Configuración > Apps y sitios web). Para que conecte cualquier cliente, Meta tiene que aprobar la app (**App Review**) con los permisos `instagram_business_basic` e `instagram_business_content_publish`, con un video que muestre el uso.
+
+Facebook y TikTok aparecen como "Próximamente": todavía no se conectan.
 
 ## Base que ya existe
 
@@ -68,7 +85,10 @@ Todo cuelga de un **espacio de trabajo**: la empresa, el emprendimiento o la age
 | `content_results` | Los resultados de cada pieza publicada: personas alcanzadas, interacciones, clics, consultas, ventas, inversión en pesos y una nota. Una fila por pieza. |
 | `invitations` | Las invitaciones al equipo: email, nombre, rol, marcas que verá, código del link, estado (Pendiente, Aceptada, Cancelada) y vencimiento a los 14 días. Solo las lee el Administrador. |
 | `team_events` | El historial del equipo: quién invitó, canceló, cambió el rol o las marcas, desactivó o reactivó a quién, y cuándo se creó el espacio. |
-| `plans` | Los planes con sus topes: Prueba (1 marca, 2 personas, 30 acciones con IA por mes), Emprendedor (2, 4, 200) y Agencia (15, 20, 1500). |
+| `plans` | Los planes con sus topes: Prueba (1 marca, 2 personas, 30 acciones con IA por mes, 200 MB de archivos), Emprendedor (2, 4, 200, 2 GB) y Agencia (15, 20, 1500, 20 GB). |
+| `social_accounts` | Las cuentas de redes conectadas a cada marca: red, id y usuario en la red, tipo de cuenta, seguidores, estado (Conectada, Vencida, Error), último error, el permiso cifrado (esta columna no se lee desde la app: solo `social_token`), cuándo vence, quién la conectó y cuándo se probó. |
+| `social_events` | El historial de las conexiones: quién conectó o desconectó qué cuenta. |
+| `media_files` | Los archivos de cada marca (logo, fotos y videos) en el bucket privado `media` de Storage, en `<espacio>/<marca>/...`: ruta, nombre, tipo, tamaño, pieza a la que va, quién y cuándo. |
 | `ai_usage` | Cuántas acciones con IA usó cada espacio por mes y por tipo (generar, adaptar, plan, investigar, analizar). |
 
 Valores fijos (enums): roles `Administrador`, `Creador` y `Revisor`; estados `Idea`, `Borrador`, `En revisión`, `Aprobado` y `Publicado`; redes Instagram, Facebook, TikTok, LinkedIn, WhatsApp y Email; formatos Post, Carrusel, Reel, Historia, Anuncio y Mensaje; objetivos Vender, Conseguir consultas, Lanzamiento, Promoción, Comunidad y Educar.
@@ -97,6 +117,12 @@ Valores fijos (enums): roles `Administrador`, `Creador` y `Revisor`; estados `Id
 | `create_own_workspace()` | Quien se registró sin invitación, con el nombre de su negocio, crea su espacio en el plan Prueba y queda como Administrador. | El que se registró |
 | `update_member(id, rol, activa, marcas)` | Cambia el rol, las marcas o si está activa una persona. Siempre queda un Administrador activo. | Administrador |
 | `use_ai(tipo)` | Cuenta una acción con IA del mes. Devuelve false, sin contar, si el plan llegó a su tope: la app usa las reglas y plantillas. | Cualquiera del espacio |
+| `connect_social(marca, datos)` | Conecta o reconecta la cuenta de una red a una marca, con el permiso ya cifrado por la app. Una misma cuenta no va en dos marcas. | Administrador |
+| `disconnect_social(id)` | Desconecta una cuenta y deja registro. | Administrador |
+| `social_token(id)` | Devuelve el permiso cifrado, para que el servidor lo use (probar la conexión y, después, publicar). | Administrador y Creador |
+| `save_social_check(id, datos)` | Guarda lo que devolvió la red al probar la conexión: estado, usuario, seguidores y, si se renovó, el permiso nuevo. | Administrador y Creador |
+| `add_media(datos)` | Registra un archivo ya subido a Storage: lee tamaño y tipo de Storage, valida que sea del espacio y de la marca, y respeta el espacio del plan. | Administrador y Creador |
+| `delete_media(id)` | Saca el registro de un archivo y devuelve la ruta para borrarlo de Storage. | Administrador y Creador |
 | `plan_usage()` | El plan del espacio, sus topes y lo usado este mes. | Cualquiera del espacio |
 | `add_plan_pieces(plan, posiciones)` | Pasa al calendario las piezas elegidas del plan, leídas de la base: con texto como Borrador, sin texto como Idea. Cada una entra una sola vez, nunca en un día que ya pasó, y registra por qué se propuso. | Administrador y Creador |
 
@@ -121,3 +147,4 @@ Funciones de apoyo: `current_workspace_id()`, `current_app_role()`, `is_admin()`
 | `20261018000000_plan_mensual.sql` | 6 | Campos para planificar en `brands` y `contents`, `content_plans`, `save_plan` y `add_plan_pieces`; `save_brand` y `save_content` guardan los campos nuevos. |
 | `20261019000000_acciones_piezas.sql` | 6 | `content_deletions`, `copy_content` y `delete_content`: duplicar, adaptar y borrar piezas. |
 | `20261020000000_equipo.sql` | 7 | Equipo (invitaciones, roles y marcas por Revisor con RLS), registro propio con espacio nuevo, planes con topes de marcas, personas y acciones con IA. Los espacios que ya existían quedan en Agencia. |
+| `20261021000000_redes_archivos.sql` | 8 | `social_accounts` con el permiso cifrado y sin lectura desde la app, `social_events`, conectar, desconectar y probar redes; bucket privado `media` con sus políticas, `media_files`, `add_media`, `delete_media` y espacio de archivos por plan. |

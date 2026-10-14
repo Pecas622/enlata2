@@ -9,6 +9,8 @@ import { createClient } from "@/lib/supabase/server";
 import { STATUSES, actionsFor, canEdit, statusTone } from "@/lib/workflow";
 import { CampaignPicker } from "./CampaignPicker";
 import { ContentEditor } from "./ContentEditor";
+import { MediaPanel } from "@/components/media/MediaPanel";
+import { listMedia } from "@/lib/media-server";
 import { PieceActions } from "./PieceActions";
 import { Preview } from "./Preview";
 import { ResultsForm } from "./ResultsForm";
@@ -29,6 +31,7 @@ export default async function ContenidoPage({ params, searchParams }: { params: 
   ]);
   if (!data) notFound();
   const c = data as unknown as ContentRow & { brand: { words_avoid: string; instagram: string } | null };
+  const media = await listMedia({ brandId: c.brand_id, contentId: c.id });
   const editable = canEdit(c.status, user.role);
   const actions = actionsFor(c.status, user.role);
   const idx = STATUSES.indexOf(c.status);
@@ -130,6 +133,10 @@ export default async function ContenidoPage({ params, searchParams }: { params: 
               />
             </div>
           )}
+          <MediaPanel
+            workspaceId={user.workspaceId} brandId={c.brand_id} contentId={c.id} items={media} canEdit={perms.create && c.status !== "Publicado"} back={`/contenidos/${c.id}`}
+            title="Fotos y videos de la pieza" hint="Lo que se va a publicar con esta pieza. Quedan guardados en la marca, en un espacio privado."
+          />
           <div className="card stack">
             <h2 className="card-title">Vista previa</h2>
             <Preview channel={c.channel} format={c.format} brand={c.brands?.name ?? ""} color={c.brands?.color ?? "#5E5CE6"} instagram={c.brand?.instagram ?? ""} title={c.title} body={c.body} hashtags={c.hashtags} />

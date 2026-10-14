@@ -7,6 +7,7 @@ import { requireSection } from "@/lib/guard";
 import { ROLE_HELP, ROLES, type Role } from "@/lib/roles";
 import { createClient } from "@/lib/supabase/server";
 import { brandsLabel, daysLeft, inviteLink } from "@/lib/team";
+import { fmtSize } from "@/lib/media";
 import { planUsage } from "@/lib/usage";
 import { InviteForm } from "./InviteForm";
 import { InvitationRow, MemberRow } from "./Rows";
@@ -41,6 +42,7 @@ export default async function EquipoPage() {
                 <span>Marcas</span><b style={{ fontWeight: 500 }}>{usage.brands} de {usage.max_brands}</b>
                 <span>Personas</span><b style={{ fontWeight: 500 }} data-testid="plan-members">{usage.members} de {usage.max_members}, con las invitaciones pendientes</b>
                 <span>Acciones con IA</span><b style={{ fontWeight: 500 }}>{usage.ai_used} de {usage.ai_per_month} este mes</b>
+                <span>Archivos</span><b style={{ fontWeight: 500 }}>{fmtSize(Number(usage.storage_bytes))} de {fmtSize(usage.max_storage_mb * 1048576)}</b>
               </div>
               <p className="hint" style={{ margin: "10px 0 0" }}>Cada vez que la IA genera, adapta, arma un plan, investiga o analiza cuenta una. Sin cupo, todo sigue andando con reglas y plantillas. Para cambiar de plan, escribinos.</p>
             </div>

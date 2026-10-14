@@ -29,6 +29,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { id: "campanas", label: "Campañas", icon: "campanas", roles: ROLES },
   { id: "metricas", label: "Métricas", icon: "metricas", roles: ROLES },
   { id: "marca", label: "Marcas", icon: "marca", roles: ROLES },
+  { id: "redes", label: "Redes", icon: "redes", roles: ["Administrador", "Creador"] },
   { id: "equipo", label: "Equipo", icon: "equipo", roles: ["Administrador"] },
 ];
 
