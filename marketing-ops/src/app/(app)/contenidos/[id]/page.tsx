@@ -9,16 +9,17 @@ import { createClient } from "@/lib/supabase/server";
 import { STATUSES, actionsFor, canEdit, statusTone } from "@/lib/workflow";
 import { CampaignPicker } from "./CampaignPicker";
 import { ContentEditor } from "./ContentEditor";
+import { PieceActions } from "./PieceActions";
 import { Preview } from "./Preview";
 import { ResultsForm } from "./ResultsForm";
 import { StatusActions } from "./StatusActions";
 
 type Event = { id: string; action: string; note: string; at: string; profiles: { name: string } | null };
 
-export default async function ContenidoPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ nueva?: string }> }) {
+export default async function ContenidoPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ nueva?: string; copia?: string; adaptada?: string }> }) {
   const { id } = await params;
-  const { nueva } = await searchParams;
-  const { user } = await requireSection("contenidos");
+  const { nueva, copia, adaptada } = await searchParams;
+  const { user, perms } = await requireSection("contenidos");
   const supabase = await createClient();
   const [{ data }, { data: events }, campaigns, { data: res }] = await Promise.all([
     supabase.from("contents").select(CONTENT_COLS + ", brand:brands(words_avoid, instagram)").eq("id", id).maybeSingle(),
@@ -51,6 +52,8 @@ export default async function ContenidoPage({ params, searchParams }: { params: 
         {STATUSES.map((s, i) => <span key={s} className={i === idx ? "on" : i < idx ? "done" : ""}>{s}</span>)}
       </div>
       {nueva && <div style={{ marginBottom: 12 }}><Notice tone="blue">Guardada como borrador. Editala si querés y mandala a revisión.</Notice></div>}
+      {copia && <div style={{ marginBottom: 12 }}><Notice tone="blue">Es una copia, sin fecha. Cambiá lo que haga falta y programala.</Notice></div>}
+      {adaptada && <div style={{ marginBottom: 12 }}><Notice tone="blue">Versión para {c.channel} lista como borrador{c.publish_on ? ", el mismo día que la original" : ""}. Revisala antes de mandarla a aprobar.</Notice></div>}
       {c.status === "Borrador" && lastNote && <div style={{ marginBottom: 12 }}><Notice>Cambios pedidos por {lastNote.profiles?.name}: “{lastNote.note}”</Notice></div>}
 
       <div className="grid-2">
@@ -108,6 +111,12 @@ export default async function ContenidoPage({ params, searchParams }: { params: 
             <div className="card stack">
               <h2 className="card-title">Siguiente paso</h2>
               <StatusActions id={c.id} actions={actions} />
+            </div>
+          )}
+          {perms.create && (
+            <div className="card stack">
+              <h2 className="card-title">Más acciones</h2>
+              <PieceActions id={c.id} channel={c.channel} format={c.format} canRegen={["Borrador", "Aprobado"].includes(c.status)} canDelete={c.status !== "Publicado"} />
             </div>
           )}
           {(campaigns.some((x) => x.brand_id === c.brand_id) || c.campaign_id) && (

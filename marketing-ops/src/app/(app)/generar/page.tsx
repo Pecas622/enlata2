@@ -14,8 +14,9 @@ export default async function GenerarPage({ searchParams }: { searchParams: Prom
   if (ideaId) {
     const supabase = await createClient();
     const { data } = await supabase.from("contents").select("id, title, topic, brand_id, channel, format, goal, status").eq("id", ideaId).maybeSingle();
-    if (data && data.status === "Idea") {
-      idea = { id: data.id, title: data.title || data.topic, brandId: data.brand_id, channel: data.channel, format: data.format, goal: data.goal, topic: data.topic };
+    // Una Idea se escribe; una pieza sin publicar ni en revisión se regenera (la variante elegida reemplaza su texto).
+    if (data && ["Idea", "Borrador", "Aprobado"].includes(data.status)) {
+      idea = { id: data.id, title: data.title || data.topic, brandId: data.brand_id, channel: data.channel, format: data.format, goal: data.goal, topic: data.topic, regen: data.status !== "Idea" };
     }
   }
   let campaign: CampaignInit | undefined;

@@ -56,6 +56,19 @@ export function longDate(day: Day) {
   return `${names[weekday(day)]} ${Number(day.slice(8, 10))} de ${MONTHS[Number(day.slice(5, 7)) - 1]}`;
 }
 
+export function isDay(v: string | undefined | null): v is Day {
+  return !!v && /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(v) && fromDate(toDate(v)) === v;
+}
+
+// Los 7 días (lunes a domingo) de la semana de un día.
+export function weekOf(day: Day): Day[] {
+  const monday = addDays(day, -weekday(day));
+  return Array.from({ length: 7 }, (_, i) => addDays(monday, i));
+}
+
+export type CalView = "mes" | "semana" | "dia";
+export const asView = (v: string | undefined): CalView => (v === "semana" || v === "dia" ? v : "mes");
+
 export type GridDay = { day: Day; inMonth: boolean };
 
 // Semanas de lunes a domingo que cubren el mes completo.

@@ -7,7 +7,7 @@ import { generate, saveVariant, type GenInput, type GenResult } from "./actions"
 
 type BrandOpt = { id: string; name: string; color: string };
 
-export type IdeaInit = { id: string; title: string; brandId: string; channel: Channel; format: Format; goal: string; topic: string };
+export type IdeaInit = { id: string; title: string; brandId: string; channel: Channel; format: Format; goal: string; topic: string; regen?: boolean };
 
 export type CampaignInit = { id: string; name: string; brandId: string; goal: string; offer: string };
 
@@ -62,7 +62,8 @@ export function GenerateForm({ brands, initialBrand, initialFormat, initialChann
     <div className="stack" style={{ gap: 18 }}>
       <form className="card stack" onSubmit={(e) => { e.preventDefault(); run(0); }} data-testid="gen-form">
         {campaign && <Notice tone="blue">Pieza para la campaña “{campaign.name}”. La que guardes queda sumada a la campaña.</Notice>}
-        {idea && <Notice tone="blue">Escribiendo la idea “{idea.title}” del calendario. La variante que guardes queda en esa misma pieza, con su fecha.</Notice>}
+        {idea && !idea.regen && <Notice tone="blue">Escribiendo la idea “{idea.title}” del calendario. La variante que guardes queda en esa misma pieza, con su fecha.</Notice>}
+        {idea?.regen && <Notice tone="blue">Regenerando “{idea.title}”. La variante que guardes reemplaza el texto de esa pieza, con su fecha; si estaba aprobada, vuelve a borrador.</Notice>}
         <div className="row">
           <label className="field">
             Marca

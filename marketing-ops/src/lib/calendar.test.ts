@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addDays, commercialDates, datesInMonth, easter, monthGrid, monthLabel, shiftMonth, suggestPlan, weekLoad, weekday } from "./calendar";
+import { addDays, asView, isDay, weekOf, commercialDates, datesInMonth, easter, monthGrid, monthLabel, shiftMonth, suggestPlan, weekLoad, weekday } from "./calendar";
 import { isValidCombo } from "./channels";
 
 const brand = { name: "La Espiga", products: "Pan de masa madre, facturas, tortas por encargo" };
@@ -78,5 +78,20 @@ describe("plan del mes", () => {
 
   it("un mes que ya pasó no tiene plan", () => {
     expect(suggestPlan(brand, "2026-09", [], { perWeek: 3, channels: ["Instagram"], today })).toEqual([]);
+  });
+});
+
+describe("vistas semanal y diaria", () => {
+  it("la semana va de lunes a domingo aunque cruce el mes", () => {
+    expect(weekOf("2026-10-14")).toEqual(["2026-10-12", "2026-10-13", "2026-10-14", "2026-10-15", "2026-10-16", "2026-10-17", "2026-10-18"]);
+    expect(weekOf("2026-11-01")[0]).toBe("2026-10-26");
+  });
+
+  it("valida días y vistas que llegan por la URL", () => {
+    expect(isDay("2026-10-14")).toBe(true);
+    expect(isDay("2026-02-30")).toBe(false);
+    expect(isDay("hoy")).toBe(false);
+    expect(asView("semana")).toBe("semana");
+    expect(asView("anio")).toBe("mes");
   });
 });
