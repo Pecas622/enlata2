@@ -47,6 +47,8 @@ Cuidados al comunicar:
 | Reel principal de 33 s (orgánico, anuncio de Meta y versión sin música) | Archivos del proyecto: `marketing/reel-apple-ops-*.mp4` |
 | Capturas reales de cada pantalla | Archivos del proyecto: `apple-ops/etapa-*.png` |
 | Scripts para regenerar el Reel | [`marketing/reel/`](reel/) |
+| Redes de Enlata2: una cuenta @enlata2 para los dos productos, perfiles, bios, camino de venta, primer mes, textos de cada pieza y metas al día 30 | https://claude.ai/code/artifact/647b8fb4-9a42-4a5f-aed8-6589ca9c24be |
+| Reel con la marca Enlata2 (orgánico, anuncio y sin música), carruseles de iPhone y de Marketing, foto de perfil y destacadas | Archivos del proyecto: `marketing/redes/` (se regeneran con [`redes/piezas.py`](redes/piezas.py) y [`reel/`](reel/)) |
 | Marca y presencia digital (Encargo 2 resuelto: nombre propuesto Cuadra, identidad, Instagram, 15 Reels, calendario de 30 días, TikTok, WhatsApp Business, embudo, Meta Ads y lanzamiento de 14 días) | https://claude.ai/code/artifact/bd4aea41-6ee3-488e-be0b-19959d89b204 |
 
 Decisiones ya tomadas (cambialas solo si Santiago lo pide o los datos de campaña lo justifican):
@@ -129,6 +131,14 @@ python3 audio.py video_organico.mp4.sfx.json musica.wav efectos.wav
 ffmpeg -i musica.wav -af loudnorm=I=-14:TP=-1.5 -c:a aac -b:a 192k musica.m4a
 ffmpeg -i video_organico.mp4 -i musica.m4a -c copy -shortest reel.mp4
 python3 render.py previa organico 1.5 8.8 31.5     # guarda cuadros sueltos para revisar
+```
+
+La marca que aparece en el Reel está en `WORD` y `TAG` al principio de `render.py` (hoy ENLATA2 · para locales de iPhone; nunca "Apple" en el nombre).
+
+Los carruseles (1080×1350), la foto de perfil y las portadas de destacadas salen de [`redes/piezas.py`](redes/piezas.py), con los mismos colores de la landing (negro `#0B0B0D`, verde `#B8FF3D`):
+
+```bash
+CAPTURAS=/mnt/project-files python3 marketing/redes/piezas.py salida/
 ```
 
 `render.py` define las escenas (tiempos, encuadres, recuadros y textos) y anota los efectos de sonido en un `.sfx.json`. `audio.py` sintetiza la música (120 bpm, sin derechos de terceros) y ubica los efectos. Para cambiar un texto o un encuadre, editá la escena en `render.py` y volvé a correr los dos.
