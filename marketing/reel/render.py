@@ -9,7 +9,9 @@ import os
 SRC = os.path.join(os.environ.get('CAPTURAS', '/mnt/project-files/apple-ops'), '')
 FONT = '/usr/share/fonts/opentype/inter/'
 W, H, FPS = 1080, 1920, 30
-BLUE = (41, 151, 255); RED = (255, 99, 82); GREEN = (48, 209, 88); WHITE = (245, 245, 247); SOFT = (174, 174, 178)
+# Marca en pantalla: la última parte va en el color de acento. Apple no permite su marca en el nombre de un producto.
+WORD = ('ENLATA', '2'); TAG = 'para locales de iPhone'
+BLUE = (41, 151, 255); ACCENT = (184, 255, 61); CARBON = (11, 11, 14); RED = (255, 99, 82); GREEN = (48, 209, 88); WHITE = (245, 245, 247); SOFT = (174, 174, 178)
 
 def font(name, size): return ImageFont.truetype(FONT + name, size)
 def clamp(x, a=0.0, b=1.0): return max(a, min(b, x))
@@ -66,7 +68,7 @@ def paste_text(fr, im, y, t, delay=0.0, dur=0.28, rise=36):
 def headline(fr, t, eyebrow, head, y0=300, delay=0.0):
     y = y0
     if eyebrow:
-        e = text_img(eyebrow, 'Inter-Bold.otf', 38, BLUE); paste_text(fr, e, y, t, delay); y += 66
+        e = text_img(eyebrow, 'Inter-Bold.otf', 38, ACCENT); paste_text(fr, e, y, t, delay); y += 66
     paste_text(fr, text_img(head, 'InterDisplay-Black.otf', 96, WHITE), y, t, delay + 0.06)
 
 # ---------- card with a camera ----------
@@ -127,7 +129,7 @@ def hook(fr, t):
     fr.paste(ACT.crop((440, int(40 + t * 60), 440 + W, int(40 + t * 60) + 980)), (0, 470), FADE)
     l1 = text_img('¿SABÉS QUÉ PASA', 'InterDisplay-Black.otf', 112, WHITE, one=True)
     l2 = text_img('EN TU LOCAL', 'InterDisplay-Black.otf', 112, WHITE, one=True)
-    l3 = text_img('CUANDO NO ESTÁS?', 'InterDisplay-Black.otf', 112, BLUE, one=True)
+    l3 = text_img('CUANDO NO ESTÁS?', 'InterDisplay-Black.otf', 112, ACCENT, one=True)
     paste_text(fr, l1, 640, t, 0.0, 0.18); paste_text(fr, l2, 760, t, 0.32, 0.18); paste_text(fr, l3, 880, t, 0.64, 0.18)
 SFX += [(0.0, 'hit'), (0.32, 'tick'), (0.64, 'tick')]
 
@@ -147,9 +149,9 @@ SFX += [(2.0, 'whoosh'), (2.25, 'pop'), (3.0, 'whoosh'), (3.25, 'pop'), (4.0, 'w
 def solution(fr, t):
     d = ImageDraw.Draw(fr); p = easeout(t / 0.35)
     f = font('InterDisplay-Black.otf', int(lerp(210, 176, p)))
-    w1 = d.textlength('APPLE', font=f); w2 = d.textlength('OPS', font=f); x = (W - w1 - w2) / 2; y = 430 + (1 - p) * 30
+    w1 = d.textlength(WORD[0], font=f); w2 = d.textlength(WORD[1], font=f); x = (W - w1 - w2) / 2; y = 430 + (1 - p) * 30
     ov = Image.new('RGBA', fr.size, (0, 0, 0, 0)); od = ImageDraw.Draw(ov)
-    od.text((x, y), 'APPLE', font=f, fill=WHITE + (int(255 * p),)); od.text((x + w1, y), 'OPS', font=f, fill=BLUE + (int(255 * p),))
+    od.text((x, y), WORD[0], font=f, fill=WHITE + (int(255 * p),)); od.text((x + w1, y), WORD[1], font=f, fill=ACCENT + (int(255 * p),))
     fr.alpha_composite(ov)
     paste_text(fr, text_img('TODO TU LOCAL EN UN SOLO LUGAR', 'Inter-Bold.otf', 54, SOFT, 900), 660, t, 0.35)
     rise = easeout((t - 0.2) / 0.7)
@@ -229,7 +231,7 @@ def benefit(fr, t):
         im = FLASH[k].crop((PAD + 240, PAD, PAD + 1290, PAD + 900)).resize((W, 924), Image.BICUBIC)
         fr.paste(Image.blend(im, Image.new('RGB', im.size, (8, 8, 12)), 0.78), (0, 500))
     paste_text(fr, text_img('MENOS DESORDEN.', 'InterDisplay-Black.otf', 124, WHITE, one=True), 700, t, 0.0, 0.16)
-    paste_text(fr, text_img('MÁS CONTROL.', 'InterDisplay-Black.otf', 124, BLUE, one=True), 840, t, 0.55, 0.16)
+    paste_text(fr, text_img('MÁS CONTROL.', 'InterDisplay-Black.otf', 124, ACCENT, one=True), 840, t, 0.55, 0.16)
 SFX += [(26.5, 'hit'), (27.05, 'impact')]
 
 @scene(28.5, 33.0)
@@ -244,17 +246,17 @@ def cta(fr, t):
         while d.textlength(label, font=f) > 820: f = font('InterDisplay-Black.otf', f.size - 4)
         tw = d.textlength(label, font=f); pw, ph = (tw + 120) * pulse * lerp(0.85, 1, p), 150 * pulse * lerp(0.85, 1, p)
         ov = Image.new('RGBA', fr.size, (0, 0, 0, 0)); od = ImageDraw.Draw(ov); cy = 770
-        od.rounded_rectangle((W / 2 - pw / 2 - 10, cy - ph / 2 - 10, W / 2 + pw / 2 + 10, cy + ph / 2 + 10), 85, fill=BLUE + (int(60 * p),))
-        od.rounded_rectangle((W / 2 - pw / 2, cy - ph / 2, W / 2 + pw / 2, cy + ph / 2), 75, fill=(0, 113, 227, int(255 * p)))
-        od.text((W / 2 - tw / 2, cy - f.size * 0.62), label, font=f, fill=WHITE + (int(255 * p),))
+        od.rounded_rectangle((W / 2 - pw / 2 - 10, cy - ph / 2 - 10, W / 2 + pw / 2 + 10, cy + ph / 2 + 10), 85, fill=ACCENT + (int(60 * p),))
+        od.rounded_rectangle((W / 2 - pw / 2, cy - ph / 2, W / 2 + pw / 2, cy + ph / 2), 75, fill=ACCENT + (int(255 * p),))
+        od.text((W / 2 - tw / 2, cy - f.size * 0.62), label, font=f, fill=CARBON + (int(255 * p),))
         fr.alpha_composite(ov)
     paste_text(fr, text_img(sub, 'Inter-SemiBold.otf', 46, SOFT), 900, t, 0.55)
     d = ImageDraw.Draw(fr); f = font('InterDisplay-Black.otf', 64); a = int(255 * easeout((t - 0.8) / 0.3))
     if a > 0:
-        w1 = d.textlength('APPLE', font=f); w2 = d.textlength('OPS', font=f); x = (W - w1 - w2) / 2
+        w1 = d.textlength(WORD[0], font=f); w2 = d.textlength(WORD[1], font=f); x = (W - w1 - w2) / 2
         ov = Image.new('RGBA', fr.size, (0, 0, 0, 0)); od = ImageDraw.Draw(ov)
-        od.text((x, 1080), 'APPLE', font=f, fill=WHITE + (a,)); od.text((x + w1, 1080), 'OPS', font=f, fill=BLUE + (a,))
-        f2 = font('Inter-SemiBold.otf', 34); s2 = 'by Enlata2'
+        od.text((x, 1080), WORD[0], font=f, fill=WHITE + (a,)); od.text((x + w1, 1080), WORD[1], font=f, fill=ACCENT + (a,))
+        f2 = font('Inter-SemiBold.otf', 34); s2 = TAG
         od.text(((W - od.textlength(s2, font=f2)) / 2, 1165), s2, font=f2, fill=SOFT + (a,))
         fr.alpha_composite(ov)
 SFX += [(28.5, 'whoosh'), (28.8, 'confirm')]
