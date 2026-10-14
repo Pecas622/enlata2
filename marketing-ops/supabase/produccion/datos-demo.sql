@@ -34,6 +34,20 @@ begin
      'Bicicletas urbanas, mountain bikes, service completo, cascos, luces, cubiertas',
      '{Directo,Profesional}', 'barato, chino', 'Sacá turno por WhatsApp', 'rodarbikes, ciclismomendoza, mtb',
      'rodarbikes.com.ar', '@rodar.bikes', '+54 9 261 555 0202', '#047857', (select id from profiles where workspace_id = (select id from workspaces order by created_at limit 1) and role = 'Administrador' order by created_at limit 1));
+
+  -- Lo que usa el plan del mes: objetivos, redes, frecuencia, presupuesto, mercado e identidad visual.
+  if to_regclass('public.content_plans') is not null then
+    execute $q$
+  update brands set goals = 'Más pedidos de tortas por encargo y que el barrio nos elija para el desayuno del fin de semana.',
+    channels = '{Instagram,WhatsApp}', posts_per_week = 3, ad_budget = 60000, market = 'Godoy Cruz y alrededores',
+    visual_style = 'Fotos con luz natural sobre madera, tonos cálidos y naranja de la marca.'
+  where id = '00000000-0000-4000-8000-0000000000b1';
+  update brands set goals = 'Llenar los turnos del taller entre semana y vender más bicis urbanas.',
+    channels = '{Instagram,Facebook,TikTok}', posts_per_week = 4, ad_budget = 150000, market = 'Gran Mendoza',
+    visual_style = 'Fotos en la calle y en la montaña, verde de la marca y tipografía bold.'
+  where id = '00000000-0000-4000-8000-0000000000b2'
+    $q$;
+  end if;
 end $$;
 
 -- Piezas de ejemplo en todos los estados del circuito.

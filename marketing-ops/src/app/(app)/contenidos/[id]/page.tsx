@@ -62,15 +62,29 @@ export default async function ContenidoPage({ params, searchParams }: { params: 
               format={c.format}
               wordsAvoid={c.brand?.words_avoid ?? ""}
               approved={c.status === "Aprobado"}
-              initial={{ title: c.title, body: c.body, hashtags: c.hashtags, cta: c.cta, publish_on: c.publish_on ?? "" }}
+              initial={{
+                title: c.title, body: c.body, hashtags: c.hashtags, cta: c.cta, publish_on: c.publish_on ?? "", post_time: c.post_time?.slice(0, 5) ?? "",
+                hook: c.hook, structure: c.structure, resources: c.resources, rationale: c.rationale,
+              }}
             />
           ) : (
             <div className="card stack">
               <h2 className="card-title">Texto</h2>
               <pre className="copy" data-testid="content-readonly">{c.body || "Sin texto todavía."}{c.hashtags && <><br /><br /><span className="tags-line">{c.hashtags}</span></>}</pre>
               <div className="facts" style={{ margin: 0 }}>
-                <span>Publicar</span><b>{c.publish_on ? fmtDate(c.publish_on) : "Sin fecha"}</b>
+                <span>Publicar</span><b>{c.publish_on ? fmtDate(c.publish_on) : "Sin fecha"}{c.post_time ? ` · ${c.post_time.slice(0, 5)} (sugerido)` : ""}</b>
               </div>
+            </div>
+          )}
+          {!editable && (c.hook || c.structure || c.resources || c.rationale) && (
+            <div className="card stack" data-testid="piece-plan">
+              <h2 className="card-title">Plan de la pieza</h2>
+              <div className="facts" style={{ margin: 0 }}>
+                {c.hook && <><span>Gancho</span><b>{c.hook}</b></>}
+                {c.resources && <><span>Recursos</span><b>{c.resources}</b></>}
+                {c.rationale && <><span>Por qué</span><b>{c.rationale}</b></>}
+              </div>
+              {c.structure && <pre className="copy">{c.structure}</pre>}
             </div>
           )}
         </div>

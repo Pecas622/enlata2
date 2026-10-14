@@ -29,44 +29,47 @@ test("el Creador cambia una pieza aprobada de día arrastrándola y sigue aproba
   await expect(page.getByTestId("status-Marcar como publicada")).toBeVisible();
 });
 
-test("plan del mes: agrega ideas y una se escribe con el generador en la misma pieza", async ({ page }) => {
+test("plan del mes: arma el mes completo y las piezas entran como borradores con su plan", async ({ page }) => {
   await login(page, "creador");
   await page.goto("/calendario");
   await page.getByTestId("cal-next").click();
   await page.waitForURL(/mes=/);
   const month = new URL(page.url()).searchParams.get("mes")!;
   await page.getByTestId("plan-open").click();
-  await page.getByTestId("plan-brand").selectOption({ label: "La Espiga" });
-  await page.getByTestId("plan-channel-WhatsApp").check();
-  await page.getByTestId("plan-refresh").click();
+  await page.getByTestId("plan-brand").filter({ hasText: "La Espiga" }).click();
+  await page.waitForURL(/marca=/);
+  await expect(page.getByTestId("plan-settings")).toContainText("Instagram, WhatsApp");
+  await expect(page.getByTestId("plan-none")).toBeVisible();
+  await page.getByTestId("plan-build").click();
   await expect(page.getByTestId("plan-item").first()).toBeVisible();
+  await expect(page.getByTestId("plan-summary")).toContainText("La Espiga");
   const items = await page.getByTestId("plan-item").count();
   expect(items).toBeGreaterThanOrEqual(8);
   await expect(page.getByTestId("plan-list")).toContainText("WhatsApp");
-  // Se puede destildar una; la vuelvo a tildar y agrego todas.
-  await page.getByTestId("plan-item").first().click();
-  await expect(page.getByTestId("plan-add")).toHaveText(`Agregar ${items - 1} ideas al calendario`);
-  await page.getByTestId("plan-item").first().click();
+  await expect(page.getByTestId("plan-item").first()).toContainText("Por qué:");
+  await page.getByTestId("plan-item").first().getByText("Gancho, guion, texto y recursos").click();
+  await expect(page.getByTestId("plan-item").first()).toContainText("Recursos");
+  // Destildo una y agrego el resto.
+  await page.getByTestId("plan-check").first().uncheck();
+  await expect(page.getByTestId("plan-add")).toHaveText(`Agregar ${items - 1} piezas al calendario`);
   await page.getByTestId("plan-add").click();
   await page.waitForURL(/agregadas=/);
   expect(new URL(page.url()).searchParams.get("mes")).toBe(month);
-  await expect(page.getByText(`Se agregaron ${items} ideas`)).toBeVisible();
-  await expect(page.getByTestId("cal-gap")).toHaveCount(0);
+  await expect(page.getByText(`Se agregaron ${items - 1} piezas del plan`)).toBeVisible();
 
-  const idea = page.getByTestId("calendar").locator('[data-testid="cal-piece"][data-status="Idea"]').first();
-  const title = (await idea.locator("b").textContent())!;
-  await idea.click();
-  await expect(page.getByTestId("history")).toContainText("Sugerida en el plan del mes · Lucía");
-  await page.getByTestId("idea-generate").click();
-  await expect(page.getByText(`Escribiendo la idea “${title}”`)).toBeVisible();
-  await expect(page.getByTestId("gen-topic")).toHaveValue(title);
-  await page.getByTestId("gen-submit").click();
-  await expect(page.getByTestId("variant")).toHaveCount(3);
-  await page.getByTestId("variant").first().getByTestId("variant-save").click();
-  await page.waitForURL(/nueva=1/);
-  await expect(page.getByText("Borrador").first()).toBeVisible();
-  await expect(page.getByTestId("history")).toContainText("Sugerida en el plan del mes");
-  await expect(page.getByTestId("content-editor")).toBeVisible();
+  const piece = page.getByTestId("calendar").locator('[data-testid="cal-piece"][data-status="Borrador"]').first();
+  await expect(piece.locator("small")).toContainText(/\d{2}:\d{2} ·/);
+  await piece.click();
+  await expect(page.getByTestId("history")).toContainText("Planificada con plantilla · Lucía");
+  await expect(page.getByTestId("content-body")).not.toHaveValue("");
+  await expect(page.getByTestId("content-hook")).not.toHaveValue("");
+  await expect(page.getByTestId("content-rationale")).not.toHaveValue("");
+  await expect(page.getByTestId("content-time")).toHaveValue(/\d{2}:\d{2}/);
+
+  // El plan recuerda lo que ya pasó al calendario; la que destildé se puede sumar después.
+  await page.goto(`/calendario/plan?mes=${month}&marca=00000000-0000-4000-8000-0000000000b1`);
+  await expect(page.getByTestId("plan-added")).toHaveCount(items - 1);
+  await expect(page.getByTestId("plan-add")).toHaveText("Agregar 1 pieza al calendario");
 });
 
 test("el Revisor ve el calendario pero no mueve piezas ni arma planes", async ({ page }) => {

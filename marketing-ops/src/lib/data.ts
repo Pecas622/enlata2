@@ -1,13 +1,13 @@
 // Lecturas comunes. Todo pasa por RLS: cada usuario solo ve su espacio de trabajo.
 import { createClient } from "@/lib/supabase/server";
 import type { Channel, Format, Goal } from "@/lib/channels";
-import type { BrandCtx } from "@/lib/generator";
+import type { Plan, PlanBrand } from "@/lib/planner";
 import type { Status } from "@/lib/workflow";
 import { localDay } from "@/lib/dates";
 import type { PieceResult, Results } from "@/lib/metrics";
 import type { Research } from "@/lib/research";
 
-export type BrandRow = BrandCtx & { id: string; color: string; updated_at: string };
+export type BrandRow = PlanBrand & { id: string; color: string; updated_at: string };
 
 export type ContentRow = {
   id: string;
@@ -22,6 +22,11 @@ export type ContentRow = {
   cta: string;
   status: Status;
   publish_on: string | null;
+  post_time: string | null;
+  hook: string;
+  structure: string;
+  resources: string;
+  rationale: string;
   campaign_id: string | null;
   source: "ia" | "plantilla" | "manual";
   created_at: string;
@@ -30,19 +35,22 @@ export type ContentRow = {
   author: { name: string } | null;
 };
 
-export const BRAND_COLS = "id, name, industry, city, description, audience, value_prop, products, tone, words_avoid, cta, hashtags, website, instagram, whatsapp, color, updated_at";
-export const CONTENT_COLS = "id, brand_id, channel, format, goal, topic, title, body, hashtags, cta, status, publish_on, campaign_id, source, created_at, updated_at, brands(name, color), author:profiles!contents_created_by_fkey(name)";
+export const BRAND_COLS = "id, name, industry, city, description, audience, value_prop, products, tone, words_avoid, cta, hashtags, website, instagram, whatsapp, color, goals, channels, posts_per_week, ad_budget, market, visual_style, updated_at";
+export const CONTENT_COLS = "id, brand_id, channel, format, goal, topic, title, body, hashtags, cta, status, publish_on, post_time, hook, structure, resources, rationale, campaign_id, source, created_at, updated_at, brands(name, color), author:profiles!contents_created_by_fkey(name)";
+
+// numeric llega como texto desde PostgREST.
+const asBrand = (r: Record<string, unknown>) => ({ ...r, ad_budget: Number(r.ad_budget) }) as unknown as BrandRow;
 
 export async function listBrands(): Promise<BrandRow[]> {
   const supabase = await createClient();
   const { data } = await supabase.from("brands").select(BRAND_COLS).order("name");
-  return (data ?? []) as BrandRow[];
+  return (data ?? []).map(asBrand);
 }
 
 export async function getBrand(id: string): Promise<BrandRow | null> {
   const supabase = await createClient();
   const { data } = await supabase.from("brands").select(BRAND_COLS).eq("id", id).maybeSingle();
-  return (data as BrandRow | null) ?? null;
+  return data ? asBrand(data) : null;
 }
 
 export async function listContents(): Promise<ContentRow[]> {
@@ -118,4 +126,14 @@ export async function listResearch(brandId: string, limit = 8): Promise<Research
   const supabase = await createClient();
   const { data } = await supabase.from("brand_research").select(RESEARCH_COLS).eq("brand_id", brandId).order("created_at", { ascending: false }).limit(limit);
   return (data ?? []) as unknown as ResearchRow[];
+}
+
+export type PlanRow = Plan & { id: string; brand_id: string; month: string; source: "ia" | "plantilla"; created_at: string; author: { name: string } | null };
+export const PLAN_COLS = "id, brand_id, month, source, summary, items, created_at, author:profiles!content_plans_created_by_fkey(name)";
+
+// El último plan armado para una marca y un mes.
+export async function latestPlan(brandId: string, month: string): Promise<PlanRow | null> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("content_plans").select(PLAN_COLS).eq("brand_id", brandId).eq("month", month).order("created_at", { ascending: false }).limit(1).maybeSingle();
+  return (data as unknown as PlanRow | null) ?? null;
 }

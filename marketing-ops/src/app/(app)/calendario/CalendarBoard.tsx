@@ -7,7 +7,7 @@ import { formatLabel, type Channel, type Format } from "@/lib/channels";
 import { statusTone, type Status } from "@/lib/workflow";
 import { reschedule } from "./actions";
 
-export type CalPiece = { id: string; title: string; channel: Channel; format: Format; status: Status; publish_on: string | null; brand: string; color: string };
+export type CalPiece = { id: string; title: string; channel: Channel; format: Format; status: Status; publish_on: string | null; time: string; brand: string; color: string };
 type Week = { start: string; count: number; target: number; short: boolean };
 
 export function CalendarBoard({ month, today, weeks, pieces: initial, dates, load, canMove, planHref }: {
@@ -65,7 +65,7 @@ export function CalendarBoard({ month, today, weeks, pieces: initial, dates, loa
       data-status={p.status}
     >
       <b>{p.title}</b>
-      <small>{p.channel} · {formatLabel(p.format, p.channel)}</small>
+      <small>{p.time ? `${p.time} · ` : ""}{p.channel} · {formatLabel(p.format, p.channel)}</small>
     </Link>
   );
 

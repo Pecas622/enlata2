@@ -18,7 +18,9 @@ Stack: Next.js (App Router) + TypeScript, Supabase (Postgres, Auth, RLS), Vercel
 | 3 | Campañas | Objetivo, fechas, presupuesto en pesos y público; agrupa piezas de la marca (sumar existentes o generar desde la campaña) con su avance; brief para Meta Ads con objetivo sugerido según vendas por web o por WhatsApp, presupuesto por día, segmentación, ubicaciones según los formatos y los textos de los anuncios, para copiar | Hecho |
 | 4 | Métricas | Carga de resultados en cada pieza publicada (alcance, interacciones, clics, consultas, ventas e inversión); tablero por período y marca con la comparación contra el período anterior, desglose por formato y por red, resultados por campaña con costo por consulta; análisis de qué funcionó, qué no y qué repetir el mes que viene, por reglas o con IA (que no puede usar números que no estén en los datos) | Hecho |
 | 5 | Investigar | Antes de escribir, Claude busca en internet qué publica la competencia y de qué se habla en el rubro y la ciudad de la marca, y propone ideas. Cada tendencia y cada competidor trae las páginas de donde sale; lo que no tiene fuente real se descarta, y las ideas no pueden traer precios ni descuentos. Las investigaciones quedan guardadas y sus ideas pasan al calendario o al generador. Sin clave de IA, ideas para arrancar con las fechas que vienen y lo que vende la marca | Hecho |
-| 6 | Publicación y equipo | Publicar en Instagram y Facebook desde la app, usuarios por espacio de trabajo, portal del cliente para agencias | |
+| 6 | Plan mensual con IA | La marca suma objetivos, redes, publicaciones por semana, presupuesto, mercado e identidad visual. El plan del mes trae, para cada fecha libre, horario sugerido, red, formato, objetivo, tema, gancho, guion o estructura, texto, llamado a la acción, recursos y por qué se propone. Con IA, Claude decide el mes con la investigación y lo que funcionó, y escribe cada pieza; sin clave o si falla, reglas y plantillas. Las piezas elegidas entran al calendario como borradores y siguen el circuito de aprobación | Hecho |
+| 7 | Inicio, equipo y límites | Inicio con qué publicar hoy, qué falta aprobar y cómo viene el mes; usuarios por espacio de trabajo; límites por plan | |
+| 8 | Publicación | Conexión oficial con Instagram (y después TikTok y Facebook), estados Programado y Error, publicado solo con confirmación de la red | |
 
 ## Correr en tu máquina
 
@@ -62,6 +64,7 @@ Para volver a los datos demo: `npm run db:reset`.
 - `src/lib/generator-ai.ts`: el mismo pedido a Claude con salida JSON con esquema. Si falla o tarda más de 40 s, la acción usa las plantillas y lo avisa en pantalla.
 - `src/lib/calendar.ts`: grilla del mes, fechas comerciales argentinas (las móviles calculadas: Día de la Madre, del Padre, de las Infancias, Pascuas, Carnaval, Black Friday), semanas flojas y `suggestPlan`, que arma el plan del mes sin pisar días ocupados ni repetir una fecha que ya tiene pieza.
 - `src/lib/campaigns.ts`: estado por fechas, presupuesto por día, avance y `buildBrief`, que arma el brief para Meta Ads. Usa los anuncios escritos de la campaña y, si no hay, propone textos con las plantillas; lo que sale de la marca y no de la campaña (ubicación, intereses) se marca como sugerido.
+- `src/lib/planner.ts` y `src/lib/planner-ai.ts`: el plan del mes completo. Las fechas salen de `suggestPlan` con la frecuencia y las redes de la marca. Claude decide en un paso qué va en cada fecha (`parseStrategy`: solo fechas dadas, redes de la marca y temas sin ofertas inventadas) y en otro escribe las piezas en tandas en paralelo (`parsePieces`: lo que se pasa de largo, inventa precios o usa palabras prohibidas se escribe con plantillas). Sin clave, `rulePlan`.
 - `src/lib/research.ts` y `src/lib/research-ai.ts`: la investigación. Claude con búsqueda web (`web_search`) devuelve tendencias, competencia e ideas con sus fuentes; `parseResearch` descarta lo que cita páginas que la búsqueda no encontró y las ideas con precios, porcentajes o cuotas inventados. Sin clave, `ruleIdeas` propone ideas con las fechas comerciales y los productos de la marca.
 - `src/lib/workflow.ts` y `src/lib/roles.ts`: circuito de aprobación y permisos para la interfaz.
 - `supabase/migrations/`: esquema, RLS y funciones `save_brand`, `save_content`, `set_content_status`, `can_move`, `schedule_content` (reprogramar sin tocar el estado) `add_plan_ideas` (todas las ideas del plan en una transacción), `save_campaign` y `set_content_campaign`.
@@ -73,6 +76,8 @@ Tablas, funciones, permisos y cómo armar la base en un Supabase nuevo (SQL para
 ### Generador con IA
 
 Con `ANTHROPIC_API_KEY` cada "Generar" es una llamada a Claude (`claude-opus-5-5` con esfuerzo bajo), que tiene costo por uso. El modelo recibe la marca y el pedido, y tiene prohibido inventar ofertas; igual, `checkCopy` marca cualquier precio o porcentaje que no esté en lo que escribió la persona.
+
+"Armar plan con IA" hace una llamada para decidir el mes y una por cada 5 piezas (en paralelo), con esfuerzo bajo. Tarda entre medio minuto y dos minutos y cada plan queda guardado.
 
 "Investigar con IA" es más cara que generar: hace hasta 6 búsquedas web (que se cobran aparte de los tokens) y puede tardar uno o dos minutos. Por eso se pide a mano y cada resultado queda guardado.
 
