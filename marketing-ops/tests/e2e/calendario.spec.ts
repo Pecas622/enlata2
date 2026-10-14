@@ -81,3 +81,63 @@ test("el Revisor ve el calendario pero no mueve piezas ni arma planes", async ({
   await page.goto("/calendario/plan");
   await expect(page).toHaveURL(/\/calendario$/);
 });
+
+test("vistas semanal y diaria, con filtros por red y estado", async ({ page }) => {
+  await login(page, "creador");
+  // "Jueves de budines" está aprobada en el seed; otro test la cambia de día, así que se lee su fecha.
+  await page.goto("/contenidos");
+  await page.getByText("Jueves de budines").first().click();
+  await page.waitForURL(/\/contenidos\/[0-9a-f-]+$/);
+  const day = await page.getByTestId("content-date").inputValue();
+  expect(day).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  await page.goto(`/calendario?vista=semana&dia=${day}`);
+  await expect(page.getByTestId("cal-month")).toContainText("Semana del");
+  await expect(page.getByTestId("calendar").locator('[data-testid^="cal-day-"]')).toHaveCount(7);
+  await expect(page.getByTestId(`cal-day-${day}`).getByText("Jueves de budines")).toBeVisible();
+  await page.getByTestId("cal-filter-status").selectOption("Borrador");
+  await page.waitForURL(/estado=Borrador/);
+  await expect(page.getByTestId(`cal-day-${day}`).getByText("Jueves de budines")).toHaveCount(0);
+  await page.getByTestId("cal-filter-status").selectOption("");
+  await page.waitForURL((u) => !u.searchParams.has("estado"));
+  await page.getByTestId(`cal-day-${day}`).getByTestId("cal-dayhead").click();
+  await page.waitForURL(/vista=dia/);
+  const piece = page.getByTestId("day-piece").filter({ hasText: "Jueves de budines" });
+  await expect(piece).toHaveAttribute("data-status", "Aprobado");
+  await expect(piece.getByTestId("piece-actions")).toBeVisible();
+  await page.getByTestId("cal-filter-red").selectOption("TikTok");
+  await page.waitForURL(/red=TikTok/);
+  await expect(page.getByTestId("day-piece").filter({ hasText: "Jueves de budines" })).toHaveCount(0);
+  await page.getByTestId("cal-view-mes").click();
+  await page.waitForURL((u) => !u.searchParams.has("vista"));
+  await expect(page.getByTestId("cal-month")).toHaveText(new RegExp(String(new Date(day + "T12:00:00Z").getUTCFullYear())));
+});
+
+test("duplicar, adaptar a otra red y borrar una pieza", async ({ page }) => {
+  await login(page, "creador");
+  await page.goto("/contenidos");
+  await page.getByText("Jueves de budines").first().click();
+  await page.waitForURL(/\/contenidos\/[0-9a-f-]+$/);
+  const original = page.url();
+
+  await page.getByTestId("piece-duplicate").click();
+  await page.waitForURL(/copia=1/);
+  await expect(page.getByTestId("history")).toContainText("Duplicada de “Jueves de budines” · Lucía");
+  await expect(page.getByTestId("content-date")).toHaveValue("");
+  await page.getByTestId("piece-delete").click();
+  await page.getByTestId("piece-delete-confirm").click();
+  await page.waitForURL(/\/contenidos$/);
+
+  await page.goto(original);
+  await page.getByTestId("piece-adapt").click();
+  await page.getByTestId("adapt-channel").selectOption("WhatsApp");
+  await page.getByTestId("adapt-format").selectOption("Mensaje");
+  await page.getByTestId("adapt-go").click();
+  await page.waitForURL(/adaptada=1/);
+  await expect(page.getByTestId("history")).toContainText("Adaptada de “Jueves de budines” para WhatsApp");
+  await expect(page.getByTestId("content-body")).toHaveValue(/Hola! Te escribimos de La Espiga/);
+  await expect(page.getByTestId("content-date")).not.toHaveValue("");
+
+  // Regenerar abre el generador sobre la misma pieza.
+  await page.getByTestId("piece-regen").click();
+  await expect(page.getByText("Regenerando")).toBeVisible();
+});
