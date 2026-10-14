@@ -270,3 +270,18 @@ a { color: inherit; text-decoration: none; }
 .idea-row .sub { font-size: 12.5px; color: var(--gray); margin-top: 2px; }
 .idea-actions { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 .idea-actions .input { width: auto; padding: 6px 8px; }
+
+/* Plan del mes */
+.facts.wide { grid-template-columns: 110px 1fr; }
+.plan-piece { display: flex; flex-direction: column; gap: 8px; }
+.plan-piece.muted-card { opacity: .7; }
+.plan-piece-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.plan-piece-head input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); }
+.plan-piece .sub, .plan-texts .sub { color: var(--gray); font-size: 12px; }
+.plan-when { display: flex; flex-direction: column; min-width: 150px; }
+.plan-why { margin: 0; font-size: 13px; color: var(--text, inherit); }
+.plan-piece details summary, .plan-details summary { cursor: pointer; color: var(--accent); font-size: 13px; font-weight: 500; }
+.plan-texts { margin-top: 10px; gap: 12px; }
+.plan-texts .copy { margin-top: 4px; }
+.sticky-actions { position: sticky; bottom: 0; background: var(--bg); padding: 12px 0; z-index: 2; }
+@media (max-width: 720px) { .facts.wide { grid-template-columns: 1fr; } .facts.wide span { margin-top: 6px; } }

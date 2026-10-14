@@ -33,7 +33,7 @@ const SCHEMA = {
   additionalProperties: false,
 } as const;
 
-const FORMAT_GUIDE: Record<string, string> = {
+export const FORMAT_GUIDE: Record<string, string> = {
   Post: "Un posteo: primera línea que frene el scroll, 1 a 3 párrafos cortos y el llamado a la acción al final.",
   Carrusel: "Un carrusel de 4 a 7 placas. Escribí cada placa en su línea como \"Placa N: ...\" (máximo 15 palabras por placa) y al final una línea \"Texto del posteo: ...\".",
   Reel: "Un guion de video vertical de 15 a 30 segundos. Cada escena en su línea con el tiempo, por ejemplo \"0-3 s · Gancho: ...\", con lo que se ve y el texto en pantalla. Al final una línea \"Texto del posteo: ...\".",

@@ -34,6 +34,11 @@ sql = sql.replace(/(-- Una investigación de ejemplo[^\n]*\n)(insert into brand_
   `${comment}do $demo$ begin\n  if to_regclass('public.brand_research') is not null then\n    execute $q$\n${insert.trimEnd().replace(/;$/, "")}\n    $q$;\n  end if;\nend $demo$;\n`);
 if (!sql.includes("$q$")) throw new Error("No encontré la investigación de ejemplo en el seed.");
 
+// 4. Los campos del plan del mes solo si la base ya tiene la etapa 6.
+sql = sql.replace(/(  -- Lo que usa el plan del mes[^\n]*\n)([\s\S]*?)(end \$\$;)/, (_, comment, updates, end) =>
+  `${comment}  if to_regclass('public.content_plans') is not null then\n    execute $q$\n${updates.trimEnd().replace(/;\n/g, ";\n").replace(/;$/, "")}\n    $q$;\n  end if;\n${end}`);
+if (!sql.includes("to_regclass('public.content_plans')")) throw new Error("No encontré los campos del plan en el seed.");
+
 const header = `-- MARKETING OPS · datos demo para ver la app funcionando en producción.
 -- Carga dos marcas de ejemplo (La Espiga y Rodar Bikes) con piezas en todos los estados, campañas, resultados y,
 -- si la base ya tiene la etapa 5, una investigación. Todo queda a nombre del Administrador del espacio de trabajo.

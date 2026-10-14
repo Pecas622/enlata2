@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { TONES } from "@/lib/channels";
+import { CHANNELS, TONES } from "@/lib/channels";
 import type { BrandRow } from "@/lib/data";
 import { saveBrand, type BrandState } from "./actions";
 
@@ -39,6 +39,14 @@ const SECTIONS: { title: string; fields: Field[] }[] = [
       { name: "instagram", label: "Instagram", placeholder: "@tumarca" },
       { name: "whatsapp", label: "WhatsApp", placeholder: "+54 9 261 555 0000" },
       { name: "website", label: "Web" },
+    ],
+  },
+  {
+    title: "Qué quiere lograr y cómo planifica",
+    fields: [
+      { name: "goals", label: "Objetivos", long: true, placeholder: "Más pedidos de tortas por encargo, que nos conozcan en el barrio…", hint: "El plan del mes reparte las piezas según esto." },
+      { name: "market", label: "Mercado", placeholder: "Gran Mendoza, todo el país, comercios del rubro…" },
+      { name: "visual_style", label: "Identidad visual", long: true, placeholder: "Fotos con luz natural, tonos cálidos, tipografía redonda…", hint: "Se suma a los recursos de cada pieza para que todo se vea igual." },
     ],
   },
 ];
@@ -81,6 +89,33 @@ export function BrandForm({ brand, canEdit }: { brand?: BrandRow; canEdit: boole
                 Color de la marca
                 <input className="input" type="color" name="color" defaultValue={brand?.color ?? "#5E5CE6"} style={{ height: 40, padding: 4 }} />
               </label>
+            )}
+            {i === 4 && (
+              <>
+                <div className="field">
+                  Redes donde publica
+                  <div className="chips">
+                    {CHANNELS.map((c) => (
+                      <label key={c} className="check" style={{ marginRight: 8 }}>
+                        <input type="checkbox" name="channels" value={c} defaultChecked={(brand?.channels ?? ["Instagram"]).includes(c)} data-testid={`brand-channel-${c}`} /> {c}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div className="row">
+                  <label className="field" style={{ flex: "0 1 220px" }}>
+                    Publicaciones por semana
+                    <select className="input" name="posts_per_week" defaultValue={String(brand?.posts_per_week ?? 3)} data-testid="brand-posts_per_week">
+                      {[1, 2, 3, 4, 5, 6, 7].map((n) => <option key={n} value={n}>{n} ({n * 4} a {n * 5} por mes)</option>)}
+                    </select>
+                  </label>
+                  <label className="field" style={{ flex: "0 1 220px" }}>
+                    Presupuesto mensual de publicidad
+                    <input className="input" type="number" min={0} step={1000} name="ad_budget" defaultValue={brand?.ad_budget ?? 0} data-testid="brand-ad_budget" />
+                    <span className="hint">En pesos. 0 si por ahora no invierte.</span>
+                  </label>
+                </div>
+              </>
             )}
           </div>
         ))}

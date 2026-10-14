@@ -14,6 +14,11 @@ export async function saveContent(_prev: ActionState, form: FormData): Promise<A
     hashtags: String(form.get("hashtags") ?? "").trim().slice(0, 400),
     cta: String(form.get("cta") ?? "").trim().slice(0, 200),
     publish_on: String(form.get("publish_on") ?? ""),
+    post_time: /^\d{2}:\d{2}$/.test(String(form.get("post_time") ?? "")) ? String(form.get("post_time")) : "",
+    hook: String(form.get("hook") ?? "").trim().slice(0, 300),
+    structure: String(form.get("structure") ?? "").slice(0, 3000),
+    resources: String(form.get("resources") ?? "").trim().slice(0, 500),
+    rationale: String(form.get("rationale") ?? "").trim().slice(0, 500),
   };
   const supabase = await createClient();
   const { error } = await supabase.rpc("save_content", { p_id: id, p });

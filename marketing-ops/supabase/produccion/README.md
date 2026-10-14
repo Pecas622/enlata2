@@ -56,11 +56,12 @@ Todo cuelga de un **espacio de trabajo**: la empresa, el emprendimiento o la age
 | --- | --- |
 | `workspaces` | Los espacios de trabajo. |
 | `profiles` | Las personas: una por usuario de Supabase Auth, con su espacio, su nombre, su rol y si está activa. |
-| `brands` | Las marcas: rubro, ciudad, qué hace, público, por qué la eligen, productos, tono, palabras que no usa, llamado a la acción, hashtags, redes y color. |
-| `contents` | Las piezas: marca, red, formato, objetivo, tema, título, texto, hashtags, llamado a la acción, estado, fecha de publicación, origen (IA, plantilla o manual), campaña y quién la creó y editó. |
+| `brands` | Las marcas: rubro, ciudad, qué hace, público, por qué la eligen, productos, tono, palabras que no usa, llamado a la acción, hashtags, redes y color; y para planificar, objetivos, redes donde publica, publicaciones por semana, presupuesto mensual de publicidad, mercado e identidad visual. |
+| `contents` | Las piezas: marca, red, formato, objetivo, tema, título, texto, hashtags, llamado a la acción, estado, fecha de publicación, horario sugerido, gancho, guion o estructura, recursos, por qué se propone, origen (IA, plantilla o manual), campaña y quién la creó y editó. |
 | `content_events` | El historial de cada pieza: quién la creó, editó, mandó a revisión, aprobó, pidió cambios, publicó, reprogramó, sumó a una campaña o le cargó resultados. |
 | `campaigns` | Las campañas: marca, nombre, objetivo, fechas, presupuesto en pesos, oferta, público, zona, edades, intereses y notas. |
 | `campaign_events` | El historial de cada campaña. |
+| `content_plans` | Los planes del mes de cada marca: mes, si lo armó la IA o las plantillas, la estrategia en pocas frases, las piezas propuestas (con la pieza creada si pasó al calendario), quién y cuándo. |
 | `brand_research` | Las investigaciones con IA de cada marca: qué se pidió mirar, resumen, tendencias del rubro, competencia, ideas (con la pieza creada si se pasó al calendario), fuentes, quién y cuándo. |
 | `content_results` | Los resultados de cada pieza publicada: personas alcanzadas, interacciones, clics, consultas, ventas, inversión en pesos y una nota. Una fila por pieza. |
 
@@ -80,6 +81,8 @@ Valores fijos (enums): roles `Administrador`, `Creador` y `Revisor`; estados `Id
 | `save_results(pieza, datos)` | Carga o corrige los resultados de una pieza publicada. Valida que sean números enteros y no negativos. | Administrador y Creador |
 | `save_research(marca, datos)` | Guarda una investigación ya validada en el servidor. | Administrador y Creador |
 | `add_research_idea(investigación, n, día)` | Pasa la idea n de una investigación al calendario como Idea, una sola vez, y deja registro de que salió de la investigación. | Administrador y Creador |
+| `save_plan(marca, mes, datos)` | Guarda un plan del mes ya validado en el servidor (hasta 62 piezas). | Administrador y Creador |
+| `add_plan_pieces(plan, posiciones)` | Pasa al calendario las piezas elegidas del plan, leídas de la base: con texto como Borrador, sin texto como Idea. Cada una entra una sola vez, nunca en un día que ya pasó, y registra por qué se propuso. | Administrador y Creador |
 
 Funciones de apoyo: `current_workspace_id()`, `current_app_role()`, `is_admin()`, `can_create()`, `can_review()`, `can_move(desde, hasta, rol)` y `dia_ar(fecha)`, que da el día local de Argentina.
 
@@ -99,3 +102,4 @@ Funciones de apoyo: `current_workspace_id()`, `current_app_role()`, `is_admin()`
 | `20261015000000_campanas.sql` | 3 | Campañas, su historial, `contents.campaign_id`, `save_campaign` y `set_content_campaign`. |
 | `20261016000000_metricas.sql` | 4 | `content_results`, `save_results`, y una pieza que se publica sin fecha queda con el día de hoy. |
 | `20261017000000_investigacion.sql` | 5 | `brand_research`, `save_research` y `add_research_idea`: las investigaciones con IA y el paso de sus ideas al calendario. |
+| `20261018000000_plan_mensual.sql` | 6 | Campos para planificar en `brands` y `contents`, `content_plans`, `save_plan` y `add_plan_pieces`; `save_brand` y `save_content` guardan los campos nuevos. |

@@ -23,7 +23,7 @@ export default async function CalendarioPage({ searchParams }: { searchParams: P
   const dates = years.flatMap(commercialDates).filter((d) => d.day >= first && d.day <= last);
   const pieces: CalPiece[] = mine.map((r) => ({
     id: r.id, title: r.title || r.topic || "Sin título", channel: r.channel, format: r.format, status: r.status,
-    publish_on: r.publish_on, brand: r.brands?.name ?? "", color: r.brands?.color ?? "#5E5CE6",
+    publish_on: r.publish_on, time: r.post_time?.slice(0, 5) ?? "", brand: r.brands?.name ?? "", color: r.brands?.color ?? "#5E5CE6",
   }));
   const load = weekLoad(month, mine, PER_WEEK * (brand ? 1 : Math.max(1, brands.length)), today);
   const link = (patch: { mes?: string; marca?: string | null }) => {
@@ -42,7 +42,7 @@ export default async function CalendarioPage({ searchParams }: { searchParams: P
         subtitle={perms.create ? "Qué sale cada día. Arrastrá una pieza para cambiarla de día; las semanas flojas quedan marcadas." : "Qué sale cada día y en qué estado está cada pieza."}
         action={perms.create && monthOf(today) <= month ? <Link className="btn btn-primary" href={planHref} data-testid="plan-open">Armar el plan del mes</Link> : undefined}
       />
-      {sp.agregadas && <div style={{ marginBottom: 12 }}><Notice tone="blue">Se agregaron {sp.agregadas} ideas al calendario. Abrí cada una para escribirla con el generador.</Notice></div>}
+      {sp.agregadas && <div style={{ marginBottom: 12 }}><Notice tone="blue">Se agregaron {sp.agregadas} {sp.agregadas === "1" ? "pieza" : "piezas"} del plan al calendario, como borradores. Abrí cada una para revisarla y mandarla a aprobar.</Notice></div>}
       <div className="cal-toolbar">
         <div className="cal-nav">
           <Link className="btn btn-secondary cal-arrow" href={link({ mes: shiftMonth(month, -1) })} aria-label="Mes anterior" data-testid="cal-prev">‹</Link>
