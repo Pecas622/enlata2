@@ -1,4 +1,4 @@
--- Datos demo (solo para desarrollo y demos). Contraseña "demo1234" para los tres usuarios.
+-- Datos demo (solo para desarrollo y demos). Contraseña "demo1234" para todos los usuarios.
 -- Un espacio de trabajo con dos marcas, para mostrar que sirve a un emprendimiento o a una agencia con varios clientes.
 
 do $$
@@ -6,12 +6,13 @@ declare
   v_ws uuid := '00000000-0000-4000-8000-000000000001';
   u record;
 begin
-  insert into workspaces (id, name) values (v_ws, 'Estudio Demo');
+  insert into workspaces (id, name, plan_id) values (v_ws, 'Estudio Demo', 'agencia');
 
   for u in select * from (values
     ('00000000-0000-4000-8000-0000000000a1'::uuid, 'santiago@demo.marketing-ops.test', 'Santiago', 'Administrador'::user_role),
     ('00000000-0000-4000-8000-0000000000a2'::uuid, 'lucia@demo.marketing-ops.test', 'Lucía', 'Creador'::user_role),
-    ('00000000-0000-4000-8000-0000000000a3'::uuid, 'mati@demo.marketing-ops.test', 'Mati', 'Revisor'::user_role)
+    ('00000000-0000-4000-8000-0000000000a3'::uuid, 'mati@demo.marketing-ops.test', 'Mati', 'Revisor'::user_role),
+    ('00000000-0000-4000-8000-0000000000a4'::uuid, 'carla@demo.marketing-ops.test', 'Carla', 'Revisor'::user_role)
   ) as t(id, email, name, role) loop
     insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
       raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
@@ -22,7 +23,7 @@ begin
     insert into auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
     values (gen_random_uuid(), u.id, u.id::text, jsonb_build_object('sub', u.id::text, 'email', u.email, 'email_verified', true),
       'email', now(), now(), now());
-    insert into profiles (id, workspace_id, name, role) values (u.id, v_ws, u.name, u.role);
+    insert into profiles (id, workspace_id, name, role, email) values (u.id, v_ws, u.name, u.role, u.email);
   end loop;
 
   insert into brands (id, workspace_id, name, industry, city, description, audience, value_prop, products, tone, words_avoid, cta, hashtags, website, instagram, whatsapp, color, updated_by)
@@ -218,3 +219,5 @@ insert into brand_research (id, workspace_id, brand_id, focus, summary, trends, 
     {"url": "https://example.com/el-molino", "title": "Panadería El Molino en Instagram"},
     {"url": "https://example.com/dulce-barrio", "title": "Dulce Barrio: tortas por encargo"}]',
   '00000000-0000-4000-8000-0000000000a2', now() - interval '2 days');
+-- Equipo (etapa 7): Carla es la clienta de La Espiga en la agencia. Es Revisor y solo ve esa marca.
+update profiles set brand_ids = '{00000000-0000-4000-8000-0000000000b1}' where id = '00000000-0000-4000-8000-0000000000a4';

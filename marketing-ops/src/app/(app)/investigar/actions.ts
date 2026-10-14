@@ -7,6 +7,7 @@ import { requireSection } from "@/lib/guard";
 import { AiUnavailable } from "@/lib/generator-ai";
 import { researchWithClaude } from "@/lib/research-ai";
 import { createClient } from "@/lib/supabase/server";
+import { takeAi } from "@/lib/usage";
 
 export type ResearchResult = { id?: string; error?: string };
 
@@ -17,6 +18,7 @@ export async function runResearch(brandId: string, focus: string): Promise<Resea
   if (!process.env.ANTHROPIC_API_KEY) return { error: "La investigación con IA necesita la clave de Anthropic configurada en el servidor." };
   const brand = await getBrand(brandId);
   if (!brand) return { error: "Elegí una marca." };
+  if ((await takeAi("investigar")) === "sin-cupo") return { error: "Se terminaron las acciones con IA de tu plan este mes. Mientras tanto tenés las ideas de abajo." };
   let research;
   try {
     research = await researchWithClaude(brand, focus.slice(0, 300), localDay());

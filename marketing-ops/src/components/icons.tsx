@@ -21,6 +21,7 @@ const PATHS: Record<string, ReactElement> = {
   calendario: <g><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" /><path d="M3.5 10h17M8 3v4M16 3v4" /></g>,
   campanas: <g><path d="M4 10v4h3l8 5V5L7 10H4z" /><path d="M18 9.5a4 4 0 0 1 0 5" /></g>,
   investigar: <g><circle cx="10.5" cy="10.5" r="6.5" /><path d="M15.5 15.5L21 21" /></g>,
+  equipo: <g><circle cx="9" cy="8" r="3.2" /><path d="M3.5 19.5c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5" /><circle cx="17" cy="9" r="2.4" /><path d="M16 14.6c2.4.1 4 1.6 4.5 4.4" /></g>,
   metricas: <g><path d="M5 20V10" /><path d="M12 20V4" /><path d="M19 20v-7" /></g>,
 };
 

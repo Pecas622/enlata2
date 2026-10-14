@@ -19,8 +19,9 @@ Stack: Next.js (App Router) + TypeScript, Supabase (Postgres, Auth, RLS), Vercel
 | 4 | Métricas | Carga de resultados en cada pieza publicada (alcance, interacciones, clics, consultas, ventas e inversión); tablero por período y marca con la comparación contra el período anterior, desglose por formato y por red, resultados por campaña con costo por consulta; análisis de qué funcionó, qué no y qué repetir el mes que viene, por reglas o con IA (que no puede usar números que no estén en los datos) | Hecho |
 | 5 | Investigar | Antes de escribir, Claude busca en internet qué publica la competencia y de qué se habla en el rubro y la ciudad de la marca, y propone ideas. Cada tendencia y cada competidor trae las páginas de donde sale; lo que no tiene fuente real se descarta, y las ideas no pueden traer precios ni descuentos. Las investigaciones quedan guardadas y sus ideas pasan al calendario o al generador. Sin clave de IA, ideas para arrancar con las fechas que vienen y lo que vende la marca | Hecho |
 | 6 | Plan mensual con IA | La marca suma objetivos, redes, publicaciones por semana, presupuesto, mercado e identidad visual. El plan del mes trae, para cada fecha libre, horario sugerido, red, formato, objetivo, tema, gancho, guion o estructura, texto, llamado a la acción, recursos y por qué se propone. Con IA, Claude decide el mes con la investigación y lo que funcionó, y escribe cada pieza; sin clave o si falla, reglas y plantillas. Las piezas elegidas entran al calendario como borradores y siguen el circuito de aprobación. El calendario suma vistas semanal y diaria con filtros por red y estado, y cada pieza se puede duplicar, adaptar a otra red, regenerar o borrar (si no está publicada) desde la pieza o desde la vista del día | Hecho |
-| 7 | Inicio, equipo y límites | Inicio con qué publicar hoy, qué falta aprobar y cómo viene el mes; usuarios por espacio de trabajo; límites por plan | |
-| 8 | Publicación | Conexión oficial con Instagram (y después TikTok y Facebook), estados Programado y Error, publicado solo con confirmación de la red | |
+| 7 | Inicio, equipo y límites | El inicio responde tres preguntas: cómo está funcionando la marca (últimos 30 días contra los anteriores), qué hay que publicar hoy (por horario, con lo aprobado que quedó atrasado) y qué conviene hacer para mejorar (aprobaciones, atrasos, semanas con menos publicaciones que las de la marca, resultados sin cargar y lo que dice el análisis). Cada negocio crea su cuenta desde `/registro` y queda como Administrador de su espacio; invita a su equipo con un link, elige el rol y, para el cliente de una agencia, qué marcas ve (aplicado con RLS). Planes Prueba, Emprendedor y Agencia con tope de marcas, personas y acciones con IA por mes: sin cupo, todo sigue con reglas y plantillas | Hecho |
+| 8 | Redes y archivos | Panel para que cada negocio conecte sus redes con el inicio de sesión oficial; subida de logo, fotos y videos | |
+| 9 | Publicación | Publicar y programar en Instagram (y después TikTok y Facebook), estados Programado y Error, publicado solo con confirmación de la red | |
 
 ## Correr en tu máquina
 
@@ -53,6 +54,7 @@ Contraseña `demo1234` para todos. El espacio "Estudio Demo" tiene dos marcas (L
 | Santiago | santiago@demo.marketing-ops.test | Administrador |
 | Lucía | lucia@demo.marketing-ops.test | Creador |
 | Mati | mati@demo.marketing-ops.test | Revisor |
+| Carla | carla@demo.marketing-ops.test | Revisor que solo ve La Espiga (la clienta de la agencia) |
 
 Para volver a los datos demo: `npm run db:reset`.
 

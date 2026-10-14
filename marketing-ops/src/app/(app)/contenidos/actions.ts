@@ -10,6 +10,7 @@ import { requireSection } from "@/lib/guard";
 import { hookOf, resourcesFor, structureFor, suggestedTime } from "@/lib/planner";
 import { STATUSES, type Status } from "@/lib/workflow";
 import { createClient } from "@/lib/supabase/server";
+import { takeAi } from "@/lib/usage";
 
 export type ActionState = { error?: string; ok?: string };
 
@@ -81,7 +82,7 @@ export async function adaptContent(id: string, channel: string, format: string):
   };
   let v = generateVariants(brand, req)[0];
   let source: "ia" | "plantilla" = "plantilla";
-  if (process.env.ANTHROPIC_API_KEY) {
+  if ((await takeAi("adaptar")) === "ok") {
     try {
       // Si la IA mete un precio o porcentaje que no estaba, se queda la versión por plantilla.
       const ai = (await generateWithClaude(brand, req)).find((x) => !unbackedNumbers(x.body, sourceText(brand, req)).length);
