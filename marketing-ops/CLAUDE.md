@@ -28,7 +28,7 @@ Next.js (App Router) + TypeScript + Postgres vía Supabase (Auth + RLS) + Vercel
 - `SUPABASE_SERVICE_ROLE_KEY`, `ANTHROPIC_API_KEY`, `INSTAGRAM_APP_SECRET`, `TOKENS_KEY` y `CRON_SECRET` solo en el servidor; la clave de servicio la usa solo el publicador. Nunca commitees `.env*`.
 
 ## Estilo visual
-El de APPLE OPS (fondo claro, fuente del sistema, tarjetas redondeadas) con acento índigo `#5E5CE6` para distinguir el producto.
+Tema oscuro propio, distinto del claro de APPLE OPS: fondo grafito, tarjetas con borde fino y radio 14 px, botones con radio 10 px, acento violeta con degradé violeta → magenta en lo principal y tipografía Plus Jakarta Sans (`src/app/layout.tsx`). Todos los colores son variables de `:root` en `src/app/globals.css`: usá esas variables, no colores sueltos. Las vistas previas de Instagram, WhatsApp y Meta Ads siguen claras porque imitan a cada red.
 
 ## Forma de trabajar
 - Por etapas; cada etapa se prueba antes de seguir. Las PRs se nombran `marketing-ops/etapa-N-...`.

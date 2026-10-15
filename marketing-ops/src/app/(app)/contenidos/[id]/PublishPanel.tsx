@@ -58,7 +58,7 @@ export function PublishPanel({ id, account, publication: pub, blocker, canPublis
             <p className="muted" style={{ margin: 0 }} data-testid="publish-blocker">{blocker}</p>
           ) : !canPublish ? (
             <p className="muted" style={{ margin: 0 }}>Publica el Administrador o el Creador.</p>
-          ) : (
+          ) : pub?.status === "Programada" ? null : (
             <p className="muted" style={{ margin: 0 }}>Sale en @{account.username} con el texto, los hashtags y los archivos de la pieza.</p>
           )}
           {ready && (
