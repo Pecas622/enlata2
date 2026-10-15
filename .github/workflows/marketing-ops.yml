@@ -28,7 +28,7 @@ jobs:
         with:
           version: 2.119.0
       - name: Levantar Supabase local con migraciones y seed
-        run: supabase start -x studio,imgproxy,inbucket,edge-runtime,logflare,vector,supavisor,realtime,storage-api
+        run: supabase start -x studio,imgproxy,inbucket,edge-runtime,logflare,vector,supavisor,realtime
       - name: Variables de entorno de prueba
         run: |
           supabase status -o env > /tmp/sb.env

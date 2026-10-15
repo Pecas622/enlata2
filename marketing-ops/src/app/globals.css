@@ -329,3 +329,27 @@ a.cal-num:hover { background: rgba(94,92,230,.12); }
 .cart-line { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid #EDEDF0; }
 .cart-line:first-child { border-top: 0; padding-top: 2px; }
 .cart-line:hover b { color: var(--accent); }
+
+/* Redes */
+.social-row { display: grid; grid-template-columns: 220px 1fr auto; gap: 12px; align-items: center; padding: 12px 0; border-top: 1px solid #EDEDF0; }
+.social-row:first-of-type { border-top: 0; }
+.social-name { display: flex; flex-direction: column; }
+.social-row .sub { color: var(--gray); font-size: 12px; }
+.social-info { display: flex; flex-direction: column; gap: 4px; }
+.muted-row { opacity: .65; }
+.social-row > .badge, .social-row > .btn { justify-self: start; }
+@media (min-width: 721px) { .social-row > .badge, .social-row > .btn { justify-self: end; } }
+@media (max-width: 720px) { .social-row { grid-template-columns: 1fr; } }
+
+/* Archivos */
+.media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.media-tile { margin: 0; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: #fff; display: flex; flex-direction: column; }
+.media-tile img, .media-tile video { width: 100%; aspect-ratio: 1; object-fit: cover; background: #F2F2F5; display: block; }
+.media-tile figcaption { padding: 8px 10px; display: flex; flex-direction: column; gap: 2px; font-size: 12.5px; }
+.media-tile figcaption span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.media-tile figcaption small { color: var(--gray); }
+.media-tile figcaption a { color: var(--accent); }
+.media-tile .btn { align-self: flex-start; padding-left: 0; }
+.media-missing { aspect-ratio: 1; display: grid; place-items: center; color: var(--gray); font-size: 12px; background: #F2F2F5; }
+.media-logo { display: flex; align-items: center; gap: 12px; }
+.media-logo img, .media-logo .media-missing { width: 64px; height: 64px; border-radius: 14px; object-fit: contain; background: #F2F2F5; aspect-ratio: auto; border: 1px solid var(--border); }

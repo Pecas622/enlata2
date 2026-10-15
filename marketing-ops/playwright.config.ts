@@ -15,9 +15,10 @@ export default defineConfig({
   projects: [{ name: "desktop", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
     // Sin ANTHROPIC_API_KEY: el generador usa las plantillas y el test no depende de la IA.
+    // Una app de Instagram de mentira para probar que el botón arma bien el pedido; el test corta antes de salir a Instagram.
     command: `npm run start -- -p ${PORT}`,
     url: `http://localhost:${PORT}/login`,
-    env: { ANTHROPIC_API_KEY: "" },
+    env: { ANTHROPIC_API_KEY: "", INSTAGRAM_APP_ID: "e2e-app", INSTAGRAM_APP_SECRET: "e2e-secret", TOKENS_KEY: "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=" },
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },

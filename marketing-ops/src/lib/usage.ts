@@ -8,6 +8,7 @@ export type PlanUsage = {
   max_brands: number; brands: number;
   max_members: number; members: number;
   ai_per_month: number; ai_used: number;
+  max_storage_mb: number; storage_bytes: number;
 };
 
 export async function planUsage(): Promise<PlanUsage | null> {
