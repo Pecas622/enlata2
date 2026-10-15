@@ -9,12 +9,16 @@ test("el panel de redes manda al inicio de sesión oficial de Instagram y no ace
   await expect(espiga.getByTestId("social-instagram")).toContainText("Sin conectar");
   await expect(espiga).toContainText("Próximamente");
 
-  // Cortamos el pedido a Instagram: solo miramos que salga bien armado.
+  // Solo miramos que el pedido a Instagram salga bien armado; no cargamos su página.
   let authorize = "";
-  await page.route("https://www.instagram.com/**", (route) => {
-    authorize = route.request().url();
-    return route.fulfill({ status: 200, body: "instagram" });
+  page.on("request", (req) => {
+    if (req.url().startsWith("https://www.instagram.com/oauth/authorize")) authorize = req.url();
   });
+  await page.route("https://www.instagram.com/**", (route) =>
+    route.request().url().startsWith("https://www.instagram.com/oauth/authorize")
+      ? route.fulfill({ status: 200, body: "instagram" })
+      : route.abort(),
+  );
   await espiga.getByTestId("social-connect").click();
   await expect.poll(() => authorize).toContain("https://www.instagram.com/oauth/authorize");
   const q = new URL(authorize).searchParams;
