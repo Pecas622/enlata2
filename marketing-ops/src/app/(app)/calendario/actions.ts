@@ -11,6 +11,7 @@ import { planWithClaude } from "@/lib/planner-ai";
 import { localDay } from "@/lib/dates";
 import { requireSection } from "@/lib/guard";
 import { createClient } from "@/lib/supabase/server";
+import { AI_LIMIT_NOTICE, takeAi } from "@/lib/usage";
 
 export async function reschedule(id: string, day: string | null): Promise<{ error?: string }> {
   await requireSection("calendario");
@@ -24,7 +25,7 @@ export async function reschedule(id: string, day: string | null): Promise<{ erro
   return {};
 }
 
-export type PlanResult = { id?: string; error?: string; ai?: boolean };
+export type PlanResult = { id?: string; error?: string; ai?: boolean; notice?: string };
 
 // Arma el plan del mes de una marca y lo guarda. Con clave, Claude decide y escribe cada pieza; sin clave o si la IA
 // falla, lo arman las reglas y las plantillas. Lo que devuelve la IA se valida acá antes de guardarlo.
@@ -42,7 +43,8 @@ export async function buildPlan(brandId: string, month: string): Promise<PlanRes
 
   let plan: Plan & { fixed?: number } = rulePlan(brand, month, existing, today);
   let source: "ia" | "plantilla" = "plantilla";
-  if (process.env.ANTHROPIC_API_KEY) {
+  const ai = await takeAi("plan");
+  if (ai === "ok") {
     const since = addDays(today, -90);
     const rows = publishedPieces(existing, results).filter((p) => p.day >= since);
     const ctx = {
@@ -62,7 +64,7 @@ export async function buildPlan(brandId: string, month: string): Promise<PlanRes
   const { data, error } = await supabase.rpc("save_plan", { p_brand_id: brand.id, p_month: month, p: { source, summary: plan.summary, items: plan.items } });
   if (error) return { error: error.message };
   revalidatePath("/calendario/plan");
-  return { id: data as string, ai: source === "ia" };
+  return { id: data as string, ai: source === "ia", notice: ai === "sin-cupo" ? AI_LIMIT_NOTICE : undefined };
 }
 
 // Pasa al calendario las piezas elegidas. El navegador manda posiciones; el contenido sale del plan guardado.

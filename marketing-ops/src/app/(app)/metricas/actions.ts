@@ -8,6 +8,7 @@ import { AiUnavailable } from "@/lib/generator-ai";
 import { analyzeWithClaude } from "@/lib/insights-ai";
 import { analyze, inPeriod, previousPeriod, resolvePeriod, type Analysis } from "@/lib/metrics";
 import { createClient } from "@/lib/supabase/server";
+import { AI_LIMIT_NOTICE, takeAi } from "@/lib/usage";
 
 export type ResultsState = { error?: string; ok?: string };
 
@@ -48,6 +49,7 @@ export async function analyzeWithAI(mes: string | null, brandId: string | null):
   const prev = all.filter((p) => inPeriod(p.day, prevPeriod));
   const rules = analyze(rows, prev);
   if (!rows.some((p) => p.results)) return { analysis: rules, source: "reglas" };
+  if ((await takeAi("analizar")) === "sin-cupo") return { analysis: rules, source: "reglas", notice: AI_LIMIT_NOTICE };
   try {
     const ai = await analyzeWithClaude(rows, prev, period);
     if (ai.dropped) console.warn(`Análisis con IA: se descartaron ${ai.dropped} puntos con números que no estaban en los datos.`);

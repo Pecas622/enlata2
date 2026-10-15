@@ -29,6 +29,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { id: "campanas", label: "Campañas", icon: "campanas", roles: ROLES },
   { id: "metricas", label: "Métricas", icon: "metricas", roles: ROLES },
   { id: "marca", label: "Marcas", icon: "marca", roles: ROLES },
+  { id: "equipo", label: "Equipo", icon: "equipo", roles: ["Administrador"] },
 ];
 
 // Lo que viene en las próximas etapas. Se muestra atenuado para que el cliente vea hacia dónde va.

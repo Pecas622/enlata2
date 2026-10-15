@@ -29,7 +29,11 @@ for (const u of ["a1", "a2", "a3"]) replace(`'00000000-0000-4000-8000-0000000000
 replace("where c.status = 'Publicado' and c.id <> '00000000-0000-4000-8000-0000000000c1';", `where c.status = 'Publicado' and c.id <> '00000000-0000-4000-8000-0000000000c1' and c.id::text like ${DEMO};`);
 replace("from content_results r;", `from content_results r where r.content_id::text like ${DEMO};`);
 
-// 3. La investigación solo si la base ya tiene la etapa 5.
+// 3. La clienta demo del equipo es un usuario del seed: en producción no existe.
+sql = sql.replace(/-- Equipo \(etapa 7\)[^\n]*\nupdate profiles set brand_ids[^\n]*\n/, "");
+if (sql.includes("brand_ids")) throw new Error("Quedó la clienta demo del equipo en los datos demo.");
+
+// 3b. La investigación solo si la base ya tiene la etapa 5.
 sql = sql.replace(/(-- Una investigación de ejemplo[^\n]*\n)(insert into brand_research[\s\S]*?\);\n)/, (_, comment, insert) =>
   `${comment}do $demo$ begin\n  if to_regclass('public.brand_research') is not null then\n    execute $q$\n${insert.trimEnd().replace(/;$/, "")}\n    $q$;\n  end if;\nend $demo$;\n`);
 if (!sql.includes("$q$")) throw new Error("No encontré la investigación de ejemplo en el seed.");

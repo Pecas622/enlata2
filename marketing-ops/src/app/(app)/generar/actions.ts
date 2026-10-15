@@ -8,6 +8,7 @@ import { AiUnavailable, generateWithClaude } from "@/lib/generator-ai";
 import { requireSection } from "@/lib/guard";
 import { hookOf } from "@/lib/planner";
 import { createClient } from "@/lib/supabase/server";
+import { AI_LIMIT_NOTICE, takeAi } from "@/lib/usage";
 
 export type GenInput = { brandId: string; channel: string; format: string; goal: string; topic: string; offer: string; extra: string; seed: number; ideaId?: string; campaignId?: string };
 export type GenVariant = Variant & { warnings: string[] };
@@ -32,7 +33,8 @@ export async function generate(input: GenInput): Promise<GenResult> {
   let variants: Variant[];
   let source: "ia" | "plantilla" = "plantilla";
   let notice: string | undefined;
-  if (process.env.ANTHROPIC_API_KEY) {
+  const ai = await takeAi("generar");
+  if (ai === "ok") {
     try {
       variants = await generateWithClaude(brand, req);
       source = "ia";
@@ -43,6 +45,7 @@ export async function generate(input: GenInput): Promise<GenResult> {
     }
   } else {
     variants = generateVariants(brand, req, input.seed);
+    if (ai === "sin-cupo") notice = AI_LIMIT_NOTICE;
   }
   const src = sourceText(brand, req);
   return { source, notice, variants: variants.map((v) => ({ ...v, warnings: checkCopy(v, req.channel, req.format, brand, src) })) };
