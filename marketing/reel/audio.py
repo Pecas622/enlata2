@@ -2,7 +2,9 @@ import sys, json, wave
 import numpy as np
 
 sfx_json, out_full, out_sfx = sys.argv[1:4]
-SR, DUR, BPM = 48000, 33.0, 120
+SPEC = json.load(open(sfx_json))   # lista de efectos (render.py) o dict con sfx, dur, drop y break (render_marketing.py)
+if isinstance(SPEC, list): SPEC = {'sfx': SPEC}
+SR, DUR, BPM = 48000, SPEC.get('dur', 33.0), 120
 BEAT = 60 / BPM; N = int(SR * DUR)
 rng = np.random.default_rng(7)
 def t_(d): return np.arange(int(SR * d)) / SR
@@ -55,7 +57,7 @@ CHORDS = [  # (bass root, pad triad, arp notes) one per bar, Am F C G
 
 music = np.zeros((2, N)); drums = np.zeros((2, N)); duck = np.ones(N)
 K, HAT, CLAP = kick(), hat(), clap()
-DROP, BREAK, BACK = 5.0, 26.5, 27.0
+DROP = SPEC.get('drop', 5.0); BREAK, BACK = SPEC.get('break', [26.5, 27.0])
 bars = int(np.ceil(DUR / (4 * BEAT)))
 for b in range(bars):
     t0 = b * 4 * BEAT; root, triad, arp = CHORDS[b % 4]
@@ -117,7 +119,7 @@ def impact():
 FX = {'whoosh': (whoosh, 0.30), 'swish': (swish, 0.22), 'pop': (pop, 0.16), 'tick': (tick, 0.25), 'click': (click, 0.45),
       'confirm': (confirm, 0.30), 'notify': (notify, 0.32), 'hit': (hit, 0.75), 'impact': (impact, 0.7)}
 sfx = np.zeros((2, N))
-for i, (tt, kind) in enumerate(json.load(open(sfx_json))):
+for i, (tt, kind) in enumerate(SPEC['sfx']):
     fn, g = FX[kind]; pan = (-0.3, 0.3)[i % 2] if kind in ('whoosh', 'swish') else 0
     place(sfx, fn(), tt - (0.12 if kind in ('whoosh', 'swish') else 0), g, pan)
 
