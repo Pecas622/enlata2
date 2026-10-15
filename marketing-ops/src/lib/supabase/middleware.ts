@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_PATHS = ["/login", "/registro"];
+const PUBLIC_PATHS = ["/login", "/registro", "/api/cron"]; // el cron se autoriza con CRON_SECRET
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });

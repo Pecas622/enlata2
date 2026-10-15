@@ -12,9 +12,15 @@ import { ContentEditor } from "./ContentEditor";
 import { MediaPanel } from "@/components/media/MediaPanel";
 import { listMedia } from "@/lib/media-server";
 import { PieceActions } from "./PieceActions";
+import { PublishPanel, type Publication } from "./PublishPanel";
+import { igPlan, PUBLISH_FORMATS } from "@/lib/publish";
+import { localDay } from "@/lib/dates";
 import { Preview } from "./Preview";
 import { ResultsForm } from "./ResultsForm";
 import { StatusActions } from "./StatusActions";
+
+// "Publicar ahora" espera a Instagram desde esta página.
+export const maxDuration = 60;
 
 type Event = { id: string; action: string; note: string; at: string; profiles: { name: string } | null };
 
@@ -32,6 +38,16 @@ export default async function ContenidoPage({ params, searchParams }: { params: 
   if (!data) notFound();
   const c = data as unknown as ContentRow & { brand: { words_avoid: string; instagram: string } | null };
   const media = await listMedia({ brandId: c.brand_id, contentId: c.id });
+  const ig = c.channel === "Instagram" && PUBLISH_FORMATS.includes(c.format);
+  const [{ data: pub }, { data: acc }] = ig
+    ? await Promise.all([
+        supabase.from("publications").select("status, scheduled_at, last_error, permalink, published_at").eq("content_id", c.id).maybeSingle(),
+        supabase.from("social_accounts").select("username, status").eq("brand_id", c.brand_id).eq("platform", "Instagram").maybeSingle(),
+      ])
+    : [{ data: null }, { data: null }];
+  const plan = igPlan(c.format, media.filter((m) => m.kind !== "logo").map((m) => ({ path: m.path, mime: m.mime })));
+  const blocker = c.status !== "Aprobado" ? "Se publica cuando la pieza esté aprobada." : plan.ok ? null : plan.error;
+  const today = localDay();
   const editable = canEdit(c.status, user.role);
   const actions = actionsFor(c.status, user.role);
   const idx = STATUSES.indexOf(c.status);
@@ -132,6 +148,12 @@ export default async function ContenidoPage({ params, searchParams }: { params: 
                 canEdit={user.role !== "Revisor"}
               />
             </div>
+          )}
+          {ig && (c.status === "Aprobado" || pub) && (
+            <PublishPanel
+              id={c.id} account={acc as { username: string; status: string } | null} publication={pub as Publication} blocker={blocker} canPublish={perms.create}
+              defaultDay={c.publish_on && c.publish_on >= today ? c.publish_on : today} defaultTime={c.post_time?.slice(0, 5) || "19:00"} minDay={today}
+            />
           )}
           <MediaPanel
             workspaceId={user.workspaceId} brandId={c.brand_id} contentId={c.id} items={media} canEdit={perms.create && c.status !== "Publicado"} back={`/contenidos/${c.id}`}

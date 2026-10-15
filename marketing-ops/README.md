@@ -21,6 +21,7 @@ Stack: Next.js (App Router) + TypeScript, Supabase (Postgres, Auth, RLS), Vercel
 | 6 | Plan mensual con IA | La marca suma objetivos, redes, publicaciones por semana, presupuesto, mercado e identidad visual. El plan del mes trae, para cada fecha libre, horario sugerido, red, formato, objetivo, tema, gancho, guion o estructura, texto, llamado a la acción, recursos y por qué se propone. Con IA, Claude decide el mes con la investigación y lo que funcionó, y escribe cada pieza; sin clave o si falla, reglas y plantillas. Las piezas elegidas entran al calendario como borradores y siguen el circuito de aprobación. El calendario suma vistas semanal y diaria con filtros por red y estado, y cada pieza se puede duplicar, adaptar a otra red, regenerar o borrar (si no está publicada) desde la pieza o desde la vista del día | Hecho |
 | 7 | Inicio, equipo y límites | El inicio responde tres preguntas: cómo está funcionando la marca (últimos 30 días contra los anteriores), qué hay que publicar hoy (por horario, con lo aprobado que quedó atrasado) y qué conviene hacer para mejorar (aprobaciones, atrasos, semanas con menos publicaciones que las de la marca, resultados sin cargar y lo que dice el análisis). Cada negocio crea su cuenta desde `/registro` y queda como Administrador de su espacio; invita a su equipo con un link, elige el rol y, para el cliente de una agencia, qué marcas ve (aplicado con RLS). Planes Prueba, Emprendedor y Agencia con tope de marcas, personas y acciones con IA por mes: sin cupo, todo sigue con reglas y plantillas | Hecho |
 | 8 | Redes y archivos | Panel Redes: cada marca conecta su cuenta profesional de Instagram con el inicio de sesión oficial de Instagram; el permiso queda cifrado y se prueba y renueva desde el panel (Facebook y TikTok, próximamente). Logo, fotos y videos de cada marca y de cada pieza en un espacio privado, con tope por plan | Hecho |
+| 9 | Publicar y programar | Una pieza aprobada de Instagram (post, carrusel, Reel o historia) se publica desde la app con sus fotos o su video, ahora o programada para un día y hora. Pasa a Publicado solo cuando Instagram lo confirma; si falla, queda el motivo y se reintenta. Lo programado sale con un cron cada 5 minutos y se ve en Redes y en el calendario | Hecho |
 | 9 | Publicación | Publicar y programar en Instagram (y después TikTok y Facebook), estados Programado y Error, publicado solo con confirmación de la red | |
 
 ## Correr en tu máquina
@@ -40,11 +41,12 @@ npm run dev                 # http://localhost:3100
 ```
 NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:55321
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
-SUPABASE_SERVICE_ROLE_KEY=...   # solo para los tests de base; la app no la usa
+SUPABASE_SERVICE_ROLE_KEY=...   # tests de base y el publicador de Instagram (solo servidor)
 ANTHROPIC_API_KEY=...           # opcional: el generador escribe con Claude (solo servidor)
 INSTAGRAM_APP_ID=...            # opcional: para conectar Instagram (ver supabase/produccion/README.md)
 INSTAGRAM_APP_SECRET=...        # opcional, solo servidor
 TOKENS_KEY=...                  # con Instagram: openssl rand -base64 32 (solo servidor)
+CRON_SECRET=...                 # para que el cron publique lo programado (solo servidor)
 NEXT_PUBLIC_PRODUCT_NAME=...    # opcional: nombre del producto (por defecto MARKETING OPS)
 ```
 

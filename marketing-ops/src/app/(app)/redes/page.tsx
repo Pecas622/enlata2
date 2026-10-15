@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { Badge, Notice, PageHeader } from "@/components/ui";
+import { PUB_TONE } from "@/lib/publish";
 import { hasTokensKey } from "@/lib/crypto";
 import { listBrands } from "@/lib/data";
 import { fmtDate, fmtDateTime } from "@/lib/dates";
@@ -11,6 +13,7 @@ type Account = {
   id: string; brand_id: string; platform: string; username: string; name: string; picture_url: string; account_type: string;
   followers: number | null; status: string; last_error: string; token_expires_at: string | null; connected_at: string; checked_at: string | null;
 };
+type Pub = { id: string; content_id: string; status: string; scheduled_at: string; published_at: string | null; last_error: string; permalink: string; contents: { title: string; topic: string } | null; brands: { name: string } | null };
 type Event = { id: string; action: string; at: string; profiles: { name: string } | null; brands: { name: string } | null };
 
 const SOON: { platform: string; why: string }[] = [
@@ -22,11 +25,16 @@ export default async function RedesPage({ searchParams }: { searchParams: Promis
   const { perms } = await requireSection("redes");
   const { conectada, error } = await searchParams;
   const supabase = await createClient();
-  const [brands, { data: accounts }, { data: events }] = await Promise.all([
+  const [brands, { data: accounts }, { data: events }, { data: pubs }] = await Promise.all([
     listBrands(),
     supabase.from("social_accounts").select("id, brand_id, platform, username, name, picture_url, account_type, followers, status, last_error, token_expires_at, connected_at, checked_at"),
     supabase.from("social_events").select("id, action, at, profiles(name), brands(name)").order("at", { ascending: false }).limit(10),
+    supabase.from("publications").select("id, content_id, status, scheduled_at, published_at, last_error, permalink, contents(title, topic), brands(name)")
+      .order("scheduled_at", { ascending: false }).limit(40),
   ]);
+  const all = (pubs ?? []) as unknown as Pub[];
+  const pending = all.filter((p) => p.status !== "Publicada").sort((a, b) => a.scheduled_at.localeCompare(b.scheduled_at));
+  const recent = all.filter((p) => p.status === "Publicada").slice(0, 5);
   const ready = Boolean(process.env.INSTAGRAM_APP_ID && process.env.INSTAGRAM_APP_SECRET) && hasTokensKey();
   const byBrand = (id: string) => ((accounts ?? []) as Account[]).filter((a) => a.brand_id === id);
 
@@ -86,6 +94,28 @@ export default async function RedesPage({ searchParams }: { searchParams: Promis
         })}
       </div>
       {!perms.editBrand && <p className="hint">Solo el Administrador conecta y desconecta cuentas. Vos podés probar que sigan andando.</p>}
+      <div className="card" style={{ marginTop: 16 }} data-testid="redes-publicaciones">
+        <h2 className="card-title">Publicaciones</h2>
+        {!all.length ? (
+          <div className="empty" style={{ padding: 16 }}>Todavía no hay nada programado. Desde una pieza aprobada de Instagram la publicás o la programás.</div>
+        ) : (
+          <div className="timeline">
+            {[...pending, ...recent].map((p) => (
+              <div key={p.id}>
+                <b>
+                  <Link href={`/contenidos/${p.content_id}`}>{p.contents?.title || p.contents?.topic || "Pieza"}</Link>{p.brands ? ` · ${p.brands.name}` : ""}{" "}
+                  <Badge tone={PUB_TONE[p.status] ?? "neutral"}>{p.status}</Badge>
+                </b>
+                {p.status === "Error" && <q>{p.last_error}</q>}
+                <span>
+                  {p.status === "Publicada" ? `Salió el ${fmtDateTime(p.published_at)}` : `${p.status === "Error" ? "Iba a salir" : "Sale"} el ${fmtDateTime(p.scheduled_at)}`}
+                  {p.permalink && <> · <a href={p.permalink} target="_blank" rel="noreferrer">Verla en Instagram</a></>}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
       <div className="card" style={{ marginTop: 16 }}>
         <h2 className="card-title">Historial</h2>
         {!events?.length ? <div className="empty" style={{ padding: 16 }}>Todavía no se conectó ninguna cuenta.</div> : (
