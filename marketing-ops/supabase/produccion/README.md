@@ -8,6 +8,7 @@ Todo lo que necesitás para tener la base de MARKETING OPS en un proyecto de Sup
 | --- | --- |
 | `base.sql` | La base completa (tablas, permisos y funciones) en un solo archivo, para pegar en **SQL Editor** de un Supabase nuevo. Son las migraciones de `supabase/migrations` en orden, y al final quedan registradas, así que un `npx supabase db push` posterior no las repite. No trae datos demo. |
 | `primer-usuario.sql` | Crea el espacio de trabajo y deja a un usuario como Administrador. |
+| `cron-publicar.sql` | El cron de Supabase que publica lo programado en Instagram cada 5 minutos (ver "Publicar y programar"). |
 | `../migrations/*.sql` | Las migraciones una por una: es lo que aplica `npx supabase db push`. |
 | `datos-demo.sql` | Carga las marcas de ejemplo (La Espiga y Rodar Bikes) con piezas, campañas, resultados e investigación en el espacio de trabajo de producción, a nombre de su Administrador, para ver la app funcionando. No crea usuarios. Sale del seed con `npm run db:demo`. |
 | `borrar-datos-demo.sql` | Saca lo que cargó `datos-demo.sql` (las dos marcas demo y todo lo que cuelga de ellas) sin tocar lo tuyo. |
@@ -30,10 +31,12 @@ Todo lo que necesitás para tener la base de MARKETING OPS en un proyecto de Sup
    | `ANTHROPIC_API_KEY` | Opcional. Con ella el generador escribe con Claude, el análisis de métricas usa IA y se puede investigar en internet; sin ella, plantillas y reglas. Solo servidor. |
    | `INSTAGRAM_APP_ID` y `INSTAGRAM_APP_SECRET` | Opcionales. Los de la app de Meta, para que cada marca conecte su Instagram (ver "Conectar Instagram" abajo). Sin ellos, el panel Redes avisa que falta configurar y no deja conectar. Solo servidor. |
    | `TOKENS_KEY` | Con Instagram, obligatoria. La clave con la que se cifran los permisos de las redes antes de guardarlos: 32 bytes en base64, sacala con `openssl rand -base64 32`. Si la cambiás, hay que reconectar las cuentas. Solo servidor. |
+   | `SUPABASE_SERVICE_ROLE_KEY` | Para publicar en Instagram. Supabase > Project Settings > API > clave `service_role` / secret. La usa solo el publicador, en el servidor (ver "Publicar y programar" abajo). Nunca en el navegador. |
+   | `CRON_SECRET` | Para publicar lo programado. Una clave inventada (`openssl rand -hex 32`) con la que el cron se identifica. Solo servidor. |
    | `APP_URL` | Opcional. La dirección pública de la app (por ejemplo `https://marketing-ops-seven.vercel.app`), para armar la vuelta del inicio de sesión de Instagram. Sin ella se usa la del pedido. |
    | `NEXT_PUBLIC_PRODUCT_NAME` | Opcional. El nombre que se muestra (por defecto MARKETING OPS). |
 
-   La app no usa `SUPABASE_SERVICE_ROLE_KEY`: esa clave queda solo para los tests locales.
+   `SUPABASE_SERVICE_ROLE_KEY` y `CRON_SECRET` hacen falta solo para publicar en Instagram; sin ellas, todo lo demás anda igual.
 
 Para sumar a otra persona, invitala desde **Equipo** en la app: te da un link para mandarle, y con él crea su contraseña y entra con el rol que elegiste. Cada espacio nuevo arranca en el plan Prueba; para cambiarlo: `update workspaces set plan_id = 'emprendedor' where name = '<negocio>';` (planes: `prueba`, `emprendedor`, `agencia`).
 
@@ -50,6 +53,18 @@ Para habilitarlo, una sola vez:
 5. Mientras la app está en modo desarrollo, solo conectan las cuentas que sumes como testers en **App roles > Roles > Instagram Testers** (cada una acepta la invitación desde Instagram, en Configuración > Apps y sitios web). Para que conecte cualquier cliente, Meta tiene que aprobar la app (**App Review**) con los permisos `instagram_business_basic` e `instagram_business_content_publish`, con un video que muestre el uso.
 
 Facebook y TikTok aparecen como "Próximamente": todavía no se conectan.
+
+## Publicar y programar
+
+Una pieza **aprobada** de Instagram (post, carrusel, Reel o historia), con sus fotos en JPG o su video, se publica desde la pieza con **Publicar ahora** o se programa para un día y hora. La pieza pasa a Publicado solo cuando Instagram confirma; si algo falla, queda en Error con el motivo y se puede reintentar. Lo programado y los errores se ven también en **Redes**.
+
+Lo programado lo publica un cron que llama a `https://<tu-app>/api/cron/publicar` cada 5 minutos con el encabezado `Authorization: Bearer <CRON_SECRET>`. Con el plan gratis de Vercel el cron propio corre una vez por día, así que conviene usar el de Supabase:
+
+1. Cargá `SUPABASE_SERVICE_ROLE_KEY` y `CRON_SECRET` en Vercel y hacé un redeploy.
+2. En Supabase, **Database > Extensions**: activá `pg_cron` y `pg_net`.
+3. En **SQL Editor**, abrí `cron-publicar.sql`, cambiá la dirección de la app y el `CRON_SECRET`, y corrélo. Para ver que anda: `select status, return_message, start_time from cron.job_run_details order by start_time desc limit 5;`.
+
+Instagram deja publicar hasta 100 piezas por día por cuenta, y baja el archivo de un link firmado que dura una hora.
 
 ## Base que ya existe
 
@@ -88,6 +103,7 @@ Todo cuelga de un **espacio de trabajo**: la empresa, el emprendimiento o la age
 | `plans` | Los planes con sus topes: Prueba (1 marca, 2 personas, 30 acciones con IA por mes, 200 MB de archivos), Emprendedor (2, 4, 200, 2 GB) y Agencia (15, 20, 1500, 20 GB). |
 | `social_accounts` | Las cuentas de redes conectadas a cada marca: red, id y usuario en la red, tipo de cuenta, seguidores, estado (Conectada, Vencida, Error), último error, el permiso cifrado (esta columna no se lee desde la app: solo `social_token`), cuándo vence, quién la conectó y cuándo se probó. |
 | `social_events` | El historial de las conexiones: quién conectó o desconectó qué cuenta. |
+| `publications` | La publicación en Instagram de cada pieza: estado (Programada, Publicando, Publicada, Error), día y hora, intentos, último error, el contenedor que arma Instagram mientras procesa un video, el id y el link de la publicación. |
 | `media_files` | Los archivos de cada marca (logo, fotos y videos) en el bucket privado `media` de Storage, en `<espacio>/<marca>/...`: ruta, nombre, tipo, tamaño, pieza a la que va, quién y cuándo. |
 | `ai_usage` | Cuántas acciones con IA usó cada espacio por mes y por tipo (generar, adaptar, plan, investigar, analizar). |
 
@@ -123,6 +139,9 @@ Valores fijos (enums): roles `Administrador`, `Creador` y `Revisor`; estados `Id
 | `save_social_check(id, datos)` | Guarda lo que devolvió la red al probar la conexión: estado, usuario, seguidores y, si se renovó, el permiso nuevo. | Administrador y Creador |
 | `add_media(datos)` | Registra un archivo ya subido a Storage: lee tamaño y tipo de Storage, valida que sea del espacio y de la marca, y respeta el espacio del plan. | Administrador y Creador |
 | `delete_media(id)` | Saca el registro de un archivo y devuelve la ruta para borrarlo de Storage. | Administrador y Creador |
+| `schedule_publication(pieza, cuándo)` | Programa (o reprograma) la publicación en Instagram de una pieza aprobada, con la cuenta conectada y sus archivos; "Publicar ahora" es programarla para ya. Pone el día y la hora en el calendario. Si la pieza se mueve de día, la publicación se mueve con ella. | Administrador y Creador |
+| `cancel_publication(pieza)` | Cancela una publicación programada o descarta una con error. | Administrador y Creador |
+| `claim_publications`, `save_publication_container`, `save_publication_token`, `finish_publication` | El publicador: toma lo que toca (descarta lo que dejó de estar aprobado o perdió la cuenta), guarda el avance y cierra con el resultado. La pieza pasa a Publicado solo cuando Instagram confirma. | Solo el servidor (clave de servicio) |
 | `plan_usage()` | El plan del espacio, sus topes y lo usado este mes. | Cualquiera del espacio |
 | `add_plan_pieces(plan, posiciones)` | Pasa al calendario las piezas elegidas del plan, leídas de la base: con texto como Borrador, sin texto como Idea. Cada una entra una sola vez, nunca en un día que ya pasó, y registra por qué se propuso. | Administrador y Creador |
 
@@ -148,3 +167,4 @@ Funciones de apoyo: `current_workspace_id()`, `current_app_role()`, `is_admin()`
 | `20261019000000_acciones_piezas.sql` | 6 | `content_deletions`, `copy_content` y `delete_content`: duplicar, adaptar y borrar piezas. |
 | `20261020000000_equipo.sql` | 7 | Equipo (invitaciones, roles y marcas por Revisor con RLS), registro propio con espacio nuevo, planes con topes de marcas, personas y acciones con IA. Los espacios que ya existían quedan en Agencia. |
 | `20261021000000_redes_archivos.sql` | 8 | `social_accounts` con el permiso cifrado y sin lectura desde la app, `social_events`, conectar, desconectar y probar redes; bucket privado `media` con sus políticas, `media_files`, `add_media`, `delete_media` y espacio de archivos por plan. |
+| `20261022000000_publicaciones.sql` | 9 | `publications`, programar, cancelar y el publicador (solo con la clave de servicio); la publicación se mueve con la pieza en el calendario. |
