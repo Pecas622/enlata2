@@ -116,6 +116,24 @@ MARKETING = [
     lambda n, t: cta(n, t, 'Estamos sumando los primeros negocios', 'Enlata2 Marketing está en lanzamiento.', 'Comentá MARKETING', 'y te contamos cómo probarlo'),
 ]
 
+CANJE = AO + 'etapa-3-venta-con-canje.png'
+USADO = [
+    lambda n, t: cover(n, t, 'PLAN CANJE', '3 cosas que mirás antes de tomar un usado', 'Y cómo Enlata2 las convierte en un precio, siempre con la misma regla.'),
+    lambda n, t: feature(n, t, '1 · BATERÍA Y ESTADO', 'No vale lo mismo', 'Un 12 con la batería al 84% y marcas leves no vale lo que uno impecable.', CANJE, (0.59, 0.345, 0.977, 0.44)),
+    lambda n, t: feature(n, t, '2 · iCLOUD E IMEI', 'Si está bloqueado, no se toma', 'Con Buscar mi iPhone activo o el IMEI con denuncia, el equipo no entra.', CANJE, (0.6, 0.555, 0.965, 0.583)),
+    lambda n, t: feature(n, t, '3 · LOS DETALLES', 'Pantalla, cámara, Face ID, carga', 'Cada falla que marcás se descuenta del valor.', CANJE, (0.6, 0.484, 0.965, 0.56)),
+    lambda n, t: feature(n, t, 'EL RESULTADO', 'Un precio que no depende de quién atiende', 'Valor de referencia menos estado, batería y defectos. El vendedor no puede pasarse del sugerido.', CANJE, (0.6, 0.62, 0.965, 0.75)),
+    lambda n, t: cta(n, t, '¿Tus vendedores tasan todos igual?', 'Con Enlata2, sí.', 'Comentá SISTEMA', 'y tasamos uno de tus equipos en la demo'),
+]
+
+APROBACION = [
+    lambda n, t: cover(n, t, 'ENLATA2 MARKETING', 'Tu cliente aprueba en la app, no por audio', 'Para agencias y para el dueño que quiere ver todo antes de que salga.'),
+    lambda n, t: feature(n, t, '1 · REVISIÓN', 'Mandás la pieza a revisión', 'El revisor la ve tal cual va a salir, con su texto y su red.', MO + 'etapa-1-aprobacion.png', MSIDE),
+    lambda n, t: feature(n, t, '2 · APROBAR O PEDIR CAMBIOS', 'El revisor no edita: decide', 'Aprueba, o pide cambios con una nota y la pieza vuelve a borrador.', MO + 'etapa-1-contenidos.png', MSIDE),
+    lambda n, t: feature(n, t, '3 · CALENDARIO', 'Lo aprobado queda con su fecha', 'Si alguien lo edita, vuelve a borrador y hay que aprobarlo de nuevo.', MO + 'etapa-2-calendario.png', MSIDE),
+    lambda n, t: cta(n, t, 'Chau a "¿cuál era la versión final?"', 'Enlata2 Marketing está en lanzamiento.', 'Comentá MARKETING', 'y te contamos cómo probarlo'),
+]
+
 def save_set(name, slides):
     os.makedirs(os.path.join(OUT, name), exist_ok=True)
     for i, fn in enumerate(slides, 1):
@@ -124,6 +142,8 @@ def save_set(name, slides):
 if __name__ == '__main__':
     save_set('carrusel-iphone', IPHONE)
     save_set('carrusel-marketing', MARKETING)
+    save_set('carrusel-usado', USADO)
+    save_set('carrusel-aprobacion', APROBACION)
     p = Image.new('RGB', (1080, 1080), CARBON); isotipo(p, 540, 540, 640); p.save(os.path.join(OUT, 'foto-perfil.png'))
     os.makedirs(os.path.join(OUT, 'destacadas'), exist_ok=True)
     for label in ['Demo', 'Canje', 'Caja', 'Precios', 'Marketing', 'Clientes']:
