@@ -8,7 +8,7 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 OUT = sys.argv[1]           # output mp4 (video only)
-CTA_MODE = sys.argv[2]      # "organico" | "anuncio"
+CTA_MODE = sys.argv[2]      # "organico" | "anuncio" (WhatsApp) | "registro" (anuncio que lleva a crear la cuenta gratis)
 ONLY = [float(x) for x in sys.argv[3:]]
 SRC = os.path.join(os.environ.get('CAPTURAS', '/mnt/project-files/marketing-ops'), '')
 FONT = '/usr/share/fonts/opentype/inter/'
@@ -247,7 +247,7 @@ SFX += [(29.5, 'hit'), (30.05, 'impact')]
 @scene(31.5, 36)
 def cta(fr, t):
     paste_text(fr, text_img('¿LO QUERÉS PARA TU NEGOCIO?', 'InterDisplay-Black.otf', 92, WHITE), 400, t, 0.0, 0.22)
-    label = 'COMENTÁ «MARKETING»' if CTA_MODE == 'organico' else 'ESCRIBINOS POR WHATSAPP'
+    label = {'organico': 'COMENTÁ «MARKETING»', 'registro': 'PROBALO GRATIS'}.get(CTA_MODE, 'ESCRIBINOS POR WHATSAPP')
     p = easeout((t - 0.3) / 0.3)
     if p > 0:
         pulse = 1 + 0.025 * math.sin(max(0, t - 0.9) * 2 * math.pi * 1.0) * (t > 0.9)
@@ -259,7 +259,8 @@ def cta(fr, t):
         od.rounded_rectangle((W / 2 - pw / 2, cy - ph / 2, W / 2 + pw / 2, cy + ph / 2), 75, fill=ACCENT + (int(255 * p),))
         od.text((W / 2 - tw / 2, cy - f.size * 0.62), label, font=f, fill=CARBON + (int(255 * p),))
         fr.alpha_composite(ov)
-    paste_text(fr, text_img('y te contamos cómo probarlo', 'Inter-SemiBold.otf', 46, SOFT), 900, t, 0.55)
+    sub = 'creá tu cuenta y arrancá con tu marca' if CTA_MODE == 'registro' else 'y te contamos cómo probarlo'
+    paste_text(fr, text_img(sub, 'Inter-SemiBold.otf', 46, SOFT), 900, t, 0.55)
     a = int(255 * easeout((t - 0.8) / 0.3))
     if a > 0: wordmark(fr, 1080, 64, a, tag_size=34)
 SFX += [(31.5, 'whoosh'), (31.8, 'confirm')]

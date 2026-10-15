@@ -133,7 +133,7 @@ ffmpeg -i video_organico.mp4 -i musica.m4a -c copy -shortest reel.mp4
 python3 render.py previa organico 1.5 8.8 31.5     # guarda cuadros sueltos para revisar
 ```
 
-El Reel de Enlata2 Marketing sale de [`reel/render_marketing.py`](reel/render_marketing.py), con las capturas de `marketing-ops/` de los archivos del proyecto (`CAPTURAS=/ruta/a/marketing-ops`) y el mismo `audio.py`. CTA orgánico: "Comentá «MARKETING»".
+El Reel de Enlata2 Marketing sale de [`reel/render_marketing.py`](reel/render_marketing.py), con las capturas de `marketing-ops/` de los archivos del proyecto (`CAPTURAS=/ruta/a/marketing-ops`) y el mismo `audio.py`. CTA según el segundo argumento: `organico` dice "Comentá «MARKETING»", `anuncio` manda a WhatsApp y `registro` dice "Probalo gratis", para el anuncio que lleva a crear la cuenta.
 
 La marca que aparece en el Reel está en `WORD` y `TAG` al principio de `render.py` (hoy ENLATA2 · para locales de iPhone; nunca "Apple" en el nombre).
 
