@@ -1,4 +1,4 @@
-"""Reel de Enlata2 Marketing (33 s, 1080x1920) armado con las capturas reales de marketing-ops.
+"""Reel de Enlata2 Marketing (36 s, 1080x1920) armado con las capturas reales de marketing-ops.
 
 Uso igual que render.py: python3 render_marketing.py salida.mp4 organico|anuncio [tiempos para guardar cuadros sueltos]
 El audio sale de audio.py con el .sfx.json que deja este script.
@@ -136,25 +136,25 @@ def scene(start, end):
 WEEK = IMG['semana'].crop((PAD + 200, PAD, PAD + 1280, PAD + 900)).resize((1960, 1633), Image.BICUBIC).filter(ImageFilter.GaussianBlur(5))
 WEEK = Image.blend(WEEK, Image.new('RGB', WEEK.size, (8, 8, 12)), 0.86)
 FADE = Image.fromarray((np.clip(np.minimum(np.arange(980), 979 - np.arange(980)) / 260, 0, 1)[:, None] * np.ones((1, W)) * 255).astype('uint8'))
-@scene(0.0, 2.0)
+@scene(0.0, 2.75)
 def hook(fr, t):
     fr.paste(WEEK.crop((440, int(200 + t * 60), 440 + W, int(200 + t * 60) + 980)), (0, 470), FADE)
-    paste_text(fr, text_img('¿OTRA SEMANA', 'InterDisplay-Black.otf', 112, WHITE, one=True), 640, t, 0.0, 0.18)
-    paste_text(fr, text_img('SIN SABER', 'InterDisplay-Black.otf', 112, WHITE, one=True), 760, t, 0.32, 0.18)
-    paste_text(fr, text_img('QUÉ PUBLICAR?', 'InterDisplay-Black.otf', 112, ACCENT, one=True), 880, t, 0.64, 0.18)
-SFX += [(0.0, 'hit'), (0.32, 'tick'), (0.64, 'tick')]
+    paste_text(fr, text_img('¿OTRA SEMANA', 'InterDisplay-Black.otf', 112, WHITE, one=True), 640, t, 0.0, 0.22)
+    paste_text(fr, text_img('SIN SABER', 'InterDisplay-Black.otf', 112, WHITE, one=True), 760, t, 0.6, 0.22)
+    paste_text(fr, text_img('QUÉ PUBLICAR?', 'InterDisplay-Black.otf', 112, ACCENT, one=True), 880, t, 1.2, 0.22)
+SFX += [(0.0, 'hit'), (0.6, 'tick'), (1.2, 'tick')]
 
 def problem(src, v0, v1, q):
     def fn(fr, t):
-        p = ease(t / 1.0); draw_card(fr, src, tuple(lerp(a, b, p) for a, b in zip(v0, v1)), dim=0.35)
-        paste_text(fr, text_img(q, 'InterDisplay-Black.otf', 96, WHITE), 340, t, 0.0, 0.16)
+        p = ease(t / 1.75); draw_card(fr, src, tuple(lerp(a, b, p) for a, b in zip(v0, v1)), dim=0.35)
+        paste_text(fr, text_img(q, 'InterDisplay-Black.otf', 96, WHITE), 340, t, 0.0, 0.2)
     return fn
-SCENES.append((2.0, 3.0, problem('generar', (590, 530, 820), (590, 540, 700), '¿ESCRIBÍS TODO DE CERO?')))
-SCENES.append((3.0, 4.0, problem('aprobar', (760, 420, 560), (760, 440, 480), '¿EL OK TE LLEGA POR AUDIO?')))
-SCENES.append((4.0, 5.0, problem('metricas', (590, 160, 820), (590, 170, 700), '¿QUÉ FUNCIONÓ EL MES PASADO?')))
-SFX += [(2.0, 'whoosh'), (2.25, 'pop'), (3.0, 'whoosh'), (3.25, 'pop'), (4.0, 'whoosh'), (4.25, 'pop')]
+SCENES.append((2.75, 4.5, problem('generar', (590, 530, 820), (590, 540, 700), '¿ESCRIBÍS TODO DE CERO?')))
+SCENES.append((4.5, 6.25, problem('aprobar', (760, 420, 560), (760, 440, 480), '¿EL OK TE LLEGA POR AUDIO?')))
+SCENES.append((6.25, 8.0, problem('metricas', (590, 160, 820), (590, 170, 700), '¿QUÉ FUNCIONÓ EL MES PASADO?')))
+SFX += [(2.75, 'whoosh'), (3.0, 'pop'), (4.5, 'whoosh'), (4.75, 'pop'), (6.25, 'whoosh'), (6.5, 'pop')]
 
-@scene(5.0, 7.0)
+@scene(8.0, 10.0)
 def solution(fr, t):
     p = easeout(t / 0.35)
     wordmark(fr, 400 + (1 - p) * 30, int(lerp(210, 176, p)), int(255 * p))
@@ -162,7 +162,7 @@ def solution(fr, t):
     paste_text(fr, text_img('TU MARCA, TU TONO, TODO EN UN LUGAR', 'Inter-Bold.otf', 46, SOFT, 900), 720, t, 0.4)
     rise = easeout((t - 0.2) / 0.7)
     if rise > 0: draw_card(fr, 'semana', (590, 290, 820), yoff=int(lerp(700, 200, rise)))
-SFX += [(5.0, 'impact')]
+SFX += [(8.0, 'impact')]
 
 def demo(src, eyebrow, steps, hl, cur=None, swap=None):
     """steps: (tiempo, vista); hl: (tiempo, recuadro, color); cur: (t0, inicio en pantalla, recuadro destino, t clic); swap: (tiempo, eyebrow, título)"""
@@ -185,37 +185,37 @@ def demo(src, eyebrow, steps, hl, cur=None, swap=None):
         else: headline(fr, t, eyebrow[0], eyebrow[1])
     return fn
 
-SCENES.append((7.0, 10.0, demo('marca', ('MARCA', 'CARGÁS TU MARCA UNA VEZ'),
+SCENES.append((10.0, 13.0, demo('marca', ('MARCA', 'CARGÁS TU MARCA UNA VEZ'),
     [(0, (580, 330, 820)), (1.4, (580, 860, 800)), (3.0, (580, 870, 780))],
     [(0.35, (190, 320, 975, 395), INDIGO), (1.6, (190, 760, 975, 1000), INDIGO)], swap=(1.8, 'TONO', 'Y ESCRIBE COMO VOS'))))
-SFX += [(7.0, 'whoosh'), (7.35, 'pop'), (8.8, 'swish'), (9.0, 'pop')]
-SCENES.append((10.0, 13.0, demo('generar', ('GENERAR', 'POSTS, REELS Y ANUNCIOS'),
+SFX += [(10.0, 'whoosh'), (10.35, 'pop'), (11.8, 'swish'), (12.0, 'pop')]
+SCENES.append((13.0, 16.0, demo('generar', ('GENERAR', 'POSTS, REELS Y ANUNCIOS'),
     [(0, (580, 220, 820)), (1.2, (580, 220, 820)), (2.0, (330, 530, 520)), (3.0, (330, 540, 500))],
     [(0.2, (195, 148, 525, 212), INDIGO), (2.0, (195, 450, 430, 630), INDIGO)],
     cur=(0.4, (700, 1500), (198, 333, 316, 361), 1.0), swap=(1.8, 'GENERAR', '3 VERSIONES PARA ELEGIR'))))
-SFX += [(10.0, 'whoosh'), (10.2, 'pop'), (11.0, 'click'), (11.1, 'confirm'), (11.8, 'swish'), (12.0, 'pop')]
-SCENES.append((13.0, 15.5, demo('aprobar', ('APROBACIÓN', 'SIN AUDIOS NI CAPTURAS'),
+SFX += [(13.0, 'whoosh'), (13.2, 'pop'), (14.0, 'click'), (14.1, 'confirm'), (14.8, 'swish'), (15.0, 'pop')]
+SCENES.append((16.0, 18.5, demo('aprobar', ('APROBACIÓN', 'SIN AUDIOS NI CAPTURAS'),
     [(0, (760, 330, 560)), (2.5, (760, 320, 500))],
     [(0.3, (600, 240, 852, 670), INDIGO), (1.4, (600, 150, 664, 176), GREEN)],
     cur=(0.6, (900, 1450), (600, 150, 664, 176), 1.25))))
-SFX += [(13.0, 'whoosh'), (13.3, 'pop'), (14.25, 'click'), (14.35, 'confirm')]
-SCENES.append((15.5, 18.5, demo('plan', ('PLAN DEL MES', 'EL MES, ARMADO'),
+SFX += [(16.0, 'whoosh'), (16.3, 'pop'), (17.25, 'click'), (17.35, 'confirm')]
+SCENES.append((18.5, 21.5, demo('plan', ('PLAN DEL MES', 'EL MES, ARMADO'),
     [(0, (590, 520, 820)), (1.4, (590, 560, 800)), (3.0, (590, 900, 800))],
     [(0.35, (206, 455, 975, 548), INDIGO), (1.9, (206, 842, 975, 935), INDIGO)], swap=(1.8, 'PLAN DEL MES', 'CADA PIEZA CON SU PORQUÉ'))))
-SFX += [(15.5, 'whoosh'), (15.85, 'pop'), (17.3, 'swish'), (17.4, 'pop')]
-SCENES.append((18.5, 21.0, demo('semana', ('CALENDARIO', 'CADA PIEZA CON SU FECHA'),
+SFX += [(18.5, 'whoosh'), (18.85, 'pop'), (20.3, 'swish'), (20.4, 'pop')]
+SCENES.append((21.5, 24.0, demo('semana', ('CALENDARIO', 'CADA PIEZA CON SU FECHA'),
     [(0, (590, 260, 820)), (1.2, (590, 260, 800)), (2.5, (790, 510, 520))],
     [(0.35, (206, 172, 975, 305), INDIGO), (1.6, (600, 455, 975, 572), INDIGO)], swap=(1.4, 'CALENDARIO', 'SABÉS QUÉ FALTA APROBAR'))))
-SFX += [(18.5, 'whoosh'), (18.85, 'pop'), (19.9, 'swish'), (20.1, 'pop')]
-SCENES.append((21.0, 24.0, demo('metricas', ('MÉTRICAS', 'QUÉ FUNCIONÓ'),
+SFX += [(21.5, 'whoosh'), (21.85, 'pop'), (22.9, 'swish'), (23.1, 'pop')]
+SCENES.append((24.0, 27.0, demo('metricas', ('MÉTRICAS', 'QUÉ FUNCIONÓ'),
     [(0, (590, 160, 820)), (1.2, (590, 160, 800)), (2.0, (390, 430, 520)), (3.0, (390, 440, 500))],
     [(0.35, (195, 110, 975, 190), INDIGO), (2.0, (210, 330, 565, 420), GREEN)], swap=(1.8, 'MÉTRICAS', 'Y QUÉ REPETIR'))))
-SFX += [(21.0, 'whoosh'), (21.35, 'pop'), (22.8, 'swish'), (23.0, 'pop')]
+SFX += [(24.0, 'whoosh'), (24.35, 'pop'), (25.8, 'swish'), (26.0, 'pop')]
 
 PHONE_W, PHONE_H = 470, 1017   # pantalla 440x952 dentro de un borde de 15px
 PH_X, PH_Y = (W - PHONE_W) // 2, 640
 PMASK = rounded_mask(440, 952, 52)
-@scene(24.0, 26.5)
+@scene(27.0, 29.5)
 def phone(fr, t):
     headline(fr, t, 'DESDE EL CELULAR', 'GUIONES LISTOS PARA GRABAR')
     rise = easeout(t / 0.35); y = PH_Y + int((1 - rise) * 140)
@@ -230,10 +230,10 @@ def phone(fr, t):
     s = 440 / cw; box = (76, 680, 704, 1196)
     hb = (PH_X + 15 + (box[0] - x0) * s, y + 15 + (box[1] - y0) * s, PH_X + 15 + (box[2] - x0) * s, y + 15 + (box[3] - y0) * s)
     if t > 1.4: highlight(fr, hb, t, INDIGO, 1.4, fill=False, clip=(PH_X + 15, y + 15, PH_X + 455, y + 967))
-SFX += [(24.0, 'whoosh'), (24.4, 'notify'), (25.4, 'pop')]
+SFX += [(27.0, 'whoosh'), (27.4, 'notify'), (28.4, 'pop')]
 
 FLASH = ['generar', 'semana', 'metricas']
-@scene(26.5, 28.5)
+@scene(29.5, 31.5)
 def benefit(fr, t):
     k = min(2, int(t / 0.33)) if t < 1.0 else None
     if k is not None:
@@ -242,9 +242,9 @@ def benefit(fr, t):
         fr.paste(Image.blend(im, Image.new('RGB', im.size, (8, 8, 12)), 0.78), (0, 500))
     paste_text(fr, text_img('MENOS IMPROVISAR.', 'InterDisplay-Black.otf', 124, WHITE, one=True), 700, t, 0.0, 0.16)
     paste_text(fr, text_img('MÁS CONSTANCIA.', 'InterDisplay-Black.otf', 124, ACCENT, one=True), 840, t, 0.55, 0.16)
-SFX += [(26.5, 'hit'), (27.05, 'impact')]
+SFX += [(29.5, 'hit'), (30.05, 'impact')]
 
-@scene(28.5, 33.0)
+@scene(31.5, 36)
 def cta(fr, t):
     paste_text(fr, text_img('¿LO QUERÉS PARA TU NEGOCIO?', 'InterDisplay-Black.otf', 92, WHITE), 400, t, 0.0, 0.22)
     label = 'COMENTÁ «MARKETING»' if CTA_MODE == 'organico' else 'ESCRIBINOS POR WHATSAPP'
@@ -262,8 +262,8 @@ def cta(fr, t):
     paste_text(fr, text_img('y te contamos cómo probarlo', 'Inter-SemiBold.otf', 46, SOFT), 900, t, 0.55)
     a = int(255 * easeout((t - 0.8) / 0.3))
     if a > 0: wordmark(fr, 1080, 64, a, tag_size=34)
-SFX += [(28.5, 'whoosh'), (28.8, 'confirm')]
-DURATION = 33.0
+SFX += [(31.5, 'whoosh'), (31.8, 'confirm')]
+DURATION = 36.0
 
 def frame_at(t):
     fr = BG.convert('RGBA')
@@ -280,4 +280,4 @@ if __name__ == '__main__':
     for i in range(int(DURATION * FPS)):
         ff.stdin.write(frame_at(i / FPS).tobytes())
     ff.stdin.close(); ff.wait()
-    json.dump(SFX, open(OUT + '.sfx.json', 'w'))
+    json.dump({'sfx': SFX, 'dur': DURATION, 'drop': 8.0, 'break': [29.5, 30.0]}, open(OUT + '.sfx.json', 'w'))   # audio.py arma la música sobre estos tiempos
