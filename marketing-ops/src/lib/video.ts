@@ -106,11 +106,28 @@ export function scriptOverlays(body: string): { start: number; end: number; text
   return out;
 }
 
+export const INSTRUCTION_MAX = 400;
+
+// Lo que las reglas entienden de un pedido escrito: cuánto tiene que durar, desde qué segundo arrancar y si va sin textos.
+export function readInstruction(text: string): { seconds?: number; startAt?: number; noText?: boolean } {
+  const t = text.toLowerCase();
+  const num = (m: RegExpMatchArray | null) => (m ? Number(m[1].replace(",", ".")) : undefined);
+  const start = t.match(/(?:arranc[a-zá]*|empez[a-zá]*|desde)\s+(?:en\s+|desde\s+)?(?:el\s+)?(?:segundo\s+)?(\d+(?:[.,]\d+)?)(?:\s*(?:s\b|seg\w*))?/);
+  const startAt = num(start);
+  const rest = start ? t.replace(start[0], " ") : t; // "arrancá en 5 s" es desde dónde, no cuánto dura
+  const seconds = num(rest.match(/(?:dure|dura|de|en|m[aá]ximo|hasta)\s+(\d+(?:[.,]\d+)?)\s*(?:s\b|seg)/)) ?? num(rest.trim().match(/^(\d+(?:[.,]\d+)?)\s*(?:s\b|seg)/));
+  const noText = /sin\s+(?:ning[uú]n\s+)?textos?\b|sin\s+letras|sin\s+leyendas/.test(t);
+  return { ...(seconds ? { seconds } : {}), ...(startAt !== undefined ? { startAt } : {}), ...(noText ? { noText } : {}) };
+}
+
 // Plan sin IA: el principio del video hasta el largo ideal, con el gancho al empezar y el llamado al final.
-// Si la pieza es un guion de Reel, usa sus textos en pantalla con sus tiempos.
-export function rulePlan(duration: number, format: Format, piece: { body: string; hook: string; cta: string }, source: string): VideoPlan {
-  const { ideal } = targetLength(format);
-  const len = round1(Math.min(duration, ideal));
+// Si la pieza es un guion de Reel, usa sus textos en pantalla con sus tiempos. Del pedido escrito toma el largo,
+// desde dónde arrancar y "sin textos".
+export function rulePlan(duration: number, format: Format, piece: { body: string; hook: string; cta: string }, source: string, instruction = ""): VideoPlan {
+  const { ideal, max } = targetLength(format);
+  const ask = readInstruction(instruction);
+  const from = round1(Math.min(Math.max(0, ask.startAt ?? 0), Math.max(0, duration - 1)));
+  const len = round1(Math.min(duration - from, Math.min(max, ask.seconds ?? ideal)));
   const fromScript = scriptOverlays(piece.body);
   const hook = (piece.hook || fromScript[0]?.text || piece.body.split("\n").find((l) => l.trim()) || "").replace(/^(Texto|Gancho):\s*/i, "").trim();
   const cta = piece.cta.trim();
@@ -125,8 +142,9 @@ export function rulePlan(duration: number, format: Format, piece: { body: string
         ...(hook ? [{ inicio: 0, fin: Math.min(3, len), texto: hook, posicion: "arriba" }] : []),
         ...ending,
       ];
-  const plan = validatePlan({ tramos: [{ start: 0, end: len }], textos }, duration, format, source);
-  return { ...plan, summary: len < duration ? `Dejé los primeros ${fmtSec(len)} y sumé el gancho y el llamado a la acción.` : "Dejé el video entero y sumé el gancho y el llamado a la acción." };
+  const plan = validatePlan({ tramos: [{ start: from, end: from + len }], textos: ask.noText ? [] : textos }, duration, format, source);
+  const what = from > 0 ? `Dejé ${fmtSec(len)} desde el segundo ${fmtSec(from).replace(" s", "")}` : len < duration ? `Dejé los primeros ${fmtSec(len)}` : "Dejé el video entero";
+  return { ...plan, summary: `${what}${ask.noText ? ", sin textos" : " y sumé el gancho y el llamado a la acción"}.` };
 }
 
 export function fmtSec(s: number) {

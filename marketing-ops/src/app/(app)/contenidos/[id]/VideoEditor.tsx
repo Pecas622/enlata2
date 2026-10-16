@@ -6,7 +6,7 @@ import { deleteMedia, registerMedia } from "@/app/(app)/archivos/actions";
 import { MAX_FILE_MB, MEDIA_BUCKET, fmtSize, mediaPath } from "@/lib/media";
 import type { Format } from "@/lib/channels";
 import { createClient } from "@/lib/supabase/browser";
-import { OVERLAY_MAX, ffmpegArgs, fmtSec, frameTimes, hasAudio, overlayFiles, planLength, validatePlan, type Position, type VideoPlan } from "@/lib/video";
+import { INSTRUCTION_MAX, OVERLAY_MAX, ffmpegArgs, fmtSec, frameTimes, hasAudio, overlayFiles, planLength, validatePlan, type Position, type VideoPlan } from "@/lib/video";
 import type { Frame } from "@/lib/video-ai";
 import { proposeVideoPlan, type VideoProposal } from "./video-actions";
 
@@ -138,26 +138,34 @@ export function VideoEditor({ id, workspaceId, brandId, format, videos, logoUrl,
   const [withLogo, setWithLogo] = useState(Boolean(logoUrl));
   const [progress, setProgress] = useState(0);
   const [out, setOut] = useState<{ blob: Blob; url: string } | null>(null);
+  const [instruction, setInstruction] = useState("");
   const source = useRef<Uint8Array | null>(null);
+  const sampled = useRef<{ pick: string; duration: number; frames: Frame[] } | null>(null);
   const original = videos.find((v) => v.id === pick);
 
   useEffect(() => () => { if (out) URL.revokeObjectURL(out.url); }, [out]);
 
-  async function analyze() {
+  // Con `previous`, la IA cambia la edición que ya está según el pedido; los fotogramas se reusan.
+  async function analyze(previous?: VideoPlan) {
     if (!original?.url) return;
-    setError(""); setRes(null); setPlan(null); setStep("analizando"); setMsg("Mirando el video…");
+    const back = step === "plan" ? "plan" : "";
+    setError(""); setStep("analizando"); setMsg("Mirando el video…");
     try {
-      const data = await bytes(original.url);
-      source.current = data;
-      const mime = /\.mov$/i.test(original.name) ? "video/quicktime" : "video/mp4";
-      const { duration, frames } = await sampleFrames(data, mime);
-      setDuration(duration);
-      setMsg("Armando la edición…");
-      const r = await proposeVideoPlan(id, { duration, frames });
+      let s = sampled.current?.pick === original.id && source.current ? sampled.current : null;
+      if (!s) {
+        const data = await bytes(original.url);
+        source.current = data;
+        const mime = /\.mov$/i.test(original.name) ? "video/quicktime" : "video/mp4";
+        s = { pick: original.id, ...(await sampleFrames(data, mime)) };
+        sampled.current = s;
+      }
+      setDuration(s.duration);
+      setMsg(instruction.trim() ? "Armando la edición con tu pedido…" : "Armando la edición…");
+      const r = await proposeVideoPlan(id, { duration: s.duration, frames: s.frames, instruction, previous });
       if (r.error || !r.plan) throw new Error(r.error ?? "No se pudo armar la edición.");
       setRes(r); setPlan(r.plan); setStep("plan");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "No se pudo leer el video."); setStep("");
+      setError(e instanceof Error ? e.message : "No se pudo leer el video."); setStep(plan ? back : "");
     }
   }
 
@@ -214,14 +222,21 @@ export function VideoEditor({ id, workspaceId, brandId, format, videos, logoUrl,
       {videos.length > 1 && (
         <label className="field">
           Video
-          <select className="input" value={pick} onChange={(e) => { setPick(e.target.value); setStep(""); setPlan(null); setOut(null); }} disabled={busy} data-testid="video-pick">
+          <select className="input" value={pick} onChange={(e) => { setPick(e.target.value); setStep(""); setPlan(null); setOut(null); sampled.current = null; }} disabled={busy} data-testid="video-pick">
             {videos.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}
           </select>
         </label>
       )}
-      {(step === "" || step === "analizando") && (
+      {(step === "" || step === "plan" || (step === "analizando" && !plan)) && (
+        <label className="field">
+          Cómo lo querés (opcional)
+          <textarea className="input textarea" rows={2} value={instruction} maxLength={INSTRUCTION_MAX} onChange={(e) => setInstruction(e.target.value)} disabled={busy}
+            placeholder="Ej.: que dure 15 segundos, arrancá con el horno y al final poné &quot;Pedí por WhatsApp&quot;" data-testid="video-instruction" />
+        </label>
+      )}
+      {(step === "" || (step === "analizando" && !plan)) && (
         <div>
-          <button className="btn btn-primary" onClick={analyze} disabled={busy || !original?.url} data-testid="video-analyze">
+          <button className="btn btn-primary" onClick={() => analyze()} disabled={busy || !original?.url} data-testid="video-analyze">
             {step === "analizando" ? "Mirando el video…" : "Armar la edición"}
           </button>
         </div>
@@ -232,7 +247,7 @@ export function VideoEditor({ id, workspaceId, brandId, format, videos, logoUrl,
           {step === "armando" && <div className="bar" aria-label="Avance"><i style={{ width: `${Math.round(progress * 100)}%` }} /></div>}
         </div>
       )}
-      {plan && (step === "plan" || step === "armando") && (
+      {plan && (step === "plan" || step === "armando" || step === "analizando") && (
         <div className="stack" data-testid="video-plan">
           <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
             <b>Edición · {fmtSec(planLength(plan))} de {fmtSec(duration)}</b>
@@ -259,7 +274,9 @@ export function VideoEditor({ id, workspaceId, brandId, format, videos, logoUrl,
           {logoUrl && <label className="check"><input type="checkbox" checked={withLogo} onChange={(e) => setWithLogo(e.target.checked)} disabled={busy} /> Poner el logo de la marca</label>}
           <div className="row" style={{ gap: 8 }}>
             <button className="btn btn-primary" onClick={build} disabled={busy} data-testid="video-build">{step === "armando" ? `Armando… ${Math.round(progress * 100)}%` : "Crear el video"}</button>
-            <button className="btn btn-ghost" onClick={analyze} disabled={busy}>Volver a armar</button>
+            <button className="btn btn-ghost" onClick={() => analyze(instruction.trim() ? plan : undefined)} disabled={busy} data-testid="video-reask">
+              {instruction.trim() ? "Cambiar con este pedido" : "Volver a armar"}
+            </button>
           </div>
         </div>
       )}

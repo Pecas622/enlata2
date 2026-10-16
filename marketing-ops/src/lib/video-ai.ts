@@ -37,7 +37,11 @@ const SCHEMA = {
 
 export type Frame = { t: number; data: string }; // data: JPEG en base64, sin el prefijo data:
 
-export type VideoPiece = { channel: Channel; format: Format; goal: string; body: string; hook: string; cta: string; brand: string; wordsAvoid: string };
+export type VideoPiece = {
+  channel: Channel; format: Format; goal: string; body: string; hook: string; cta: string; brand: string; wordsAvoid: string;
+  instruction?: string;    // lo que pidió la persona, con sus palabras
+  previous?: VideoPlan;    // la edición anterior, cuando pide cambios sobre ella
+};
 
 export function videoSystemPrompt() {
   return `Sos editor de videos cortos para redes de pequeñas empresas y emprendimientos de Argentina. Te pasan fotogramas de un video con su momento en segundos y la pieza para la que es, y decidís cómo editarlo.
@@ -48,7 +52,9 @@ Reglas:
 - Los textos en pantalla salen de la pieza (gancho, guion, llamado a la acción). Cortos, que se lean en 2 o 3 segundos. Español rioplatense, con voseo.
 - Nunca inventes precios, descuentos, porcentajes, plazos ni datos. No uses las palabras prohibidas de la marca.
 - Que los textos no tapen lo importante de la imagen: elegí arriba, centro o abajo según lo que ves.
-- El último texto es el llamado a la acción.`;
+- El último texto es el llamado a la acción.
+- Si la persona escribe un pedido, seguilo por encima de estas reglas de estilo (qué mostrar, el orden, los textos, el largo, sin textos), pero nunca inventes datos ni te pases del largo máximo del formato. Los textos que escriba la persona entre comillas van tal cual.
+- Si te pasan la edición anterior, cambiá solo lo que pide el pedido y dejá el resto igual.`;
 }
 
 export function videoUserPrompt(piece: VideoPiece, duration: number) {
@@ -62,8 +68,13 @@ Texto o guion de la pieza:
 ${piece.body.slice(0, 2000)}
 """
 
-El video original dura ${duration.toFixed(1)} s. El editado tiene que durar entre ${min} y ${max} s (ideal ${ideal} s), o menos si el original es más corto. Se ve vertical (9:16).
-Arriba de cada fotograma va su momento en segundos.`;
+El video original dura ${duration.toFixed(1)} s. El editado tiene que durar entre ${min} y ${max} s (ideal ${ideal} s), o menos si el original es más corto o si la persona lo pide. Se ve vertical (9:16).
+Arriba de cada fotograma va su momento en segundos.${piece.previous ? `
+
+Edición anterior (JSON, tiempos en segundos):
+${JSON.stringify({ tramos: piece.previous.segments, textos: piece.previous.overlays })}` : ""}${piece.instruction?.trim() ? `
+
+Pedido de la persona: ${piece.instruction.trim()}` : ""}`;
 }
 
 export async function planWithClaude(piece: VideoPiece, duration: number, frames: Frame[], source: string, client = new Anthropic()): Promise<VideoPlan> {

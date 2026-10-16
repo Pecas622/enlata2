@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type Anthropic from "@anthropic-ai/sdk";
 import { AiUnavailable } from "./generator-ai";
-import { ffmpegArgs, frameTimes, hasAudio, overlayFiles, planLength, rulePlan, scriptOverlays, targetLength, validatePlan, wrap } from "./video";
+import { ffmpegArgs, frameTimes, hasAudio, overlayFiles, planLength, readInstruction, rulePlan, scriptOverlays, targetLength, validatePlan, wrap } from "./video";
 import { planWithClaude, videoUserPrompt, type VideoPiece } from "./video-ai";
 
 const src = "Medialunas recién salidas. Con masa madre. Pedí por WhatsApp.";
@@ -55,6 +55,22 @@ describe("plan de edición", () => {
       { start: 17, end: 20, text: "Pedí por WhatsApp", position: "abajo" },
     ]);
     expect(p.summary).toContain("primeros 20 s");
+  });
+
+  it("reglas: del pedido escrito toman cuánto dura, desde dónde arranca y si va sin textos", () => {
+    expect(readInstruction("que dure 15 segundos")).toEqual({ seconds: 15 });
+    expect(readInstruction("Arrancá en el segundo 5")).toEqual({ startAt: 5 });
+    expect(readInstruction("arrancá en 4 s y que dure 10 seg, sin textos")).toEqual({ startAt: 4, seconds: 10, noText: true });
+    expect(readInstruction("más dinámico, con el horno primero")).toEqual({});
+    const piece = { body: "Medialunas recién salidas.", hook: "", cta: "Pedí por WhatsApp" };
+    const p = rulePlan(60, "Reel", piece, src, "desde el segundo 8, que dure 12 segundos");
+    expect(p.segments).toEqual([{ start: 8, end: 20 }]);
+    expect(p.overlays.map((o) => [o.text, o.start, o.end])).toEqual([["Medialunas recién salidas.", 0, 3], ["Pedí por WhatsApp", 9, 12]]);
+    expect(p.summary).toBe("Dejé 12 s desde el segundo 8 y sumé el gancho y el llamado a la acción.");
+    const bare = rulePlan(60, "Historia", piece, src, "que dure 90 segundos, sin textos");
+    expect(bare.segments).toEqual([{ start: 0, end: 15 }]); // nunca más que el máximo del formato
+    expect(bare.overlays).toEqual([]);
+    expect(bare.summary).toBe("Dejé los primeros 15 s, sin textos.");
   });
 
   it("fotogramas repartidos y sin pasarse del video", () => {
@@ -121,5 +137,17 @@ describe("plan con IA", () => {
 
   it("el pedido dice cuánto tiene que durar", () => {
     expect(videoUserPrompt({ ...piece, format: "Historia" }, 40)).toContain("entre 3 y 15 s");
+  });
+
+  it("con pedido y edición anterior, los manda para cambiar solo lo pedido", async () => {
+    const previous = { segments: [{ start: 0, end: 10 }], overlays: [{ start: 0, end: 3, text: "Medialunas recién salidas", position: "arriba" as const }], summary: "" };
+    const prompt = videoUserPrompt({ ...piece, instruction: "poné \"Abrimos 7 am\" al final", previous }, 20);
+    expect(prompt).toContain('Pedido de la persona: poné "Abrimos 7 am" al final');
+    expect(prompt).toContain('Edición anterior (JSON, tiempos en segundos):\n{"tramos":[{"start":0,"end":10}]');
+    expect(videoUserPrompt(piece, 20)).not.toContain("Pedido de la persona");
+    // El número del pedido es de la persona: pasa el control.
+    const { client } = fake({ tramos: [{ inicio: 0, fin: 10 }], textos: [{ inicio: 7, fin: 10, texto: "Abrimos 7 am", posicion: "abajo" }], resumen: "Sumé el horario." });
+    const plan = await planWithClaude({ ...piece, instruction: "poné \"Abrimos 7 am\" al final" }, 20, [], src + " poné \"Abrimos 7 am\" al final", client);
+    expect(plan.overlays.map((o) => o.text)).toEqual(["Abrimos 7 am"]);
   });
 });
