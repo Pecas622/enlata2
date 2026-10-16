@@ -63,3 +63,38 @@ test("editar video: arma la edición con el guion, crea el video vertical y lo g
   await result.getByTestId("video-remove-original").click();
   await expect(page.getByTestId("media-panel").getByTestId("media-item")).toHaveCount(1);
 });
+
+test("editar video: sigue el pedido escrito y lo cambia sobre la edición que ya está", async ({ page }) => {
+  test.setTimeout(90_000);
+  const title = `Video pedido ${Date.now()}`;
+  const { data, error } = await db.from("contents").insert({
+    workspace_id: WS, brand_id: ESPIGA, channel: "Instagram", format: "Reel", goal: "Vender", topic: title, title, status: "Borrador",
+    body: "Medialunas recién salidas.\n\nPedí por WhatsApp.", hook: "Medialunas recién salidas", cta: "Pedí por WhatsApp",
+  }).select("id").single();
+  if (error) throw error;
+  pieces.push(data.id);
+
+  await login(page, "creador");
+  await page.goto(`/contenidos/${data.id}`);
+  await page.getByTestId("media-input").setInputFiles(video);
+  await expect(page.getByTestId("media-panel").getByTestId("media-item")).toHaveCount(1);
+
+  const editor = page.getByTestId("video-editor");
+  await editor.getByTestId("video-instruction").fill("que dure 5 segundos");
+  await editor.getByTestId("video-analyze").click();
+  const plan = editor.getByTestId("video-plan");
+  await expect(plan.getByTestId("video-segments")).toHaveText("Tramos: 0 s a 5 s");
+  await expect(plan.getByTestId("video-overlay")).toHaveCount(1);
+
+  await editor.getByTestId("video-instruction").fill("arrancá en el segundo 2, que dure 4 segundos, sin textos");
+  await expect(plan.getByTestId("video-reask")).toHaveText("Cambiar con este pedido");
+  await plan.getByTestId("video-reask").click();
+  await expect(plan.getByTestId("video-segments")).toHaveText("Tramos: 2 s a 6 s");
+  await expect(plan.getByTestId("video-overlay")).toHaveCount(0);
+  await expect(plan.getByTestId("video-summary")).toHaveText("Dejé 4 s desde el segundo 2, sin textos.");
+
+  // Sin IA, lo que las reglas no entienden se avisa.
+  await editor.getByTestId("video-instruction").fill("más dinámico, con el horno primero");
+  await plan.getByTestId("video-reask").click();
+  await expect(plan).toContainText("Sin IA, de tu pedido solo puedo aplicar");
+});
