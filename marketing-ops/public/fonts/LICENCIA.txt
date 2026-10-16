@@ -1,0 +1,2 @@
+PlusJakartaSans-ExtraBold.ttf: Plus Jakarta Sans, de Tokotype, con licencia SIL Open Font License 1.1
+(https://openfontlicense.org). La usa el editor de video para escribir los textos en pantalla.

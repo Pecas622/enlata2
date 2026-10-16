@@ -41,3 +41,6 @@ yarn-error.log*
 next-env.d.ts
 test-results/
 playwright-report/
+
+# motor de video, se copia de node_modules (scripts/copiar-ffmpeg.mjs)
+/public/ffmpeg/

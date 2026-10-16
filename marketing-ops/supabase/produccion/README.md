@@ -169,3 +169,4 @@ Funciones de apoyo: `current_workspace_id()`, `current_app_role()`, `is_admin()`
 | `20261021000000_redes_archivos.sql` | 8 | `social_accounts` con el permiso cifrado y sin lectura desde la app, `social_events`, conectar, desconectar y probar redes; bucket privado `media` con sus políticas, `media_files`, `add_media`, `delete_media` y espacio de archivos por plan. |
 | `20261022000000_publicaciones.sql` | 9 | `publications`, programar, cancelar y el publicador (solo con la clave de servicio); la publicación se mueve con la pieza en el calendario. |
 | `20261023000000_editar_con_ia.sql` | 10 | La acción con IA "editar" en `use_ai` y `ai_usage`; `save_content` deja en el historial "Editada con IA" o "Editada automáticamente" con el pedido. |
+| `20261024000000_video_con_ia.sql` | 11 | La acción con IA "video" en `use_ai` y `ai_usage` (el plan de edición de video). |

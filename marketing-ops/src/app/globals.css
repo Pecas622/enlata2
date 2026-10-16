@@ -376,3 +376,4 @@ a.cal-num:hover { background: var(--tint); }
 /* Editar con IA */
 .ai-edit { border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; background: var(--card-2); gap: 10px; }
 .ai-proposal { border-top: 1px solid var(--line); padding-top: 10px; gap: 8px; }
+.video-out { width: 100%; max-width: 280px; aspect-ratio: 9 / 16; border-radius: 12px; background: #000; border: 1px solid var(--border); }
