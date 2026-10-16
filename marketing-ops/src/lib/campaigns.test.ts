@@ -9,7 +9,7 @@ const brand: BrandCtx = {
 };
 const camp: CampaignCore = {
   name: "Día de la Madre", goal: "Promoción", starts_on: "2026-10-08", ends_on: "2026-10-18", budget: 55000,
-  offer: "Torta de frutillas con 15% off encargando antes del jueves", audience: "", locations: "", age_min: 25, age_max: 65, interests: "",
+  offer: "Torta de frutillas con 15% off encargando antes del jueves", product: "Tortas por encargo", link: "", audience: "", locations: "", age_min: 25, age_max: 65, interests: "",
 };
 
 describe("fechas y presupuesto", () => {
@@ -38,6 +38,12 @@ describe("brief para Meta Ads", () => {
     expect(metaObjective("Vender", { website: "rodarbikes.com.ar", whatsapp: "" })).toMatchObject({ objective: "Ventas", button: "Comprar" });
     expect(metaObjective("Lanzamiento", brand).objective).toBe("Reconocimiento");
     expect(metaObjective("Conseguir consultas", { website: "", whatsapp: "" }).destination).toBe("Messenger e Instagram Direct");
+  });
+
+  it("con página propia, el lanzamiento lleva tráfico a esa página y la página gana sobre la web de la marca", () => {
+    expect(metaObjective("Lanzamiento", brand, "https://app.ejemplo.com/registro")).toMatchObject({ objective: "Tráfico", destination: "Sitio web (https://app.ejemplo.com/registro)" });
+    expect(metaObjective("Lanzamiento", brand).destination).not.toContain("zona");
+    expect(metaObjective("Vender", { website: "rodarbikes.com.ar", whatsapp: "" }, "https://rodarbikes.com.ar/promo").destination).toBe("Sitio web (https://rodarbikes.com.ar/promo)");
   });
 
   it("ubicaciones según los formatos", () => {
@@ -75,5 +81,22 @@ describe("brief para Meta Ads", () => {
     expect(text).toContain("Presupuesto: a definir");
     expect(text).toContain("Anuncio 1\nTexto principal: Encargá la torta para mamá");
     expect(text).not.toMatch(/\n\n\n/);
+  });
+
+  it("los anuncios hablan de lo que promociona la campaña, no de su nombre, y no nombran la ciudad si el mercado es más amplio", () => {
+    const enlata: BrandCtx = {
+      name: "Enlata2", industry: "Software para negocios", city: "Mendoza, Argentina", description: "Sistemas que ya vienen listos para cada tipo de negocio.",
+      audience: "Dueños de locales de iPhone", value_prop: "No hay que armar nada: el sistema ya viene hecho para tu rubro.", products: "Enlata2 para locales de iPhone, Enlata2 Marketing",
+      tone: ["Directo"], words_avoid: "", cta: "Escribinos por WhatsApp", hashtags: "enlata2", website: "enlata2.vercel.app", instagram: "@enlata2.app", whatsapp: "+54 9 261 629 8065", market: "Todo el país",
+    };
+    const launch: CampaignCore = { ...camp, name: "Abrimos la lata: Enlata2 Marketing", goal: "Lanzamiento", offer: "", product: "Enlata2 Marketing", link: "https://app.ejemplo.com/registro" };
+    const b = buildBrief(launch, enlata, []);
+    expect(b.objective.objective).toBe("Tráfico");
+    expect(b.locations).toBe("Todo el país");
+    const all = b.ads.map((a) => `${a.primary} ${a.title} ${a.description}`).join(" ");
+    expect(all).not.toMatch(/abrimos la lata/i);
+    expect(all).not.toContain("Mendoza");
+    expect(all).toContain("Enlata2 Marketing");
+    expect(all).not.toContain("enlata2 Marketing");
   });
 });

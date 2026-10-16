@@ -64,6 +64,7 @@ export function userPrompt(brand: BrandCtx, req: GenRequest) {
     nombre: brand.name,
     rubro: brand.industry,
     ciudad: brand.city,
+    mercado: brand.market ?? "",
     que_hace: brand.description,
     a_quien_le_habla: brand.audience,
     por_que_elegirla: brand.value_prop,
