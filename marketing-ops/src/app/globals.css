@@ -372,3 +372,7 @@ a.cal-num:hover { background: var(--tint); }
 .media-missing { aspect-ratio: 1; display: grid; place-items: center; color: var(--gray); font-size: 12px; background: var(--sunken); }
 .media-logo { display: flex; align-items: center; gap: 12px; }
 .media-logo img, .media-logo .media-missing { width: 64px; height: 64px; border-radius: 14px; object-fit: contain; background: var(--sunken); aspect-ratio: auto; border: 1px solid var(--border); }
+
+/* Editar con IA */
+.ai-edit { border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; background: var(--card-2); gap: 10px; }
+.ai-proposal { border-top: 1px solid var(--line); padding-top: 10px; gap: 8px; }

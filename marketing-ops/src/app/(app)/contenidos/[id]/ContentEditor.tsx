@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { checkCopy, type Channel, type Format } from "@/lib/channels";
 import { saveContent, type ActionState } from "../actions";
+import { AiEdit } from "./AiEdit";
 
 type Props = {
   id: string;
@@ -16,11 +17,16 @@ type Props = {
 export function ContentEditor({ id, channel, format, wordsAvoid, initial, approved }: Props) {
   const [state, action, pending] = useActionState<ActionState, FormData>(saveContent, {});
   const [v, setV] = useState(initial);
+  // Si el texto salió de "Editar con IA", se guarda con qué pedido para el historial.
+  const [edited, setEdited] = useState<{ source: "ia" | "reglas"; label: string } | null>(null);
+  useEffect(() => { if (state.ok) setEdited(null); }, [state]);
   const warnings = checkCopy(v, channel, format, { words_avoid: wordsAvoid });
   const len = (v.body + (v.hashtags ? "\n\n" + v.hashtags : "")).length;
   return (
     <form action={action} className="card stack" data-testid="content-editor">
       <input type="hidden" name="id" value={id} />
+      <input type="hidden" name="edited_with" value={edited?.source ?? ""} />
+      <input type="hidden" name="edit_note" value={edited?.label ?? ""} />
       <label className="field">
         Título interno
         <input className="input" name="title" value={v.title} onChange={(e) => setV({ ...v, title: e.target.value })} data-testid="content-title" />
@@ -48,6 +54,11 @@ export function ContentEditor({ id, channel, format, wordsAvoid, initial, approv
           <input className="input" type="time" name="post_time" value={v.post_time} onChange={(e) => setV({ ...v, post_time: e.target.value })} data-testid="content-time" />
         </label>
       </div>
+      <AiEdit
+        id={id} current={{ body: v.body, hashtags: v.hashtags, cta: v.cta }} approved={approved}
+        onApply={(copy, meta) => { setV({ ...v, ...copy }); setEdited(meta); }}
+      />
+      {edited && <div className="ok" role="status" data-testid="ai-edit-applied">Pasé la versión al editor. Revisala y guardá los cambios para que quede.</div>}
       <details className="plan-details" open={Boolean(initial.hook || initial.structure || initial.rationale)}>
         <summary>Gancho, estructura y recursos</summary>
         <div className="stack" style={{ marginTop: 10 }}>
