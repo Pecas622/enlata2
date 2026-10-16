@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "node scripts/copiar-ffmpeg.mjs",
     "dev": "next dev -p 3100",
+    "prebuild": "node scripts/copiar-ffmpeg.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -12,10 +14,14 @@
     "test:e2e": "playwright test",
     "db:reset": "supabase db reset",
     "db:produccion": "node scripts/base-produccion.mjs",
-    "db:demo": "node scripts/datos-demo.mjs"
+    "db:demo": "node scripts/datos-demo.mjs",
+    "postinstall": "node scripts/copiar-ffmpeg.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.131.0",
+    "@ffmpeg/core": "^0.12.10",
+    "@ffmpeg/ffmpeg": "^0.12.15",
+    "@ffmpeg/util": "^0.12.2",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.117.2",
     "next": "15.5.27",

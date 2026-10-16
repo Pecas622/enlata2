@@ -18,6 +18,8 @@ import { localDay } from "@/lib/dates";
 import { Preview } from "./Preview";
 import { ResultsForm } from "./ResultsForm";
 import { StatusActions } from "./StatusActions";
+import { VideoEditor } from "./VideoEditor";
+import { MEDIA_BUCKET } from "@/lib/media";
 
 // "Publicar ahora" espera a Instagram desde esta página.
 export const maxDuration = 60;
@@ -45,6 +47,12 @@ export default async function ContenidoPage({ params, searchParams }: { params: 
         supabase.from("social_accounts").select("username, status").eq("brand_id", c.brand_id).eq("platform", "Instagram").maybeSingle(),
       ])
     : [{ data: null }, { data: null }];
+  const videos = media.filter((m) => m.kind === "video");
+  let logoUrl: string | null = null;
+  if (videos.length && canEdit(c.status, user.role)) {
+    const { data: logo } = await supabase.from("media_files").select("path").eq("brand_id", c.brand_id).eq("kind", "logo").order("created_at", { ascending: false }).limit(1).maybeSingle();
+    if (logo) logoUrl = (await supabase.storage.from(MEDIA_BUCKET).createSignedUrl(logo.path, 3600)).data?.signedUrl ?? null;
+  }
   const plan = igPlan(c.format, media.filter((m) => m.kind !== "logo").map((m) => ({ path: m.path, mime: m.mime })));
   const blocker = c.status !== "Aprobado" ? "Se publica cuando la pieza esté aprobada." : plan.ok ? null : plan.error;
   const today = localDay();
@@ -153,6 +161,12 @@ export default async function ContenidoPage({ params, searchParams }: { params: 
             <PublishPanel
               id={c.id} account={acc as { username: string; status: string } | null} publication={pub as Publication} blocker={blocker} canPublish={perms.create}
               defaultDay={c.publish_on && c.publish_on >= today ? c.publish_on : today} defaultTime={c.post_time?.slice(0, 5) || "19:00"} minDay={today}
+            />
+          )}
+          {editable && perms.create && videos.length > 0 && (
+            <VideoEditor
+              id={c.id} workspaceId={user.workspaceId} brandId={c.brand_id} format={c.format} logoUrl={logoUrl}
+              videos={videos.map((v) => ({ id: v.id, name: v.name, url: v.url }))} oneVideo={["Reel", "Historia", "Post"].includes(c.format)}
             />
           )}
           <MediaPanel
