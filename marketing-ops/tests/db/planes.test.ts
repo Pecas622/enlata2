@@ -73,7 +73,7 @@ describe("límites del plan", () => {
   it("las acciones con IA se cuentan por mes y sin cupo devuelven false sin contar", async () => {
     const { c, ws } = await owner("Ferretería");
     expect((await c.rpc("plan_usage")).data[0].ai_per_month).toBe(30);
-    for (let i = 0; i < 30; i++) expect((await c.rpc("use_ai", { p_kind: i % 2 ? "generar" : "plan" })).data).toBe(true);
+    for (let i = 0; i < 30; i++) expect((await c.rpc("use_ai", { p_kind: ["generar", "plan", "editar"][i % 3] })).data).toBe(true);
     expect((await c.rpc("use_ai", { p_kind: "investigar" })).data).toBe(false);
     expect((await c.rpc("plan_usage")).data[0].ai_used).toBe(30);
     expect((await c.rpc("use_ai", { p_kind: "otra" })).error?.message).toContain("desconocida");

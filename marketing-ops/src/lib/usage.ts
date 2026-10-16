@@ -1,7 +1,7 @@
 // Plan del espacio y su uso del mes. Los topes los aplica la base (triggers y use_ai); acá solo se leen y se piden.
 import { createClient } from "@/lib/supabase/server";
 
-export type AiKind = "generar" | "adaptar" | "plan" | "investigar" | "analizar";
+export type AiKind = "generar" | "adaptar" | "editar" | "plan" | "investigar" | "analizar";
 
 export type PlanUsage = {
   plan: string; plan_name: string;

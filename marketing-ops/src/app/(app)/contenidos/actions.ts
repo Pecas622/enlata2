@@ -27,6 +27,9 @@ export async function saveContent(_prev: ActionState, form: FormData): Promise<A
     structure: String(form.get("structure") ?? "").slice(0, 3000),
     resources: String(form.get("resources") ?? "").trim().slice(0, 500),
     rationale: String(form.get("rationale") ?? "").trim().slice(0, 500),
+    // Si el texto salió de "Editar con IA", el historial dice con qué pedido.
+    edited_with: ["ia", "reglas"].includes(String(form.get("edited_with") ?? "")) ? String(form.get("edited_with")) : "",
+    edit_note: String(form.get("edit_note") ?? "").trim().slice(0, 300),
   };
   const supabase = await createClient();
   const { error } = await supabase.rpc("save_content", { p_id: id, p });
