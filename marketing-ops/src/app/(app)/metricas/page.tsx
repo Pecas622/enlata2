@@ -76,7 +76,10 @@ export default async function MetricasPage({ searchParams }: { searchParams: Pro
 
   return (
     <>
-      <PageHeader title="Métricas" subtitle="Cómo les fue a las piezas publicadas, qué funcionó y qué conviene repetir." />
+      <PageHeader
+        title="Métricas" subtitle="Cómo les fue a las piezas publicadas, qué funcionó y qué conviene repetir."
+        action={<Link className="btn btn-primary" href={`/reporte${link({}).replace("/metricas", "")}`} data-testid="met-report">Reporte para el cliente</Link>}
+      />
       <div className="cal-toolbar">
         <div className="cal-nav">
           <Link className="btn btn-secondary cal-arrow" href={link({ mes: shiftMonth(viewMonth, -1) })} aria-label="Mes anterior" data-testid="met-prev">‹</Link>
