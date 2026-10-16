@@ -9,7 +9,7 @@ type BrandOpt = { id: string; name: string; color: string };
 
 export type IdeaInit = { id: string; title: string; brandId: string; channel: Channel; format: Format; goal: string; topic: string; regen?: boolean };
 
-export type CampaignInit = { id: string; name: string; brandId: string; goal: string; offer: string };
+export type CampaignInit = { id: string; name: string; brandId: string; goal: string; offer: string; product: string };
 
 export function GenerateForm({ brands, initialBrand, initialFormat, initialChannel, initialGoal, initialTopic, idea, campaign, aiEnabled }: {
   brands: BrandOpt[]; initialBrand?: string; initialFormat?: Format; initialChannel?: Channel; initialGoal?: string; initialTopic?: string; idea?: IdeaInit; campaign?: CampaignInit; aiEnabled: boolean;
@@ -19,7 +19,8 @@ export function GenerateForm({ brands, initialBrand, initialFormat, initialChann
     channel: idea?.channel ?? initialChannel ?? "Instagram",
     format: idea?.format ?? initialFormat ?? "Post",
     goal: idea?.goal ?? campaign?.goal ?? initialGoal ?? "Vender",
-    topic: idea?.topic ?? campaign?.name ?? initialTopic ?? "",
+    // En una campaña se habla de lo que promociona, no de su nombre.
+    topic: idea?.topic ?? campaign?.product ?? initialTopic ?? "",
     offer: campaign?.offer ?? "",
     extra: "",
     seed: 0,

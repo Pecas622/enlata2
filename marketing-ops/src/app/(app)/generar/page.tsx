@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/ui";
+import { splitList } from "@/lib/campaigns";
 import { getCampaign, listBrands } from "@/lib/data";
 import { createClient } from "@/lib/supabase/server";
 import { requireSection } from "@/lib/guard";
@@ -22,7 +23,9 @@ export default async function GenerarPage({ searchParams }: { searchParams: Prom
   let campaign: CampaignInit | undefined;
   if (campana && !idea) {
     const c = await getCampaign(campana);
-    if (c) campaign = { id: c.id, name: c.name, brandId: c.brand_id, goal: c.goal, offer: c.offer };
+    // Sin producto cargado en la campaña, arranca con el primero de la marca (se puede cambiar antes de generar).
+    const firstProduct = splitList(brands.find((b) => b.id === c?.brand_id)?.products ?? "")[0] ?? "";
+    if (c) campaign = { id: c.id, name: c.name, brandId: c.brand_id, goal: c.goal, offer: c.offer, product: c.product.trim() || firstProduct };
   }
   const initialFormat = (FORMATS as readonly string[]).includes(formato ?? "") ? (formato as Format) : undefined;
   // Una idea de la investigación llega con red, objetivo y tema en la URL.

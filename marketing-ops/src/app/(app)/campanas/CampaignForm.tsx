@@ -5,8 +5,8 @@ import { GOALS } from "@/lib/channels";
 import type { CampaignRow } from "@/lib/data";
 import { saveCampaign, type CampaignState } from "./actions";
 
-export function CampaignForm({ campaign, brands, initialBrand, canEdit, today }: {
-  campaign?: CampaignRow; brands: { id: string; name: string }[]; initialBrand?: string; canEdit: boolean; today: string;
+export function CampaignForm({ campaign, brands, products, initialBrand, canEdit, today }: {
+  campaign?: CampaignRow; brands: { id: string; name: string }[]; products: string[]; initialBrand?: string; canEdit: boolean; today: string;
 }) {
   const [state, action, pending] = useActionState<CampaignState, FormData>(saveCampaign, {});
   const c = campaign;
@@ -50,6 +50,19 @@ export function CampaignForm({ campaign, brands, initialBrand, canEdit, today }:
             <label className="field">
               Presupuesto de pauta (pesos)
               <input className="input" name="budget" inputMode="numeric" defaultValue={c && c.budget ? String(c.budget) : ""} placeholder="60000" data-testid="camp-budget" />
+            </label>
+          </div>
+          <div className="row">
+            <label className="field">
+              Qué promociona
+              <input className="input" name="product" list="camp-products" defaultValue={c?.product} placeholder={products[0] ?? "El producto o servicio de la campaña"} data-testid="camp-product" />
+              <datalist id="camp-products">{products.map((p) => <option key={p} value={p} />)}</datalist>
+              <span className="hint">Un producto o servicio de la marca. Los anuncios hablan de esto, no del nombre de la campaña.</span>
+            </label>
+            <label className="field">
+              Página de destino
+              <input className="input" name="link" type="url" defaultValue={c?.link} placeholder="https://tumarca.com/promo" data-testid="camp-link" />
+              <span className="hint">A dónde lleva el anuncio. Si la dejás vacía, se usa la web de la marca.</span>
             </label>
           </div>
           <label className="field">

@@ -46,6 +46,19 @@ describe("campañas", () => {
     const { error: e2 } = await c.rpc("save_campaign", { p_id: null, p: { ...base, budget: "-5" } });
     expect(e2?.message).toContain("no puede ser negativo");
   });
+
+  it("guarda qué promociona y la página de destino, que tiene que ser una dirección web", async () => {
+    const c = await as("creador");
+    const { error: bad } = await c.rpc("save_campaign", { p_id: null, p: { ...base, link: "mi web" } });
+    expect(bad?.message).toContain("tiene que empezar con https://");
+    const { data: id, error } = await c.rpc("save_campaign", { p_id: null, p: { ...base, product: "Tortas por encargo", link: "https://laespiga.com.ar/tortas" } });
+    expect(error).toBeNull();
+    created.campaigns.push(id as string);
+    // Editar sin mandar los campos nuevos (una versión anterior del formulario) no los borra.
+    expect((await c.rpc("save_campaign", { p_id: id, p: { ...base, name: "Con página" } })).error).toBeNull();
+    const { data } = await service().from("campaigns").select("product, link").eq("id", id).single();
+    expect(data).toEqual({ product: "Tortas por encargo", link: "https://laespiga.com.ar/tortas" });
+  });
 });
 
 describe("piezas de una campaña", () => {

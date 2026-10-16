@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge, Notice } from "@/components/ui";
-import { briefText, buildBrief, campaignStatus, fmtARS, progress, statusTone } from "@/lib/campaigns";
+import { briefText, buildBrief, splitList, campaignStatus, fmtARS, progress, statusTone } from "@/lib/campaigns";
 import { getBrand, getCampaign, listContents, listResults } from "@/lib/data";
 import { fmtInt, fmtPct, rates, sum } from "@/lib/metrics";
 import { fmtDate, fmtDateTime, localDay } from "@/lib/dates";
@@ -54,6 +54,7 @@ export default async function CampanaPage({ params, searchParams }: { params: Pr
         </div>
         {perms.create && (
           <div className="page-action">
+            <Link className="btn btn-secondary" href={`/contenidos/nueva?campana=${c.id}`} data-testid="camp-own">Cargar pieza propia</Link>
             <Link className="btn btn-secondary" href={`${generateHref}&formato=Anuncio`} data-testid="camp-generate-ad">Generar anuncio</Link>
             <Link className="btn btn-primary" href={generateHref} data-testid="camp-generate">Generar pieza</Link>
           </div>
@@ -88,7 +89,7 @@ export default async function CampanaPage({ params, searchParams }: { params: Pr
               )}
             </div>
           )}
-          <CampaignForm campaign={c} brands={[]} canEdit={perms.create} today={today} />
+          <CampaignForm campaign={c} brands={[]} products={splitList(brand.products)} canEdit={perms.create} today={today} />
           <div className="card">
             <h2 className="card-title">Historial</h2>
             <div className="timeline" data-testid="camp-history">

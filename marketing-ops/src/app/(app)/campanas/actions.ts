@@ -17,9 +17,11 @@ export async function saveCampaign(_prev: CampaignState, form: FormData): Promis
   if (!(GOALS as readonly string[]).includes(goal)) return { error: "Elegí el objetivo." };
   const budget = s("budget").replace(/\./g, "").replace(",", ".");
   if (budget && !/^\d+(\.\d+)?$/.test(budget)) return { error: "El presupuesto tiene que ser un número, en pesos." };
+  const link = s("link");
+  if (link && !/^https?:\/\/\S+$/i.test(link)) return { error: "La página de destino tiene que empezar con https://" };
   const p = {
     brand_id: s("brand_id"), name: s("name"), goal, starts_on: s("starts_on"), ends_on: s("ends_on"), budget: budget || "0",
-    offer: s("offer"), audience: s("audience"), locations: s("locations"), age_min: s("age_min"), age_max: s("age_max"),
+    offer: s("offer"), product: s("product"), link, audience: s("audience"), locations: s("locations"), age_min: s("age_min"), age_max: s("age_max"),
     interests: s("interests"), notes: s("notes"),
   };
   const supabase = await createClient();

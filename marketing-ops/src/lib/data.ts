@@ -68,6 +68,8 @@ export type CampaignRow = {
   ends_on: string;
   budget: number;
   offer: string;
+  product: string;
+  link: string;
   audience: string;
   locations: string;
   age_min: number;
@@ -78,7 +80,7 @@ export type CampaignRow = {
   brands: { name: string; color: string } | null;
 };
 
-export const CAMPAIGN_COLS = "id, brand_id, name, goal, starts_on, ends_on, budget, offer, audience, locations, age_min, age_max, interests, notes, updated_at, brands(name, color)";
+export const CAMPAIGN_COLS = "id, brand_id, name, goal, starts_on, ends_on, budget, offer, product, link, audience, locations, age_min, age_max, interests, notes, updated_at, brands(name, color)";
 
 // numeric llega como texto desde PostgREST.
 const asCampaign = (r: Record<string, unknown>) => ({ ...r, budget: Number(r.budget) }) as unknown as CampaignRow;

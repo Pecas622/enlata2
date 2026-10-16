@@ -27,6 +27,7 @@ export type BrandCtx = {
   website: string;
   instagram: string;
   whatsapp: string;
+  market?: string; // dónde vende: si es más amplio que la ciudad, las piezas no la nombran
 };
 
 export type GenRequest = {
@@ -158,14 +159,23 @@ export function hashtagsFor(brand: Pick<BrandCtx, "hashtags">, req: Pick<GenRequ
 
 function context(brand: BrandCtx, req: GenRequest): Ctx {
   const topic = cap(req.topic.trim() || list(brand.products)[0] || brand.name);
+  const city = brand.city.split(",")[0].trim();
+  // Un producto que lleva el nombre de la marca es nombre propio: no se baja a minúscula.
+  const proper = Boolean(brand.name.trim()) && topic.toLowerCase().startsWith(brand.name.trim().toLowerCase());
   return {
     topic,
-    topicLow: lower(topic),
+    topicLow: proper ? topic : lower(topic),
     brand: brand.name,
-    city: brand.city.split(",")[0].trim(),
+    city: localTo(brand, city) ? city : "",
     value: brand.value_prop.trim().replace(/[.]$/, ""),
     offer: (req.offer ?? "").trim().replace(/[.]$/, ""),
   };
+}
+
+// La marca vende en su ciudad salvo que el mercado diga otra cosa ("Todo el país", "Latinoamérica").
+function localTo(brand: Pick<BrandCtx, "market">, city: string) {
+  const market = (brand.market ?? "").trim().toLowerCase();
+  return Boolean(city) && (!market || market.includes(city.toLowerCase()));
 }
 
 function middle(brand: BrandCtx, req: GenRequest, c: Ctx, i: number): string[] {

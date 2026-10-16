@@ -118,7 +118,7 @@ Valores fijos (enums): roles `Administrador`, `Creador` y `Revisor`; estados `Id
 | `set_content_status(id, estado, nota)` | Mueve una pieza en el circuito según `can_move`. Pedir cambios la vuelve a Borrador con una nota. | Según el paso: el Creador manda a revisión y publica lo aprobado; el Revisor aprueba o pide cambios; el Administrador hace todo |
 | `schedule_content(id, día)` | Cambia la pieza de día o la saca del calendario sin tocar su estado: una aprobada sigue aprobada. | Administrador y Creador |
 | `add_plan_ideas(marca, ideas)` | Guarda las ideas del plan del mes en una sola transacción: si una está mal, no se guarda ninguna. | Administrador y Creador |
-| `save_campaign(id, datos)` | Crea o edita una campaña. Valida fechas y presupuesto. La marca no se cambia después. | Administrador y Creador |
+| `save_campaign(id, datos)` | Crea o edita una campaña. Valida fechas, presupuesto y la página de destino. La marca no se cambia después. | Administrador y Creador |
 | `set_content_campaign(pieza, campaña)` | Suma o saca una pieza de una campaña. Tienen que ser de la misma marca. | Administrador y Creador |
 | `save_results(pieza, datos)` | Carga o corrige los resultados de una pieza publicada. Valida que sean números enteros y no negativos. | Administrador y Creador |
 | `save_research(marca, datos)` | Guarda una investigación ya validada en el servidor. | Administrador y Creador |
@@ -170,3 +170,4 @@ Funciones de apoyo: `current_workspace_id()`, `current_app_role()`, `is_admin()`
 | `20261022000000_publicaciones.sql` | 9 | `publications`, programar, cancelar y el publicador (solo con la clave de servicio); la publicación se mueve con la pieza en el calendario. |
 | `20261023000000_editar_con_ia.sql` | 10 | La acción con IA "editar" en `use_ai` y `ai_usage`; `save_content` deja en el historial "Editada con IA" o "Editada automáticamente" con el pedido. |
 | `20261024000000_video_con_ia.sql` | 11 | La acción con IA "video" en `use_ai` y `ai_usage` (el plan de edición de video). |
+| `20261025000000_campana_destino.sql` | 3 | `campaigns.product` (qué promociona) y `campaigns.link` (la página de destino del anuncio); `save_campaign` los guarda y valida que la página sea una dirección web. |

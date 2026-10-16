@@ -64,3 +64,37 @@ test("el Revisor ve la campaña y su brief pero no la edita", async ({ page }) =
   await page.goto("/campanas/nueva");
   await expect(page).toHaveURL(/\/campanas$/);
 });
+
+test("un lanzamiento con página propia lleva tráfico ahí, y una pieza propia entra a la campaña sin IA", async ({ page }) => {
+  const name = `Abrimos el local ${Date.now()}`;
+  await login(page, "creador");
+  await page.goto("/campanas/nueva");
+  await page.getByTestId("camp-brand").selectOption({ label: "La Espiga" });
+  await page.getByTestId("camp-name").fill(name);
+  await page.getByTestId("camp-goal").selectOption("Lanzamiento");
+  await page.getByTestId("camp-starts").fill(today);
+  await page.getByTestId("camp-ends").fill(addDays(today, 6));
+  await page.getByTestId("camp-product").fill("Pan de masa madre");
+  await page.getByTestId("camp-link").fill("https://laespiga.com.ar/local");
+  await page.getByTestId("camp-save").click();
+  await page.waitForURL(/\/campanas\/[0-9a-f-]+\?nueva=1/);
+  const url = page.url().replace(/\?.*$/, "");
+  await expect(page.getByTestId("brief-objective")).toHaveText("Tráfico");
+  await expect(page.getByTestId("brief")).toContainText("https://laespiga.com.ar/local");
+  await expect(page.getByTestId("brief-ad").first()).toContainText("Pan de masa madre");
+  await expect(page.getByTestId("brief-ad").first()).not.toContainText(name);
+
+  await page.getByTestId("camp-own").click();
+  await expect(page.getByTestId("own-campaign").locator("option:checked")).toHaveText(name);
+  await page.getByTestId("own-format-Anuncio").click();
+  await expect(page.getByTestId("own-body")).toHaveValue(/^Texto principal: /);
+  await page.getByTestId("own-title").fill("Anuncio del local nuevo");
+  await page.getByTestId("own-body").fill("Texto principal: Abrimos en Godoy Cruz con pan de masa madre.\nTítulo: Pan recién salido\nDescripción: La Espiga\nBotón: Más información");
+  await page.getByTestId("own-save").click();
+  await page.waitForURL(/\/contenidos\/[0-9a-f-]+\?nueva=1/);
+  await expect(page.getByTestId("content-campaign").locator("option:checked")).toHaveText(name);
+
+  await page.goto(url);
+  await expect(page.getByTestId("camp-piece")).toHaveCount(1);
+  await expect(page.getByTestId("brief-ad").first()).toContainText("Abrimos en Godoy Cruz con pan de masa madre.");
+});

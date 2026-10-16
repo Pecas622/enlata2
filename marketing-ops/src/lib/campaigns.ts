@@ -12,6 +12,8 @@ export type CampaignCore = {
   ends_on: string;
   budget: number;
   offer: string;
+  product: string; // qué promociona: un producto o servicio de la marca
+  link: string; // la página a la que lleva el anuncio
   audience: string;
   locations: string;
   age_min: number;
@@ -57,25 +59,30 @@ export function progress(pieces: Pick<PieceLite, "status">[]) {
 export type MetaObjective = { objective: string; destination: string; button: string; why: string };
 
 // Objetivo de Meta sugerido según el objetivo de la campaña y por dónde vende la marca (web o WhatsApp).
-export function metaObjective(goal: Goal, brand: Pick<BrandCtx, "website" | "whatsapp">): MetaObjective {
-  const web = Boolean(brand.website.trim());
+// La página de la campaña, si tiene, gana sobre la web de la marca.
+export function metaObjective(goal: Goal, brand: Pick<BrandCtx, "website" | "whatsapp">, link = ""): MetaObjective {
+  const url = link.trim() || brand.website.trim();
+  const web = Boolean(url);
   const wa = Boolean(brand.whatsapp.trim());
   const toChat = { destination: wa ? "Apps de mensajes: WhatsApp" : "Messenger e Instagram Direct", button: "Enviar mensaje" };
   switch (goal) {
     case "Vender":
     case "Promoción":
       return web
-        ? { objective: "Ventas", destination: `Sitio web (${brand.website.trim()})`, button: "Comprar", why: "Meta muestra el anuncio a quienes tienen más chances de comprar." }
+        ? { objective: "Ventas", destination: `Sitio web (${url})`, button: "Comprar", why: "Meta muestra el anuncio a quienes tienen más chances de comprar." }
         : { objective: "Interacción", ...toChat, why: "Sin tienda online, la venta se cierra por mensaje: el anuncio abre el chat." };
     case "Conseguir consultas":
       return { objective: "Clientes potenciales", ...toChat, why: "Busca personas que escriban para consultar." };
     case "Lanzamiento":
-      return { objective: "Reconocimiento", destination: "Alcance (que lo vea la mayor cantidad de gente de la zona)", button: "Más información", why: "Para una novedad importa que la vean muchos, no el clic." };
+      // Con una página propia, el lanzamiento busca que la visiten; sin página, que la novedad la vea mucha gente.
+      return link.trim()
+        ? { objective: "Tráfico", destination: `Sitio web (${url})`, button: "Más información", why: "Lleva a la página del lanzamiento a quienes tienen más chances de entrar." }
+        : { objective: "Reconocimiento", destination: "Alcance (que lo vea la mayor cantidad de gente de tu público)", button: "Más información", why: "Para una novedad importa que la vean muchos, no el clic." };
     case "Comunidad":
       return { objective: "Interacción", destination: "Interacción con la publicación", button: "Más información", why: "Suma comentarios, guardados y seguidores." };
     case "Educar":
       return web
-        ? { objective: "Tráfico", destination: `Sitio web (${brand.website.trim()})`, button: "Más información", why: "Lleva gente a leer más en la web." }
+        ? { objective: "Tráfico", destination: `Sitio web (${url})`, button: "Más información", why: "Lleva gente a leer más en la web." }
         : { objective: "Interacción", destination: "Interacción con la publicación", button: "Más información", why: "Que la guarden y la compartan." };
   }
 }
@@ -89,7 +96,7 @@ export function placements(formats: Format[]): string[] {
   return out.length ? out : ["Ubicaciones automáticas (Advantage+)"];
 }
 
-const splitList = (s: string) => s.split(/[,;\n]+/).map((x) => x.trim()).filter(Boolean);
+export const splitList = (s: string) => s.split(/[,;\n]+/).map((x) => x.trim()).filter(Boolean);
 
 export type AdCopy = { primary: string; title: string; description: string; button: string; source: "pieza" | "plantilla"; warnings: string[] };
 
@@ -119,14 +126,15 @@ export type Brief = {
 };
 
 export function buildBrief(c: CampaignCore, brand: BrandCtx, pieces: PieceLite[]): Brief {
-  const objective = metaObjective(c.goal, brand);
+  const objective = metaObjective(c.goal, brand, c.link);
   const fromPieces = pieces
     .filter((p) => p.format === "Anuncio" && p.status !== "Idea")
     .map((p) => parseAd(p.body))
     .filter((a): a is NonNullable<typeof a> => a !== null)
     .map((a) => ({ ...a, button: a.button || objective.button, source: "pieza" as const, warnings: [] }));
   // Sin anuncios escritos, se proponen con las plantillas (los mismos datos de la marca y la oferta de la campaña).
-  const req = { channel: "Instagram" as const, format: "Anuncio" as const, goal: c.goal, topic: c.name, offer: c.offer };
+  // Hablan de lo que promociona la campaña, nunca de su nombre ("Abrimos la lata" no es un producto).
+  const req = { channel: "Instagram" as const, format: "Anuncio" as const, goal: c.goal, topic: c.product.trim(), offer: c.offer };
   const ads: AdCopy[] = fromPieces.length
     ? fromPieces
     : generateVariants(brand, req, 0).flatMap((v) => {
@@ -145,7 +153,7 @@ export function buildBrief(c: CampaignCore, brand: BrandCtx, pieces: PieceLite[]
     days: campaignDays(c),
     budget: c.budget,
     daily: dailyBudget(c),
-    locations: c.locations.trim() || brand.city,
+    locations: c.locations.trim() || brand.market?.trim() || brand.city,
     locationsSuggested: !c.locations.trim(),
     ages: `${c.age_min} a ${c.age_max === 65 ? "65 o más" : c.age_max} años`,
     audience: c.audience.trim() || brand.audience,
